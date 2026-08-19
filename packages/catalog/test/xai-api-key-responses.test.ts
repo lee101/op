@@ -2,11 +2,11 @@ import { describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { resolveProviderModels } from "@oh-my-pi/pi-catalog/model-manager";
-import { getBundledModels } from "@oh-my-pi/pi-catalog/models";
-import { CATALOG_PROVIDERS, DEFAULT_MODEL_PER_PROVIDER } from "@oh-my-pi/pi-catalog/provider-models/descriptors";
-import { xaiModelManagerOptions } from "@oh-my-pi/pi-catalog/provider-models/openai-compat";
-import type { ModelSpec } from "@oh-my-pi/pi-catalog/types";
+import { resolveProviderModels } from "@openpaths/catalog/model-manager";
+import { getBundledModels } from "@openpaths/catalog/models";
+import { CATALOG_PROVIDERS, DEFAULT_MODEL_PER_PROVIDER } from "@openpaths/catalog/provider-models/descriptors";
+import { xaiModelManagerOptions } from "@openpaths/catalog/provider-models/openai-compat";
+import type { ModelSpec } from "@openpaths/catalog/types";
 
 const XAI_RESPONSES_SPEC: ModelSpec<"openai-responses"> = {
 	id: "grok-4.5",

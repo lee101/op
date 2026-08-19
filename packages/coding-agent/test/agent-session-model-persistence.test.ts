@@ -1,18 +1,18 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
 import * as path from "node:path";
-import { Agent } from "@oh-my-pi/pi-agent-core";
-import { type Api, type AssistantMessage, Effort, type Model } from "@oh-my-pi/pi-ai";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { type CreateAgentSessionResult, createAgentSession } from "@oh-my-pi/pi-coding-agent/sdk";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { getRestorableSessionModels } from "@oh-my-pi/pi-coding-agent/session/session-context";
-import { EPHEMERAL_MODEL_CHANGE_ROLE } from "@oh-my-pi/pi-coding-agent/session/session-entries";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { AUTO_THINKING } from "@oh-my-pi/pi-coding-agent/thinking";
-import { TempDir } from "@oh-my-pi/pi-utils";
+import { Agent } from "@openpaths/agent-core";
+import { type Api, type AssistantMessage, Effort, type Model } from "@openpaths/ai";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { type CreateAgentSessionResult, createAgentSession } from "@openpaths/coding-agent/sdk";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { getRestorableSessionModels } from "@openpaths/coding-agent/session/session-context";
+import { EPHEMERAL_MODEL_CHANGE_ROLE } from "@openpaths/coding-agent/session/session-entries";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { AUTO_THINKING } from "@openpaths/coding-agent/thinking";
+import { TempDir } from "@openpaths/utils";
 
 describe("AgentSession model persistence", () => {
 	let tempDir: TempDir;
@@ -473,7 +473,7 @@ describe("AgentSession model persistence", () => {
 			role: "assistant",
 			content: [],
 			stopReason: "aborted",
-			errorMessage: "Previous OMP process exited before completing the turn.",
+			errorMessage: "Previous OP process exited before completing the turn.",
 		});
 		expect(
 			messages.some(

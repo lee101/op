@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { buildOpenAICompat } from "@oh-my-pi/pi-catalog/compat/openai";
-import type { ModelSpec } from "@oh-my-pi/pi-catalog/types";
+import { buildOpenAICompat } from "@openpaths/catalog/compat/openai";
+import type { ModelSpec } from "@openpaths/catalog/types";
 
 /**
  * Google AI Studio's OpenAI-compatible endpoint

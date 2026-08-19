@@ -6,7 +6,7 @@
  * script, and the runner's TSV/Base64 wire protocol.
  */
 import * as path from "node:path";
-import { $flag, Snowflake } from "@oh-my-pi/pi-utils";
+import { $flag, Snowflake } from "@openpaths/utils";
 import { $ } from "bun";
 import { Settings } from "../../config/settings";
 import { BaseKernel, getRemainingTimeMs, type KernelStartOptions } from "../kernel-base";
@@ -162,7 +162,7 @@ export class JuliaKernel extends BaseKernel<KernelExecuteOptions> {
 			if (typeof value === "string") spawnEnv[key] = value;
 		}
 
-		const scriptPath = await stageRunnerScript("omp-julia-runner", "jl", RUNNER_SCRIPT);
+		const scriptPath = await stageRunnerScript("op-julia-runner", "jl", RUNNER_SCRIPT);
 		const kernel = new JuliaKernel(Snowflake.next());
 
 		const proc = Bun.spawn(

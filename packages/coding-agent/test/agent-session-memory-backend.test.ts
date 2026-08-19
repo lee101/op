@@ -1,17 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as path from "node:path";
-import { type } from "@oh-my-pi/omptype";
-import { Agent, type AgentTool } from "@oh-my-pi/pi-agent-core";
-import { createMockModel } from "@oh-my-pi/pi-ai/providers/mock";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { getMnemopiSessionState } from "@oh-my-pi/pi-coding-agent/mnemopi/state";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import type { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { resetMemoryForTests } from "@oh-my-pi/pi-mnemopi";
-import { TempDir } from "@oh-my-pi/pi-utils";
+import { type } from "@openpaths/optype";
+import { Agent, type AgentTool } from "@openpaths/agent-core";
+import { createMockModel } from "@openpaths/ai/providers/mock";
+import { buildModel } from "@openpaths/catalog/build";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { getMnemopiSessionState } from "@openpaths/coding-agent/mnemopi/state";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { resetMemoryForTests } from "@openpaths/mnemopi";
+import { TempDir } from "@openpaths/utils";
 import { createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 
 function createTool(name: string): AgentTool {

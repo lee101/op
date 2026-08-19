@@ -3,15 +3,15 @@ import { describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { isOfficialAnthropicApiUrl } from "@oh-my-pi/pi-catalog/compat/anthropic";
-import { buildOpenAICompat, buildOpenAIResponsesCompat } from "@oh-my-pi/pi-catalog/compat/openai";
-import { Effort } from "@oh-my-pi/pi-catalog/effort";
-import { readModelCache, writeModelCache } from "@oh-my-pi/pi-catalog/model-cache";
-import { resolveProviderModels } from "@oh-my-pi/pi-catalog/model-manager";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { openrouterModelManagerOptions } from "@oh-my-pi/pi-catalog/provider-models/openai-compat";
-import type { Model, ModelSpec } from "@oh-my-pi/pi-catalog/types";
+import { buildModel } from "@openpaths/catalog/build";
+import { isOfficialAnthropicApiUrl } from "@openpaths/catalog/compat/anthropic";
+import { buildOpenAICompat, buildOpenAIResponsesCompat } from "@openpaths/catalog/compat/openai";
+import { Effort } from "@openpaths/catalog/effort";
+import { readModelCache, writeModelCache } from "@openpaths/catalog/model-cache";
+import { resolveProviderModels } from "@openpaths/catalog/model-manager";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { openrouterModelManagerOptions } from "@openpaths/catalog/provider-models/openai-compat";
+import type { Model, ModelSpec } from "@openpaths/catalog/types";
 
 function completionsSpec(overrides: Partial<ModelSpec<"openai-completions">> = {}): ModelSpec<"openai-completions"> {
 	return {

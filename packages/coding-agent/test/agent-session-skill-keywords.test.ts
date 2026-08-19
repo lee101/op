@@ -1,21 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as path from "node:path";
-import { type } from "@oh-my-pi/omptype";
-import { Agent, type AgentTool } from "@oh-my-pi/pi-agent-core";
-import { AssistantMessageEventStream } from "@oh-my-pi/pi-ai/utils/event-stream";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { WORKFLOW_NOTICE } from "@oh-my-pi/pi-coding-agent/modes/workflow";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
+import { type } from "@openpaths/optype";
+import { Agent, type AgentTool } from "@openpaths/agent-core";
+import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { WORKFLOW_NOTICE } from "@openpaths/coding-agent/modes/workflow";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import {
 	convertToLlm,
 	SKILL_PROMPT_MESSAGE_TYPE,
 	type SkillPromptDetails,
-} from "@oh-my-pi/pi-coding-agent/session/messages";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { TempDir } from "@oh-my-pi/pi-utils";
+} from "@openpaths/coding-agent/session/messages";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { TempDir } from "@openpaths/utils";
 import { createAssistantMessage } from "./helpers/agent-session-setup";
 
 type ObservedSkillTurn = {

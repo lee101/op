@@ -5,7 +5,7 @@ import {
 	type AgentTool,
 	AppendOnlyContextManager,
 	type StreamFn,
-} from "@oh-my-pi/pi-agent-core";
+} from "@openpaths/agent-core";
 import {
 	type Api,
 	type Context,
@@ -17,21 +17,21 @@ import {
 	registerCustomApi,
 	type SimpleStreamOptions,
 	type TextContent,
-} from "@oh-my-pi/pi-ai";
-import { AssistantMessageEventStream } from "@oh-my-pi/pi-ai/utils/event-stream";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import * as memoryBackend from "@oh-my-pi/pi-coding-agent/memory-backend";
-import type { MemoryBackend } from "@oh-my-pi/pi-coding-agent/memory-backend/types";
-import { type MnemopiSessionState, setMnemopiSessionState } from "@oh-my-pi/pi-coding-agent/mnemopi/state";
-import { createAgentSession, type ExtensionContext, type ExtensionFactory } from "@oh-my-pi/pi-coding-agent/sdk";
-import { obfuscateProviderContext, SecretObfuscator } from "@oh-my-pi/pi-coding-agent/secrets";
-import { AgentSession, type AgentSessionEvent } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { convertToLlm, wrapSteeringForModel } from "@oh-my-pi/pi-coding-agent/session/messages";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { TempDir } from "@oh-my-pi/pi-utils";
+} from "@openpaths/ai";
+import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
+import { buildModel } from "@openpaths/catalog/build";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import * as memoryBackend from "@openpaths/coding-agent/memory-backend";
+import type { MemoryBackend } from "@openpaths/coding-agent/memory-backend/types";
+import { type MnemopiSessionState, setMnemopiSessionState } from "@openpaths/coding-agent/mnemopi/state";
+import { createAgentSession, type ExtensionContext, type ExtensionFactory } from "@openpaths/coding-agent/sdk";
+import { obfuscateProviderContext, SecretObfuscator } from "@openpaths/coding-agent/secrets";
+import { AgentSession, type AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { convertToLlm, wrapSteeringForModel } from "@openpaths/coding-agent/session/messages";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { TempDir } from "@openpaths/utils";
 import { createAssistantMessage } from "./helpers/agent-session-setup";
 
 function createAgent(): Agent {

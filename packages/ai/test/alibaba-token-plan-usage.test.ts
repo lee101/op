@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import type { FetchImpl } from "@oh-my-pi/pi-ai/types";
-import type { UsageFetchParams } from "@oh-my-pi/pi-ai/usage";
+import type { FetchImpl } from "@openpaths/ai/types";
+import type { UsageFetchParams } from "@openpaths/ai/usage";
 import {
 	alibabaTokenPlanRankingStrategy,
 	alibabaTokenPlanUsageProvider,
-} from "@oh-my-pi/pi-ai/usage/alibaba-token-plan";
+} from "@openpaths/ai/usage/alibaba-token-plan";
 import {
 	ALIBABA_TOKEN_PLAN_CN_BASE_URL,
 	serializeAlibabaTokenPlanCredential,
-} from "@oh-my-pi/pi-catalog/wire/alibaba-token-plan";
+} from "@openpaths/catalog/wire/alibaba-token-plan";
 
 function params(apiKey: string): UsageFetchParams {
 	return {

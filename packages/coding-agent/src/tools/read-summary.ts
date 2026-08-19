@@ -1,6 +1,6 @@
 import * as path from "node:path";
-import { type SummaryResult, summarizeCode } from "@oh-my-pi/pi-natives";
-import { LRUCache } from "@oh-my-pi/pi-utils/lru";
+import { type SummaryResult, summarizeCode } from "@openpaths/natives";
+import { LRUCache } from "@openpaths/utils/lru";
 import { isMarkdownPath } from "../modes/theme/theme";
 import type { ToolSession } from "../sdk";
 import { resolveFileDisplayMode } from "../utils/file-display-mode";

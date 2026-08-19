@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { streamBedrock } from "@oh-my-pi/pi-ai/providers/amazon-bedrock";
-import { crc32 } from "@oh-my-pi/pi-ai/providers/aws-eventstream";
-import type { Context, FetchImpl, Model } from "@oh-my-pi/pi-ai/types";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
+import { streamBedrock } from "@openpaths/ai/providers/amazon-bedrock";
+import { crc32 } from "@openpaths/ai/providers/aws-eventstream";
+import type { Context, FetchImpl, Model } from "@openpaths/ai/types";
+import { buildModel } from "@openpaths/catalog/build";
 
 // Caller headers (including `before_provider_headers` extension edits) reach the
 // Bedrock request, but SigV4's own headers must never come from the caller:

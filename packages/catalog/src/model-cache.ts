@@ -3,7 +3,7 @@
  * Replaces per-provider JSON files with a single cache.db.
  */
 import { Database } from "bun:sqlite";
-import { getModelDbPath } from "@oh-my-pi/pi-utils";
+import { getModelDbPath } from "@openpaths/utils";
 import type { Api, Model, ModelSpec } from "./types";
 
 // Rows persist ModelSpec JSON (sparse `compat`, never the resolved record);
@@ -67,7 +67,7 @@ let sharedDbPath: string | null = null;
 function openDb(resolvedPath: string): Database {
 	const db = new Database(resolvedPath, { create: true });
 	// Install the busy handler BEFORE any lock-taking statement. See
-	// https://github.com/can1357/oh-my-pi/issues/2421.
+	// https://github.com/lee101/op/issues/2421.
 	db.run("PRAGMA busy_timeout = 3000");
 	// Schema invalidation can delete rows containing credentials written by old
 	// versions. Overwrite deleted SQLite cells instead of leaving their bytes in

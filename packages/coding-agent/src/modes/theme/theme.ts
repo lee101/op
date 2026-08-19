@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { detectMacOSAppearance, MacAppearanceObserver } from "@oh-my-pi/pi-natives";
-import type { Terminal, TerminalAppearance } from "@oh-my-pi/pi-tui";
-import { colorLuma, getCustomThemesDir, logger } from "@oh-my-pi/pi-utils";
+import { detectMacOSAppearance, MacAppearanceObserver } from "@openpaths/natives";
+import type { Terminal, TerminalAppearance } from "@openpaths/tui";
+import { colorLuma, getCustomThemesDir, logger } from "@openpaths/utils";
 import { ansi256ToHex, resolveThemeColors, resolveVarRefs } from "./color";
 import { type CreateThemeOptions, getBuiltinThemes, loadTheme, loadThemeJson } from "./loader";
 import type { ThemeColor, ThemeJson } from "./schema";

@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { IrcBus } from "@oh-my-pi/pi-coding-agent/irc/bus";
-import { AgentLifecycleManager } from "@oh-my-pi/pi-coding-agent/registry/agent-lifecycle";
-import { AgentRegistry } from "@oh-my-pi/pi-coding-agent/registry/agent-registry";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
-import { HubTool } from "@oh-my-pi/pi-coding-agent/tools/hub";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { IrcBus } from "@openpaths/coding-agent/irc/bus";
+import { AgentLifecycleManager } from "@openpaths/coding-agent/registry/agent-lifecycle";
+import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
+import { HubTool } from "@openpaths/coding-agent/tools/hub";
 
 // Contract: the work-aware roster (`irc list`) surfaces each peer's role
 // (via displayName) and current activity gist, and a peer with no activity

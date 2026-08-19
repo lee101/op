@@ -1,5 +1,5 @@
 {
-  description = "OMP coding agent and development environment";
+  description = "OP coding agent and development environment";
 
   nixConfig = {
     extra-substituters = [ "https://nix-community.cachix.org" ];
@@ -90,16 +90,16 @@
     {
       packages = forAllSystems (system: {
         default = packageFor system;
-        omp = packageFor system;
+        op = packageFor system;
       });
 
       apps = forAllSystems (system: {
         default = {
           type = "app";
-          program = "${self.packages.${system}.default}/bin/omp";
-          meta.description = "Run OMP";
+          program = "${self.packages.${system}.default}/bin/op";
+          meta.description = "Run OP";
         };
-        omp = self.apps.${system}.default;
+        op = self.apps.${system}.default;
       });
 
       devShells = forAllSystems (
@@ -132,8 +132,8 @@
               }
               self.homeManagerModules.default
               {
-                programs.omp.enable = true;
-                programs.omp.settings.startup.quiet = true;
+                programs.op.enable = true;
+                programs.op.settings.startup.quiet = true;
               }
             ];
           };
@@ -147,18 +147,18 @@
                 };
               }
               self.nixosModules.default
-              { programs.omp.enable = true; }
+              { programs.op.enable = true; }
             ];
           };
           modulesEvaluate =
             assert builtins.elem self.packages.${system}.default homeManagerEvaluation.config.home.packages;
-            assert homeManagerEvaluation.config.home.file ? ".omp/agent/config.yml";
+            assert homeManagerEvaluation.config.home.file ? ".op/agent/config.yml";
             assert builtins.elem self.packages.${system}.default
               nixosEvaluation.config.environment.systemPackages;
-            pkgs.runCommand "omp-module-evaluation" { } "touch $out";
+            pkgs.runCommand "op-module-evaluation" { } "touch $out";
         in
         {
-          bun-lock = pkgs.runCommand "omp-bun-lock" { nativeBuildInputs = [ pkgs.bun2nix ]; } ''
+          bun-lock = pkgs.runCommand "op-bun-lock" { nativeBuildInputs = [ pkgs.bun2nix ]; } ''
             cp -R ${self.outPath} source
             chmod -R u+w source
             cd source
@@ -168,19 +168,19 @@
             touch "$out"
           '';
           modules = modulesEvaluate;
-          omp = self.packages.${system}.default;
+          op = self.packages.${system}.default;
         }
       );
 
       formatter = forAllSystems (system: (pkgsFor system).nixfmt);
 
       overlays.default = _final: previous: {
-        omp = self.packages.${previous.stdenv.hostPlatform.system}.default;
+        op = self.packages.${previous.stdenv.hostPlatform.system}.default;
       };
 
       homeManagerModules.default = import ./nix/home-manager.nix { inherit self; };
-      homeManagerModules.omp = self.homeManagerModules.default;
+      homeManagerModules.op = self.homeManagerModules.default;
       nixosModules.default = import ./nix/nixos-module.nix { inherit self; };
-      nixosModules.omp = self.nixosModules.default;
+      nixosModules.op = self.nixosModules.default;
     };
 }

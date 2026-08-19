@@ -1,4 +1,4 @@
-import { extractRetryHint } from "@oh-my-pi/pi-utils";
+import { extractRetryHint } from "@openpaths/utils";
 
 /**
  * Rate limit reason classification and backoff calculation utilities.

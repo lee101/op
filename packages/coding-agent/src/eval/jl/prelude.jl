@@ -1,4 +1,4 @@
-# OMP Julia prelude helpers (loaded once into the runner's top-level scope).
+# OP Julia prelude helpers (loaded once into the runner's top-level scope).
 
 if !isdefined(Main, :__omp_prelude_loaded)
     global __omp_prelude_loaded = true
@@ -84,7 +84,7 @@ function __omp_emit_status(op::String, fields::AbstractDict=Dict{String, Any}())
     Main.emit_frame(Dict(
         "type" => "display",
         "id" => Main.current_rid,
-        "bundle" => Dict("application/x-omp-status" => status)
+        "bundle" => Dict("application/x-op-status" => status)
     ))
     return nothing
 end
@@ -114,7 +114,7 @@ function Base.read(path::AbstractString, offset::Integer=1, limit::Union{Integer
         "type" => "display",
         "id" => Main.current_rid,
         "bundle" => Dict(
-            "application/x-omp-status" => Dict(
+            "application/x-op-status" => Dict(
                 "op" => "read",
                 "path" => resolved,
                 "chars" => length(content),
@@ -136,7 +136,7 @@ function Base.write(path::AbstractString, content::Any)
         "type" => "display",
         "id" => Main.current_rid,
         "bundle" => Dict(
-            "application/x-omp-status" => Dict(
+            "application/x-op-status" => Dict(
                 "op" => "write",
                 "path" => resolved,
                 "chars" => length(string(content))
@@ -370,7 +370,7 @@ function env(key=nothing, value=nothing)
             "type" => "display",
             "id" => Main.current_rid,
             "bundle" => Dict(
-                "application/x-omp-status" => Dict(
+                "application/x-op-status" => Dict(
                     "op" => "env",
                     "count" => length(items),
                     "keys" => keys_list[1:min(20, length(keys_list))]
@@ -388,7 +388,7 @@ function env(key=nothing, value=nothing)
             "type" => "display",
             "id" => Main.current_rid,
             "bundle" => Dict(
-                "application/x-omp-status" => Dict(
+                "application/x-op-status" => Dict(
                     "op" => "env",
                     "key" => k,
                     "value" => v,
@@ -404,7 +404,7 @@ function env(key=nothing, value=nothing)
         "type" => "display",
         "id" => Main.current_rid,
         "bundle" => Dict(
-            "application/x-omp-status" => Dict(
+            "application/x-op-status" => Dict(
                 "op" => "env",
                 "key" => k,
                 "value" => v,
@@ -473,13 +473,13 @@ function __omp_call_bridge(name::String, args::Dict{String, Any})
     return get(parsed_resp, "value", nothing)
 end
 
-struct OmpToolProxy end
+struct OpToolProxy end
 
-struct OmpToolCallable
+struct OpToolCallable
     name::String
 end
 
-function (tc::OmpToolCallable)(args...; kwargs...)
+function (tc::OpToolCallable)(args...; kwargs...)
     args_dict = Dict{String, Any}()
     if length(args) == 1 && args[1] isa AbstractDict
         for (k, v) in args[1]
@@ -493,11 +493,11 @@ function (tc::OmpToolCallable)(args...; kwargs...)
     return __omp_call_bridge("tool:" * tc.name, args_dict)
 end
 
-function Base.getproperty(::OmpToolProxy, sym::Symbol)
-    return OmpToolCallable(string(sym))
+function Base.getproperty(::OpToolProxy, sym::Symbol)
+    return OpToolCallable(string(sym))
 end
 
-const tool = OmpToolProxy()
+const tool = OpToolProxy()
 
 # -------------------------------------------------------------------------
 # Agent calls
@@ -593,7 +593,7 @@ function Base.log(message::AbstractString)
         "type" => "display",
         "id" => Main.current_rid,
         "bundle" => Dict(
-            "application/x-omp-status" => Dict(
+            "application/x-op-status" => Dict(
                 "op" => "log",
                 "message" => message
             )
@@ -607,7 +607,7 @@ function phase(title::String)
         "type" => "display",
         "id" => Main.current_rid,
         "bundle" => Dict(
-            "application/x-omp-status" => Dict(
+            "application/x-op-status" => Dict(
                 "op" => "phase",
                 "title" => title
             )
@@ -685,7 +685,7 @@ end
 # Budget
 # -------------------------------------------------------------------------
 
-struct OmpBudgetProxy end
+struct OpBudgetProxy end
 
 function __omp_budget_snapshot()
     try
@@ -711,7 +711,7 @@ function __omp_budget_int(value, default::Int=0)
     return default
 end
 
-function Base.getproperty(::OmpBudgetProxy, sym::Symbol)
+function Base.getproperty(::OpBudgetProxy, sym::Symbol)
     if sym === :total
         snap = __omp_budget_snapshot()
         return get(snap, "total", nothing)
@@ -733,4 +733,4 @@ function Base.getproperty(::OmpBudgetProxy, sym::Symbol)
     error("Unknown budget metric: $sym")
 end
 
-const budget = OmpBudgetProxy()
+const budget = OpBudgetProxy()

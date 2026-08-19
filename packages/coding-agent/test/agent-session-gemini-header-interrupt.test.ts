@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import * as path from "node:path";
-import { Agent } from "@oh-my-pi/pi-agent-core";
+import { Agent } from "@openpaths/agent-core";
 import type {
 	Api,
 	AssistantMessage,
@@ -9,17 +9,17 @@ import type {
 	Model,
 	SimpleStreamOptions,
 	ThinkingContent,
-} from "@oh-my-pi/pi-ai";
-import { createMockModel } from "@oh-my-pi/pi-ai/providers/mock";
-import { AssistantMessageEventStream } from "@oh-my-pi/pi-ai/utils/event-stream";
-import { GEMINI_HEADER_RUNAWAY_THRESHOLD } from "@oh-my-pi/pi-ai/utils/thinking-loop";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentSession, type AgentSessionEvent } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { convertToLlm } from "@oh-my-pi/pi-coding-agent/session/messages";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { TempDir } from "@oh-my-pi/pi-utils";
+} from "@openpaths/ai";
+import { createMockModel } from "@openpaths/ai/providers/mock";
+import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
+import { GEMINI_HEADER_RUNAWAY_THRESHOLD } from "@openpaths/ai/utils/thinking-loop";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentSession, type AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { convertToLlm } from "@openpaths/coding-agent/session/messages";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { TempDir } from "@openpaths/utils";
 
 function emptyUsage(): AssistantMessage["usage"] {
 	return {

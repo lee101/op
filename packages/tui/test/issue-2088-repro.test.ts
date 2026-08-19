@@ -8,11 +8,11 @@ import {
 	type RenderScheduler,
 	type RenderTimer,
 	TUI,
-} from "@oh-my-pi/pi-tui";
-import { Text } from "@oh-my-pi/pi-tui/components/text";
+} from "@openpaths/tui";
+import { Text } from "@openpaths/tui/components/text";
 import { VirtualTerminal } from "./virtual-terminal";
 
-// Regression test for https://github.com/can1357/oh-my-pi/issues/2088
+// Regression test for https://github.com/lee101/op/issues/2088
 //
 // Closing a tmux horizontal split widens the surviving pane. SIGWINCH fires
 // on the host process before tmux finishes repainting the pane buffer at

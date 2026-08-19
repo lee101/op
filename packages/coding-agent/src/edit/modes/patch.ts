@@ -7,9 +7,9 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { type } from "@oh-my-pi/omptype";
-import type { AgentToolResult } from "@oh-my-pi/pi-agent-core";
-import { isEnoent } from "@oh-my-pi/pi-utils";
+import { type } from "@openpaths/optype";
+import type { AgentToolResult } from "@openpaths/agent-core";
+import { isEnoent } from "@openpaths/utils";
 import {
 	type FileDiagnosticsResult,
 	flushLspWritethroughBatch,

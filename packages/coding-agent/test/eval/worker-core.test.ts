@@ -3,14 +3,14 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
-import { WorkerCore } from "@oh-my-pi/pi-coding-agent/eval/js/worker-core";
+import { WorkerCore } from "@openpaths/coding-agent/eval/js/worker-core";
 import type {
 	SessionSnapshot,
 	Transport,
 	WorkerInbound,
 	WorkerOutbound,
-} from "@oh-my-pi/pi-coding-agent/eval/js/worker-protocol";
-import { postmortem } from "@oh-my-pi/pi-utils";
+} from "@openpaths/coding-agent/eval/js/worker-protocol";
+import { postmortem } from "@openpaths/utils";
 
 interface WorkerHarness {
 	send(message: WorkerInbound): void;
@@ -363,8 +363,8 @@ describe("WorkerCore", () => {
 	});
 
 	it("keeps the process cwd while another cell is mid-run", async () => {
-		const dirA = await fs.mkdtemp(path.join(os.tmpdir(), "omp-cwd-a-"));
-		const dirB = await fs.mkdtemp(path.join(os.tmpdir(), "omp-cwd-b-"));
+		const dirA = await fs.mkdtemp(path.join(os.tmpdir(), "op-cwd-a-"));
+		const dirB = await fs.mkdtemp(path.join(os.tmpdir(), "op-cwd-b-"));
 		const chdirs: string[] = [];
 		const hostListeners = new Set<(message: WorkerOutbound) => void>();
 		const workerListeners = new Set<(message: WorkerInbound) => void>();
@@ -510,7 +510,7 @@ console.log("survived concurrent setCwd");
 process.exit(0);
 `;
 
-		const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-same-realm-"));
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), "op-same-realm-"));
 		const probePath = path.join(root, "probe.ts");
 		try {
 			await Bun.write(probePath, probe);

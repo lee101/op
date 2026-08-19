@@ -1,8 +1,8 @@
-import type { Api, Model, ModelSpec, RemoteCompactionConfig, ThinkingConfig } from "@oh-my-pi/pi-ai/types";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { isVertexExpressOpenAIUrl } from "@oh-my-pi/pi-catalog/hosts";
-import { PROVIDER_DESCRIPTORS } from "@oh-my-pi/pi-catalog/provider-models";
-import { isRecord } from "@oh-my-pi/pi-utils";
+import type { Api, Model, ModelSpec, RemoteCompactionConfig, ThinkingConfig } from "@openpaths/ai/types";
+import { buildModel } from "@openpaths/catalog/build";
+import { isVertexExpressOpenAIUrl } from "@openpaths/catalog/hosts";
+import { PROVIDER_DESCRIPTORS } from "@openpaths/catalog/provider-models";
+import { isRecord } from "@openpaths/utils";
 import type { ModelOverride } from "./models-config-schema";
 /** Provider override config (baseUrl, headers, apiKey, compat, transport) without custom models */
 export interface ProviderOverride {

@@ -1,6 +1,6 @@
-import { ThinkingLevel } from "@oh-my-pi/pi-agent-core";
-import { Ellipsis, visibleWidth } from "@oh-my-pi/pi-tui";
-import { formatDuration, formatNumber, sanitizeText } from "@oh-my-pi/pi-utils";
+import { ThinkingLevel } from "@openpaths/agent-core";
+import { Ellipsis, visibleWidth } from "@openpaths/tui";
+import { formatDuration, formatNumber, sanitizeText } from "@openpaths/utils";
 import { getRoleInfo } from "../../config/model-roles";
 import type { Settings } from "../../config/settings";
 import { type AgentRef, MAIN_AGENT_ID } from "../../registry/agent-registry";

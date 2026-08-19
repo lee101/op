@@ -2,16 +2,16 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { InMemorySnapshotStore } from "@oh-my-pi/hashline";
-import type { AgentTool } from "@oh-my-pi/pi-agent-core";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { editToolRenderer } from "@oh-my-pi/pi-coding-agent/edit/renderer";
-import { renderDiff } from "@oh-my-pi/pi-coding-agent/modes/components/diff";
-import { ToolExecutionComponent } from "@oh-my-pi/pi-coding-agent/modes/components/tool-execution";
-import * as themeModule from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { Text, type TUI, visibleWidth } from "@oh-my-pi/pi-tui";
-import { removeWithRetries } from "@oh-my-pi/pi-utils";
-import chalk from "@oh-my-pi/pi-utils/chalk";
+import { InMemorySnapshotStore } from "@openpaths/hashline";
+import type { AgentTool } from "@openpaths/agent-core";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { editToolRenderer } from "@openpaths/coding-agent/edit/renderer";
+import { renderDiff } from "@openpaths/coding-agent/modes/components/diff";
+import { ToolExecutionComponent } from "@openpaths/coding-agent/modes/components/tool-execution";
+import * as themeModule from "@openpaths/coding-agent/modes/theme/theme";
+import { Text, type TUI, visibleWidth } from "@openpaths/tui";
+import { removeWithRetries } from "@openpaths/utils";
+import chalk from "@openpaths/utils/chalk";
 
 beforeAll(async () => {
 	resetSettingsForTest();

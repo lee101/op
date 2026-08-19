@@ -1,4 +1,4 @@
-import { toError } from "@oh-my-pi/pi-utils";
+import { toError } from "@openpaths/utils";
 import type {
 	SessionStorage,
 	SessionStorageStat,

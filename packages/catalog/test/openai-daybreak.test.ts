@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { Effort } from "@oh-my-pi/pi-catalog/effort";
-import { getSupportedEfforts } from "@oh-my-pi/pi-catalog/model-thinking";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { OPENAI_DAYBREAK_CURATED_FALLBACK_MODELS } from "@oh-my-pi/pi-catalog/provider-models/openai-compat";
-import type { Api, ModelSpec } from "@oh-my-pi/pi-catalog/types";
+import { buildModel } from "@openpaths/catalog/build";
+import { Effort } from "@openpaths/catalog/effort";
+import { getSupportedEfforts } from "@openpaths/catalog/model-thinking";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { OPENAI_DAYBREAK_CURATED_FALLBACK_MODELS } from "@openpaths/catalog/provider-models/openai-compat";
+import type { Api, ModelSpec } from "@openpaths/catalog/types";
 import { applyGeneratedModelPolicies } from "../scripts/generated-policies";
 
 const DAYBREAK_EFFORTS = [Effort.Low, Effort.Medium, Effort.High, Effort.XHigh, Effort.Max];

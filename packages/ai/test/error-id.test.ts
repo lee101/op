@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import type { AssistantMessage } from "@oh-my-pi/pi-ai";
-import * as AIError from "@oh-my-pi/pi-ai/error";
+import type { AssistantMessage } from "@openpaths/ai";
+import * as AIError from "@openpaths/ai/error";
 
 function message(overrides: Partial<AssistantMessage> = {}): AssistantMessage {
 	return {

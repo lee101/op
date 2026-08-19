@@ -1,13 +1,13 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, setDefaultTimeout, vi } from "bun:test";
 import * as path from "node:path";
-import { type } from "@oh-my-pi/omptype";
-import type { AgentTool, AgentToolResult } from "@oh-my-pi/pi-agent-core";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { disposeAllVmContexts } from "@oh-my-pi/pi-coding-agent/eval/js/context-manager";
-import { executeJs, type JsResult } from "@oh-my-pi/pi-coding-agent/eval/js/executor";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
-import { TempDir } from "@oh-my-pi/pi-utils";
-import { INTENT_FIELD } from "@oh-my-pi/pi-wire";
+import { type } from "@openpaths/optype";
+import type { AgentTool, AgentToolResult } from "@openpaths/agent-core";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { disposeAllVmContexts } from "@openpaths/coding-agent/eval/js/context-manager";
+import { executeJs, type JsResult } from "@openpaths/coding-agent/eval/js/executor";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
+import { TempDir } from "@openpaths/utils";
+import { INTENT_FIELD } from "@openpaths/wire";
 
 // JS eval cold-starts a Bun worker; under --isolate + high CI concurrency that startup
 // can exceed Bun's 5s default per-test timeout, flaking the suite. Give the worker-backed

@@ -1,9 +1,9 @@
 {
   "name": "hello-extension",
   "version": "1.0.0",
-  "description": "Minimal oh-my-pi extension example",
-  "homepage": "https://omp.sh",
-  "omp": {
+  "description": "Minimal openpaths extension example",
+  "homepage": "https://openpaths.io",
+  "op": {
     "extensions": ["./index.ts"]
   }
 }

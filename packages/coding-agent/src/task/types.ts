@@ -1,6 +1,6 @@
-import { type BaseType, type } from "@oh-my-pi/omptype";
-import type { Usage } from "@oh-my-pi/pi-ai";
-import { $env } from "@oh-my-pi/pi-utils";
+import { type BaseType, type } from "@openpaths/optype";
+import type { Usage } from "@openpaths/ai";
+import { $env } from "@openpaths/utils";
 import type { AgentSessionEvent } from "../session/agent-session";
 import type { ConfiguredThinkingLevel, TaskEffort } from "../thinking";
 import type { NestedRepoPatch } from "./worktree";

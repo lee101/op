@@ -1,22 +1,22 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { Agent, type AgentMessage } from "@oh-my-pi/pi-agent-core";
-import * as compactionModule from "@oh-my-pi/pi-agent-core/compaction";
-import type { AssistantMessage, Model } from "@oh-my-pi/pi-ai";
-import * as AIError from "@oh-my-pi/pi-ai/error";
-import { createMockModel } from "@oh-my-pi/pi-ai/providers/mock";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { loadAdvisorTranscriptCosts } from "@oh-my-pi/pi-coding-agent/advisor/transcript-recorder";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import type { ExtensionRunner } from "@oh-my-pi/pi-coding-agent/extensibility/extensions";
-import { createAgentSession } from "@oh-my-pi/pi-coding-agent/sdk";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AgentStorage } from "@oh-my-pi/pi-coding-agent/session/agent-storage";
-import type { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { getProjectAgentDir, TempDir } from "@oh-my-pi/pi-utils";
+import { Agent, type AgentMessage } from "@openpaths/agent-core";
+import * as compactionModule from "@openpaths/agent-core/compaction";
+import type { AssistantMessage, Model } from "@openpaths/ai";
+import * as AIError from "@openpaths/ai/error";
+import { createMockModel } from "@openpaths/ai/providers/mock";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { loadAdvisorTranscriptCosts } from "@openpaths/coding-agent/advisor/transcript-recorder";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import type { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extensions";
+import { createAgentSession } from "@openpaths/coding-agent/sdk";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AgentStorage } from "@openpaths/coding-agent/session/agent-storage";
+import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { getProjectAgentDir, TempDir } from "@openpaths/utils";
 import { createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 
 describe("AgentSession advisor toggle", () => {

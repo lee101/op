@@ -1,11 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
-import { Agent } from "@oh-my-pi/pi-agent-core";
-import type { AssistantMessage, Message, UserMessage } from "@oh-my-pi/pi-ai";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
+import { Agent } from "@openpaths/agent-core";
+import type { AssistantMessage, Message, UserMessage } from "@openpaths/ai";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 
 describe("AgentSession session stats", () => {
 	let authStorage: AuthStorage;

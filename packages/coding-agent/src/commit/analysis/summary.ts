@@ -1,8 +1,8 @@
-import { type } from "@oh-my-pi/omptype";
-import type { ThinkingLevel } from "@oh-my-pi/pi-agent-core";
-import type { Api, ApiKey, AssistantMessage, Model } from "@oh-my-pi/pi-ai";
-import { completeSimple, retryTransientCompletion, validateToolCall } from "@oh-my-pi/pi-ai";
-import { prompt } from "@oh-my-pi/pi-utils";
+import { type } from "@openpaths/optype";
+import type { ThinkingLevel } from "@openpaths/agent-core";
+import type { Api, ApiKey, AssistantMessage, Model } from "@openpaths/ai";
+import { completeSimple, retryTransientCompletion, validateToolCall } from "@openpaths/ai";
+import { prompt } from "@openpaths/utils";
 import summarySystemPrompt from "../../commit/prompts/summary-system.md" with { type: "text" };
 import summaryUserPrompt from "../../commit/prompts/summary-user.md" with { type: "text" };
 import type { CommitSummary } from "../../commit/types";

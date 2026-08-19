@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import type { Message, Usage } from "@oh-my-pi/pi-ai";
-import { type Dialect, getDialectDefinition } from "@oh-my-pi/pi-ai/dialect";
+import type { Message, Usage } from "@openpaths/ai";
+import { type Dialect, getDialectDefinition } from "@openpaths/ai/dialect";
 
 function usage(): Usage {
 	return {

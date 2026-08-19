@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { convertCodexResponsesMessages } from "@oh-my-pi/pi-ai/providers/openai-codex-responses";
-import type { ResponseInput } from "@oh-my-pi/pi-ai/providers/openai-responses-wire";
-import { buildResponsesInput } from "@oh-my-pi/pi-ai/providers/openai-shared";
-import type { Context, Model } from "@oh-my-pi/pi-ai/types";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
+import { convertCodexResponsesMessages } from "@openpaths/ai/providers/openai-codex-responses";
+import type { ResponseInput } from "@openpaths/ai/providers/openai-responses-wire";
+import { buildResponsesInput } from "@openpaths/ai/providers/openai-shared";
+import type { Context, Model } from "@openpaths/ai/types";
+import { buildModel } from "@openpaths/catalog/build";
 
 const genericModel = buildModel({
 	id: "moonshotai/kimi-k3",

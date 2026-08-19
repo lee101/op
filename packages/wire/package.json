@@ -1,18 +1,18 @@
 {
   "type": "module",
-  "name": "@oh-my-pi/pi-wire",
+  "name": "@openpaths/wire",
   "version": "17.3.7",
-  "description": "Shared wire protocol types for Oh My Pi packages",
-  "homepage": "https://omp.sh",
+  "description": "Shared wire protocol types for OpenPaths packages",
+  "homepage": "https://openpaths.io",
   "author": "Can Boluk",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/can1357/oh-my-pi.git",
+    "url": "git+https://github.com/lee101/op.git",
     "directory": "packages/wire"
   },
   "bugs": {
-    "url": "https://github.com/can1357/oh-my-pi/issues"
+    "url": "https://github.com/lee101/op/issues"
   },
   "keywords": [
     "wire",

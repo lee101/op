@@ -1,7 +1,7 @@
-export * from "@oh-my-pi/pi-catalog/effort";
-export * from "@oh-my-pi/pi-catalog/types";
+export * from "@openpaths/catalog/effort";
+export * from "@openpaths/catalog/types";
 
-import type { Type } from "@oh-my-pi/omptype";
+import type { Type } from "@openpaths/optype";
 import type {
 	DeleteArgs,
 	DeleteResult,
@@ -32,9 +32,9 @@ import type {
 	ShellResult,
 	WriteArgs,
 	WriteResult,
-} from "@oh-my-pi/pi-catalog/discovery/cursor-gen/agent_pb";
-import type { Effort } from "@oh-my-pi/pi-catalog/effort";
-import { isOpenAIModelId } from "@oh-my-pi/pi-catalog/identity/family";
+} from "@openpaths/catalog/discovery/cursor-gen/agent_pb";
+import type { Effort } from "@openpaths/catalog/effort";
+import { isOpenAIModelId } from "@openpaths/catalog/identity/family";
 import type {
 	Api,
 	FetchImpl,
@@ -44,7 +44,7 @@ import type {
 	Provider,
 	ThinkingBudgets,
 	Usage,
-} from "@oh-my-pi/pi-catalog/types";
+} from "@openpaths/catalog/types";
 import type { ApiKey } from "./auth-retry";
 import type { BedrockOptions } from "./providers/amazon-bedrock";
 import type { AnthropicOptions } from "./providers/anthropic";
@@ -67,7 +67,7 @@ export type { StopDetails } from "./providers/anthropic-wire";
 export type { AssistantMessageEventStream } from "./utils/event-stream";
 
 /**
- * Ceiling on the output-token count omp requests from any OpenAI-family endpoint
+ * Ceiling on the output-token count op requests from any OpenAI-family endpoint
  * (openai-responses, azure/xai responses, and openai-completions). Mirrors
  * Anthropic's {@link CLAUDE_CODE_MAX_OUTPUT_TOKENS}.
  *
@@ -513,7 +513,7 @@ export interface StreamOptions {
 	/**
 	 * Optional per-provider concurrent request cap for LLM stream calls. Keys are
 	 * provider ids (`model.provider`); positive numeric values cap in-flight
-	 * requests across local OMP processes that share the same config root. Omitted
+	 * requests across local OP processes that share the same config root. Omitted
 	 * providers are unlimited. Non-chat provider APIs that bypass stream helpers
 	 * are not covered.
 	 */

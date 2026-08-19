@@ -1,8 +1,8 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
-import type { AgentTool } from "@oh-my-pi/pi-agent-core";
-import { ToolExecutionComponent } from "@oh-my-pi/pi-coding-agent/modes/components/tool-execution";
-import { initTheme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { type Component, Text, TUI } from "@oh-my-pi/pi-tui";
+import type { AgentTool } from "@openpaths/agent-core";
+import { ToolExecutionComponent } from "@openpaths/coding-agent/modes/components/tool-execution";
+import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { type Component, Text, TUI } from "@openpaths/tui";
 import { StressRenderScheduler } from "../../tui/test/render-stress-scheduler";
 import { VirtualTerminal } from "../../tui/test/virtual-terminal";
 

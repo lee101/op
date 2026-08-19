@@ -1,8 +1,8 @@
 import { AgentSession } from "../../src/session/agent-session";
 
-const outputPath = Bun.env.OMP_TITLE_PROBE_PATH;
+const outputPath = Bun.env.OP_TITLE_PROBE_PATH;
 if (!outputPath) {
-	throw new Error("OMP_TITLE_PROBE_PATH is required");
+	throw new Error("OP_TITLE_PROBE_PATH is required");
 }
 
 let generatedFrom: string | undefined;

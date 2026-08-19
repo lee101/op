@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
-import * as settingsModule from "@oh-my-pi/pi-coding-agent/config/settings";
-import { shimmerText } from "@oh-my-pi/pi-coding-agent/modes/theme/shimmer";
-import type { Theme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
+import * as settingsModule from "@openpaths/coding-agent/config/settings";
+import { shimmerText } from "@openpaths/coding-agent/modes/theme/shimmer";
+import type { Theme } from "@openpaths/coding-agent/modes/theme/theme";
 
 const testTheme = {
 	bold(text: string): string {

@@ -1,18 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as path from "node:path";
-import { type } from "@oh-my-pi/omptype";
-import { Agent, type AgentMessage, type AgentTool } from "@oh-my-pi/pi-agent-core";
-import type { TextContent } from "@oh-my-pi/pi-ai";
-import { AssistantMessageEventStream } from "@oh-my-pi/pi-ai/utils/event-stream";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import type { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { convertToLlm } from "@oh-my-pi/pi-coding-agent/session/messages";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { TodoTool, type ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
-import { TempDir } from "@oh-my-pi/pi-utils";
+import { type } from "@openpaths/optype";
+import { Agent, type AgentMessage, type AgentTool } from "@openpaths/agent-core";
+import type { TextContent } from "@openpaths/ai";
+import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { convertToLlm } from "@openpaths/coding-agent/session/messages";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { TodoTool, type ToolSession } from "@openpaths/coding-agent/tools";
+import { TempDir } from "@openpaths/utils";
 import { createAssistantMessage, createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 
 type ObservedPromptCall = {

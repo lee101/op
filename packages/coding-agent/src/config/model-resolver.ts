@@ -15,19 +15,19 @@
  *   CLI flags, scope globs — onto that pipeline.
  */
 
-import { ThinkingLevel } from "@oh-my-pi/pi-agent-core";
-import type { Api, Effort, KnownProvider, Model, ModelSpec } from "@oh-my-pi/pi-ai";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { modelMatchesHost } from "@oh-my-pi/pi-catalog/hosts";
-import { buildModelProviderPriorityRank } from "@oh-my-pi/pi-catalog/identity";
-import { stripThinkingVariantToken } from "@oh-my-pi/pi-catalog/identity/family";
-import { clampThinkingLevelForModel } from "@oh-my-pi/pi-catalog/model-thinking";
-import { modelsAreEqual } from "@oh-my-pi/pi-catalog/models";
-import { DEFAULT_MODEL_PER_PROVIDER } from "@oh-my-pi/pi-catalog/provider-models";
-import { resolveBareVariantAlias, resolveVariantAlias } from "@oh-my-pi/pi-catalog/variant-collapse";
-import { fuzzyMatch } from "@oh-my-pi/pi-tui";
-import { logger } from "@oh-my-pi/pi-utils";
-import chalk from "@oh-my-pi/pi-utils/chalk";
+import { ThinkingLevel } from "@openpaths/agent-core";
+import type { Api, Effort, KnownProvider, Model, ModelSpec } from "@openpaths/ai";
+import { buildModel } from "@openpaths/catalog/build";
+import { modelMatchesHost } from "@openpaths/catalog/hosts";
+import { buildModelProviderPriorityRank } from "@openpaths/catalog/identity";
+import { stripThinkingVariantToken } from "@openpaths/catalog/identity/family";
+import { clampThinkingLevelForModel } from "@openpaths/catalog/model-thinking";
+import { modelsAreEqual } from "@openpaths/catalog/models";
+import { DEFAULT_MODEL_PER_PROVIDER } from "@openpaths/catalog/provider-models";
+import { resolveBareVariantAlias, resolveVariantAlias } from "@openpaths/catalog/variant-collapse";
+import { fuzzyMatch } from "@openpaths/tui";
+import { logger } from "@openpaths/utils";
+import chalk from "@openpaths/utils/chalk";
 import MODEL_PRIO from "../priority.json" with { type: "json" };
 import {
 	AUTO_THINKING,
@@ -1785,7 +1785,7 @@ export function resolveCliModel(options: {
 			model: undefined,
 			selector: undefined,
 			warning: undefined,
-			error: `Unknown provider "${cliProvider}". Run "omp models" to see available providers/models.`,
+			error: `Unknown provider "${cliProvider}". Run "op models" to see available providers/models.`,
 		};
 	}
 
@@ -1870,7 +1870,7 @@ export function resolveCliModel(options: {
 					selector: undefined,
 					thinkingLevel: undefined,
 					warning: resolved.warning,
-					error: `Model "${trimmedModel}" not found. Run "omp models" to see available models.`,
+					error: `Model "${trimmedModel}" not found. Run "op models" to see available models.`,
 				};
 			}
 		}
@@ -1927,7 +1927,7 @@ export function resolveCliModel(options: {
 			selector: undefined,
 			thinkingLevel: undefined,
 			warning,
-			error: `Model "${display}" not found. Run "omp models" to see available models.`,
+			error: `Model "${display}" not found. Run "op models" to see available models.`,
 		};
 	}
 

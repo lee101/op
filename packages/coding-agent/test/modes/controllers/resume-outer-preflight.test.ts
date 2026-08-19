@@ -1,15 +1,15 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import * as path from "node:path";
-import * as core from "@oh-my-pi/pi-agent-core";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { InteractiveMode } from "@oh-my-pi/pi-coding-agent/modes/interactive-mode";
-import { initTheme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { createTools, type Tool } from "@oh-my-pi/pi-coding-agent/tools";
-import { TempDir } from "@oh-my-pi/pi-utils";
+import * as core from "@openpaths/agent-core";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
+import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { createTools, type Tool } from "@openpaths/coding-agent/tools";
+import { TempDir } from "@openpaths/utils";
 
 beforeAll(async () => {
 	await initTheme();

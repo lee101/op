@@ -1,10 +1,10 @@
 import * as fs from "node:fs";
-import type { Agent, AgentEvent, AgentMessage, AgentTurnEndContext } from "@oh-my-pi/pi-agent-core";
-import type { AssistantMessage, AssistantMessageEvent, Model, ToolCall } from "@oh-my-pi/pi-ai";
-import { GeminiHeaderRunDetector } from "@oh-my-pi/pi-ai/utils/thinking-loop";
-import { type RepeatedToolCallDetection, ToolCallLoopGuard } from "@oh-my-pi/pi-ai/utils/tool-call-loop-guard";
-import { modelFamilyToken } from "@oh-my-pi/pi-catalog/identity";
-import { isEnoent, logger, prompt } from "@oh-my-pi/pi-utils";
+import type { Agent, AgentEvent, AgentMessage, AgentTurnEndContext } from "@openpaths/agent-core";
+import type { AssistantMessage, AssistantMessageEvent, Model, ToolCall } from "@openpaths/ai";
+import { GeminiHeaderRunDetector } from "@openpaths/ai/utils/thinking-loop";
+import { type RepeatedToolCallDetection, ToolCallLoopGuard } from "@openpaths/ai/utils/tool-call-loop-guard";
+import { modelFamilyToken } from "@openpaths/catalog/identity";
+import { isEnoent, logger, prompt } from "@openpaths/utils";
 import type { Settings } from "../config/settings";
 import { normalizeDiff, normalizeToLF, ParseError, previewPatch, stripBom } from "../edit";
 import { type LocalProtocolOptions, resolveLocalUrlToPath } from "../internal-urls";

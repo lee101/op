@@ -6,7 +6,7 @@ import {
 	type NativeScrollbackWidthEpoch,
 	type RenderStablePrefix,
 	type ViewportTailProvider,
-} from "@oh-my-pi/pi-tui";
+} from "@openpaths/tui";
 import { isToolActivityComponent } from "./tool-activity";
 
 /**

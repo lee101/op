@@ -2,8 +2,8 @@ import { afterEach, describe, expect, test, vi } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { OutputSink } from "@oh-my-pi/pi-coding-agent/session/streaming-output";
-import { removeWithRetries } from "@oh-my-pi/pi-utils";
+import { OutputSink } from "@openpaths/coding-agent/session/streaming-output";
+import { removeWithRetries } from "@openpaths/utils";
 
 const createdTempDirs: string[] = [];
 

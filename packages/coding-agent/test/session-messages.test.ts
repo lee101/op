@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import { type AgentMessage, filterProviderReplayMessages } from "@oh-my-pi/pi-agent-core";
-import type { ImageContent, Message, TextContent } from "@oh-my-pi/pi-ai";
-import { inferCopilotInitiator } from "@oh-my-pi/pi-ai/providers/github-copilot-headers";
+import { type AgentMessage, filterProviderReplayMessages } from "@openpaths/agent-core";
+import type { ImageContent, Message, TextContent } from "@openpaths/ai";
+import { inferCopilotInitiator } from "@openpaths/ai/providers/github-copilot-headers";
 import {
 	convertToLlm,
 	SKILL_PROMPT_MESSAGE_TYPE,
 	wrapSteeringForModel,
-} from "@oh-my-pi/pi-coding-agent/session/messages";
-import { COLLAB_PROMPT_MESSAGE_TYPE } from "@oh-my-pi/pi-wire";
+} from "@openpaths/coding-agent/session/messages";
+import { COLLAB_PROMPT_MESSAGE_TYPE } from "@openpaths/wire";
 
 function expectAttribution(message: Message | undefined, expected: "user" | "agent" | undefined): void {
 	expect(message).toBeDefined();

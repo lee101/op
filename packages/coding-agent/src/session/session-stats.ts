@@ -1,12 +1,12 @@
-import type { Agent, AgentMessage } from "@oh-my-pi/pi-agent-core";
+import type { Agent, AgentMessage } from "@openpaths/agent-core";
 import {
 	calculatePromptTokens,
 	estimateTokens,
 	hasContextTokenUsage,
 	type SessionMessageEntry,
-} from "@oh-my-pi/pi-agent-core/compaction";
-import type { AssistantMessage, Model, ProviderResponseMetadata, Usage } from "@oh-my-pi/pi-ai";
-import { isRecord } from "@oh-my-pi/pi-utils";
+} from "@openpaths/agent-core/compaction";
+import type { AssistantMessage, Model, ProviderResponseMetadata, Usage } from "@openpaths/ai";
+import { isRecord } from "@openpaths/utils";
 import type { ModelRegistry } from "../config/model-registry";
 import type { ContextUsage } from "../extensibility/extensions/types";
 import {

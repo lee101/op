@@ -4,22 +4,22 @@
  * paid for. Regression guard for issue #2190.
  */
 import { afterEach, describe, expect, it, vi } from "bun:test";
-import { ThinkingLevel } from "@oh-my-pi/pi-agent-core";
-import type { Model } from "@oh-my-pi/pi-ai";
-import { Effort } from "@oh-my-pi/pi-catalog/effort";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import type { Rule } from "@oh-my-pi/pi-coding-agent/capability/rule";
-import type { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import type { ToolPathWithSource } from "@oh-my-pi/pi-coding-agent/extensibility/custom-tools";
-import type { LoadExtensionsResult } from "@oh-my-pi/pi-coding-agent/extensibility/extensions/types";
-import type { MCPManager } from "@oh-my-pi/pi-coding-agent/mcp/manager";
-import type { CreateAgentSessionResult } from "@oh-my-pi/pi-coding-agent/sdk";
-import * as sdkModule from "@oh-my-pi/pi-coding-agent/sdk";
-import type { AgentSession, AgentSessionEvent, PromptOptions } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { runSubprocess } from "@oh-my-pi/pi-coding-agent/task/executor";
-import type { AgentDefinition } from "@oh-my-pi/pi-coding-agent/task/types";
-import { EventBus } from "@oh-my-pi/pi-coding-agent/utils/event-bus";
+import { ThinkingLevel } from "@openpaths/agent-core";
+import type { Model } from "@openpaths/ai";
+import { Effort } from "@openpaths/catalog/effort";
+import { getBundledModel } from "@openpaths/catalog/models";
+import type { Rule } from "@openpaths/coding-agent/capability/rule";
+import type { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import type { ToolPathWithSource } from "@openpaths/coding-agent/extensibility/custom-tools";
+import type { LoadExtensionsResult } from "@openpaths/coding-agent/extensibility/extensions/types";
+import type { MCPManager } from "@openpaths/coding-agent/mcp/manager";
+import type { CreateAgentSessionResult } from "@openpaths/coding-agent/sdk";
+import * as sdkModule from "@openpaths/coding-agent/sdk";
+import type { AgentSession, AgentSessionEvent, PromptOptions } from "@openpaths/coding-agent/session/agent-session";
+import { runSubprocess } from "@openpaths/coding-agent/task/executor";
+import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
+import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
 
 function createMockSession(onPrompt: (params: { emit: (event: AgentSessionEvent) => void }) => void): AgentSession {
 	const listeners: Array<(event: AgentSessionEvent) => void> = [];
@@ -116,7 +116,7 @@ describe("runSubprocess parent-discovery pass-through (issue #2190)", () => {
 		const spy = vi.spyOn(sdkModule, "createAgentSession").mockResolvedValue(createSessionResult(session));
 
 		const rules: Rule[] = [{ name: "rule-a" } as unknown as Rule];
-		const preloadedExtensionPaths = ["/abs/parent/.omp/extensions/foo.ts"];
+		const preloadedExtensionPaths = ["/abs/parent/.op/extensions/foo.ts"];
 		const preloadedCustomToolPaths: ToolPathWithSource[] = [
 			{ path: "tools/x.ts", source: { provider: "config", providerName: "Config", level: "project" } },
 		];

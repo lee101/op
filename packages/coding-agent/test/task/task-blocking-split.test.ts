@@ -18,15 +18,15 @@
  *    and reports the failed spawn.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
-import { AsyncJobManager } from "@oh-my-pi/pi-coding-agent/async/job-manager";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentLifecycleManager } from "@oh-my-pi/pi-coding-agent/registry/agent-lifecycle";
-import { AgentRegistry } from "@oh-my-pi/pi-coding-agent/registry/agent-registry";
-import { TaskTool } from "@oh-my-pi/pi-coding-agent/task";
-import * as discoveryModule from "@oh-my-pi/pi-coding-agent/task/discovery";
-import * as executorModule from "@oh-my-pi/pi-coding-agent/task/executor";
-import type { AgentDefinition, SingleResult, TaskParams, TaskToolDetails } from "@oh-my-pi/pi-coding-agent/task/types";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
+import { AsyncJobManager } from "@openpaths/coding-agent/async/job-manager";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentLifecycleManager } from "@openpaths/coding-agent/registry/agent-lifecycle";
+import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
+import { TaskTool } from "@openpaths/coding-agent/task";
+import * as discoveryModule from "@openpaths/coding-agent/task/discovery";
+import * as executorModule from "@openpaths/coding-agent/task/executor";
+import type { AgentDefinition, SingleResult, TaskParams, TaskToolDetails } from "@openpaths/coding-agent/task/types";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
 
 const taskAgent: AgentDefinition = {
 	name: "task",

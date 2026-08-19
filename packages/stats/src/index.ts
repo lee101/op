@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { parseArgs } from "node:util";
-import { formatDuration, formatNumber, formatPercent } from "@oh-my-pi/pi-utils";
+import { formatDuration, formatNumber, formatPercent } from "@openpaths/utils";
 import { getDashboardStats, getTotalMessageCount, syncAllSessions } from "./aggregator";
 import { closeDb } from "./db";
 import { formatStatsDashboardUrl, startServer } from "./server";
@@ -96,7 +96,7 @@ async function printStats(): Promise<void> {
 	console.log("");
 }
 
-/** Parsed arguments for the standalone `omp-stats` entry point. */
+/** Parsed arguments for the standalone `op-stats` entry point. */
 export interface StandaloneStatsArgs {
 	port: number;
 	host: string;
@@ -105,7 +105,7 @@ export interface StandaloneStatsArgs {
 	help: boolean;
 }
 
-/** Parse the standalone `omp-stats` arguments used by the production entry point. */
+/** Parse the standalone `op-stats` arguments used by the production entry point. */
 export function parseStandaloneStatsArgs(args: string[]): StandaloneStatsArgs {
 	const { values } = parseArgs({
 		args,
@@ -135,10 +135,10 @@ async function main(): Promise<void> {
 
 	if (values.help) {
 		console.log(`
-omp-stats - AI Usage Statistics Dashboard
+op-stats - AI Usage Statistics Dashboard
 
 Usage:
-  omp-stats [options]
+  op-stats [options]
 
 Options:
   -p, --port <port>  Port for the dashboard server (default: 3847)
@@ -148,10 +148,10 @@ Options:
   -h, --help         Show this help message
 
 Examples:
-  omp-stats              # Start dashboard server
-  omp-stats --json       # Print stats as JSON
-  omp-stats --host 0.0.0.0 # Explicitly expose on all IPv4 interfaces
-  omp-stats --sync       # Sync and show summary
+  op-stats              # Start dashboard server
+  op-stats --json       # Print stats as JSON
+  op-stats --host 0.0.0.0 # Explicitly expose on all IPv4 interfaces
+  op-stats --sync       # Sync and show summary
 `);
 		return;
 	}

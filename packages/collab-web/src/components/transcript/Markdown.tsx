@@ -1,4 +1,4 @@
-import { Marked } from "@oh-my-pi/pi-utils/marked";
+import { Marked } from "@openpaths/utils/marked";
 import type { ReactNode } from "react";
 import { memo, useMemo } from "react";
 

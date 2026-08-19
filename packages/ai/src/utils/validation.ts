@@ -11,8 +11,8 @@
  * massage shapes the LLM almost got right.
  */
 
-import { type Type, type } from "@oh-my-pi/omptype";
-import { structuredCloneJSON } from "@oh-my-pi/pi-utils";
+import { type Type, type } from "@openpaths/optype";
+import { structuredCloneJSON } from "@openpaths/utils";
 import * as AIError from "../error";
 import type { Tool, ToolCall } from "../types";
 import { upgradeJsonSchemaTo202012 } from "./schema/draft";
@@ -1239,7 +1239,7 @@ function parsedArrayMatchesArrayBranch(schema: Record<string, unknown>, value: u
  * against the schema's array branch. Conservative: array-shaped strings like
  * `"[1]"` stay on the string branch when the array branch is `string[]`.
  *
- * See https://github.com/can1357/oh-my-pi/issues/1788.
+ * See https://github.com/lee101/op/issues/1788.
  */
 function normalizeStringEncodedArrayUnions(schema: unknown, value: unknown): { value: unknown; changed: boolean } {
 	if (value === null || value === undefined) return { value, changed: false };

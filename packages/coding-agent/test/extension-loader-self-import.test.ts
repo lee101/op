@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import * as PiCodingAgent from "@oh-my-pi/pi-coding-agent";
-import { loadCustomCommands } from "@oh-my-pi/pi-coding-agent/extensibility/custom-commands/loader";
-import { loadCustomTools } from "@oh-my-pi/pi-coding-agent/extensibility/custom-tools/loader";
-import { loadExtensions } from "@oh-my-pi/pi-coding-agent/extensibility/extensions/loader";
-import { loadHooks } from "@oh-my-pi/pi-coding-agent/extensibility/hooks/loader";
-import { TempDir } from "@oh-my-pi/pi-utils";
+import * as PiCodingAgent from "@openpaths/coding-agent";
+import { loadCustomCommands } from "@openpaths/coding-agent/extensibility/custom-commands/loader";
+import { loadCustomTools } from "@openpaths/coding-agent/extensibility/custom-tools/loader";
+import { loadExtensions } from "@openpaths/coding-agent/extensibility/extensions/loader";
+import { loadHooks } from "@openpaths/coding-agent/extensibility/hooks/loader";
+import { TempDir } from "@openpaths/utils";
 
 declare global {
 	var __ompHostPiForLoaderIdentityTest: typeof PiCodingAgent | undefined;

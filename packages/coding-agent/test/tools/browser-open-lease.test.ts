@@ -10,12 +10,12 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, spyOn, vi } from "bun:test";
-import { BrowserTool } from "@oh-my-pi/pi-coding-agent/tools/browser";
-import { CmuxSocketClient } from "@oh-my-pi/pi-coding-agent/tools/browser/cmux/socket-client";
-import { getBrowsersMapForTest } from "@oh-my-pi/pi-coding-agent/tools/browser/registry";
-import { getTabsMapForTest, releaseTab } from "@oh-my-pi/pi-coding-agent/tools/browser/tab-supervisor";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools/index";
-import { ToolAbortError, ToolError } from "@oh-my-pi/pi-coding-agent/tools/tool-errors";
+import { BrowserTool } from "@openpaths/coding-agent/tools/browser";
+import { CmuxSocketClient } from "@openpaths/coding-agent/tools/browser/cmux/socket-client";
+import { getBrowsersMapForTest } from "@openpaths/coding-agent/tools/browser/registry";
+import { getTabsMapForTest, releaseTab } from "@openpaths/coding-agent/tools/browser/tab-supervisor";
+import type { ToolSession } from "@openpaths/coding-agent/tools/index";
+import { ToolAbortError, ToolError } from "@openpaths/coding-agent/tools/tool-errors";
 
 function makeSession(): ToolSession {
 	return {
@@ -40,7 +40,7 @@ beforeEach(() => {
 	prevSocketPath = process.env.CMUX_SOCKET_PATH;
 	// Unique per test so the module-global browsers map (keyed by socket path)
 	// never carries a handle across tests.
-	process.env.CMUX_SOCKET_PATH = `/tmp/omp-open-lease-${process.pid}-${Math.random().toString(36).slice(2)}.sock`;
+	process.env.CMUX_SOCKET_PATH = `/tmp/op-open-lease-${process.pid}-${Math.random().toString(36).slice(2)}.sock`;
 });
 
 afterEach(async () => {

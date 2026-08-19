@@ -1,9 +1,9 @@
-import type { Effort } from "@oh-my-pi/pi-catalog/effort";
-import { isKimiModelId } from "@oh-my-pi/pi-catalog/identity";
-import { resolveWireModelId } from "@oh-my-pi/pi-catalog/model-thinking";
-import { calculateCost } from "@oh-my-pi/pi-catalog/models";
-import type { OpenRouterRoutingSort, ResolvedOpenAICompat } from "@oh-my-pi/pi-catalog/types";
-import { $env, logger, parseStreamingJson, parseStreamingJsonThrottled } from "@oh-my-pi/pi-utils";
+import type { Effort } from "@openpaths/catalog/effort";
+import { isKimiModelId } from "@openpaths/catalog/identity";
+import { resolveWireModelId } from "@openpaths/catalog/model-thinking";
+import { calculateCost } from "@openpaths/catalog/models";
+import type { OpenRouterRoutingSort, ResolvedOpenAICompat } from "@openpaths/catalog/types";
+import { $env, logger, parseStreamingJson, parseStreamingJsonThrottled } from "@openpaths/utils";
 import { renderDemotedThinking } from "../dialect/demotion";
 import * as AIError from "../error";
 import { getKimiCommonHeaders } from "../registry/oauth/kimi";

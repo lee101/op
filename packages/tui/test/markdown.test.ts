@@ -7,11 +7,11 @@ import {
 	mathStartIndex,
 	renderInlineMarkdown,
 	urlTokenPossible,
-} from "@oh-my-pi/pi-tui/components/markdown";
-import { setTerminalTextSizing, TERMINAL } from "@oh-my-pi/pi-tui/terminal-capabilities";
-import { type Component, TUI } from "@oh-my-pi/pi-tui/tui";
-import { visibleWidth } from "@oh-my-pi/pi-tui/utils";
-import { Chalk } from "@oh-my-pi/pi-utils/chalk";
+} from "@openpaths/tui/components/markdown";
+import { setTerminalTextSizing, TERMINAL } from "@openpaths/tui/terminal-capabilities";
+import { type Component, TUI } from "@openpaths/tui/tui";
+import { visibleWidth } from "@openpaths/tui/utils";
+import { Chalk } from "@openpaths/utils/chalk";
 import { defaultMarkdownTheme } from "./test-themes.js";
 import { VirtualTerminal } from "./virtual-terminal.js";
 
@@ -1657,7 +1657,7 @@ bar`,
 		});
 
 		it("should isolate wrapped OSC 8 links from adjacent table cells", () => {
-			const issueUrl = "https://github.com/can1357/oh-my-pi/issues/5860";
+			const issueUrl = "https://github.com/lee101/op/issues/5860";
 			const markdown = new Markdown(
 				`| Issue | Title |
 |---|---|
@@ -1703,7 +1703,7 @@ bar`,
 		});
 
 		it("should balance OSC 8 links across explicit newlines in a table cell", () => {
-			const issueUrl = "https://github.com/can1357/oh-my-pi/issues/5860";
+			const issueUrl = "https://github.com/lee101/op/issues/5860";
 			const markdown = new Markdown(
 				`| Issue | Title |
 |---|---|

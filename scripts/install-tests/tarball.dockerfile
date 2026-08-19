@@ -13,7 +13,7 @@ ENV PATH="/root/.bun/bin:$PATH"
 # through the cargo/napi-rs backend.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly
 ENV PATH="/root/.cargo/bin:$PATH" \
-    OMP_NATIVE_BUILD_BACKEND=cargo
+    OP_NATIVE_BUILD_BACKEND=cargo
 
 # Install Node.js (needed for verdaccio and npm)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -42,7 +42,7 @@ uplinks:
   npmjs:
     url: https://registry.npmjs.org/
 packages:
-  '@oh-my-pi/*':
+  '@openpaths/*':
     access: $all
     publish: $all
     unpublish: $all
@@ -104,7 +104,7 @@ for pkg in "${PACKAGES[@]}"; do
     
     # Show what we're publishing
     echo "Dependencies:"
-    jq '.dependencies | to_entries[] | select(.value | startswith("@oh-my-pi") or startswith("workspace"))' package.json 2>/dev/null || true
+    jq '.dependencies | to_entries[] | select(.value | startswith("@openpaths") or startswith("workspace"))' package.json 2>/dev/null || true
     
     # Publish
     npm publish --registry "$REGISTRY"
@@ -130,9 +130,9 @@ RUN verdaccio --config /root/.config/verdaccio/config.yaml &>/dev/null & \
 WORKDIR /test
 RUN verdaccio --config /root/.config/verdaccio/config.yaml &>/dev/null & \
     sleep 3 && \
-    bun add @oh-my-pi/pi-coding-agent --registry http://localhost:4873 && \
+    bun add @openpaths/coding-agent --registry http://localhost:4873 && \
     pkill -f verdaccio
 
 # Verify the installed package works
 ENV PATH="/test/node_modules/.bin:$PATH"
-RUN omp --version
+RUN op --version

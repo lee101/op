@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { ProviderResponseError } from "@oh-my-pi/pi-ai/error";
-import { mapH2TransportError } from "@oh-my-pi/pi-ai/providers/cursor";
+import { ProviderResponseError } from "@openpaths/ai/error";
+import { mapH2TransportError } from "@openpaths/ai/providers/cursor";
 
 const BASE_URL = "https://api2.cursor.sh";
 

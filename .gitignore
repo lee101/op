@@ -44,8 +44,8 @@ coverage/
 packages/ai/test/.temp-images/
 
 # Project specific
-!.omp/
-.omp/plugins/
+!.op/
+.op/plugins/
 .pi_config/
 .opencode/
 .worktrees/
@@ -65,8 +65,8 @@ pi-*.html
 packages/coding-agent/src/export/html/tool-views.generated.js
 packages/natives/npm/
 /runs/
-python/omp-rpc/src/omp_rpc.egg-info/
-python/omp-rpc/build/
+python/op-rpc/src/op_rpc.egg-info/
+python/op-rpc/build/
 # parallel-agent worktrees
 .wt/
 CPU*.md
@@ -89,5 +89,5 @@ packages/coding-agent/bench/boot-baseline.json
 /bazel-out
 /bazel-testlogs
 /bazel-pi
-/bazel-oh-my-pi
+/bazel-openpaths
 /.bazelrc.user

@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { getThemeByName, setThemeInstance, type Theme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import type { TaskParams } from "@oh-my-pi/pi-coding-agent/task";
-import { taskToolRenderer } from "@oh-my-pi/pi-coding-agent/task/renderer";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { getThemeByName, setThemeInstance, type Theme } from "@openpaths/coding-agent/modes/theme/theme";
+import type { TaskParams } from "@openpaths/coding-agent/task";
+import { taskToolRenderer } from "@openpaths/coding-agent/task/renderer";
 
 describe("task renderer: streaming call preview", () => {
 	let theme: Theme;

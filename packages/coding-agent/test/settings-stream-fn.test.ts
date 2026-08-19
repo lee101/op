@@ -6,14 +6,14 @@
  * Responses-family requests)
  * options win — the same wiring the main agent and the advisor agent share so
  * OpenRouter sticky-routing / response caching behaves the same on advisor turns
- * (can1357/oh-my-pi#3639).
+ * (lee101/op#3639).
  */
 import { describe, expect, it } from "bun:test";
-import type { StreamFn } from "@oh-my-pi/pi-agent-core";
-import type { Context, Model, SimpleStreamOptions } from "@oh-my-pi/pi-ai";
-import { AssistantMessageEventStream } from "@oh-my-pi/pi-ai/utils/event-stream";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { createSettingsAwareStreamFn } from "@oh-my-pi/pi-coding-agent/session/settings-stream-fn";
+import type { StreamFn } from "@openpaths/agent-core";
+import type { Context, Model, SimpleStreamOptions } from "@openpaths/ai";
+import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { createSettingsAwareStreamFn } from "@openpaths/coding-agent/session/settings-stream-fn";
 
 function captureBase(): { fn: StreamFn; calls: Array<{ options?: SimpleStreamOptions }> } {
 	const calls: Array<{ options?: SimpleStreamOptions }> = [];

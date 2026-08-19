@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
-import type { AuthStorage, FetchImpl } from "@oh-my-pi/pi-ai";
-import type { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import type { SearchParams } from "@oh-my-pi/pi-coding-agent/web/search/providers/base";
-import { hasCodexSearch, searchCodex } from "@oh-my-pi/pi-coding-agent/web/search/providers/codex";
+import type { AuthStorage, FetchImpl } from "@openpaths/ai";
+import type { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import type { SearchParams } from "@openpaths/coding-agent/web/search/providers/base";
+import { hasCodexSearch, searchCodex } from "@openpaths/coding-agent/web/search/providers/codex";
 
 type CapturedRequest = {
 	url: string;

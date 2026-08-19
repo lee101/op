@@ -1,8 +1,8 @@
 import * as os from "node:os";
-import type { AgentMessage } from "@oh-my-pi/pi-agent-core";
-import type { AssistantMessage } from "@oh-my-pi/pi-ai";
-import { AudioCapture } from "@oh-my-pi/pi-natives";
-import { prompt } from "@oh-my-pi/pi-utils";
+import type { AgentMessage } from "@openpaths/agent-core";
+import type { AssistantMessage } from "@openpaths/ai";
+import { AudioCapture } from "@openpaths/natives";
+import { prompt } from "@openpaths/utils";
 import type { AgentSession } from "../session/agent-session";
 import type { AgentSessionEvent } from "../session/agent-session-events";
 import { LIVE_DELEGATION_MESSAGE_TYPE } from "../session/messages";

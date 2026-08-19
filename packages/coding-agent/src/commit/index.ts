@@ -1,5 +1,5 @@
 /**
- * Entry points for the omp commit command.
+ * Entry points for the op commit command.
  */
 
 export * from "./execute";

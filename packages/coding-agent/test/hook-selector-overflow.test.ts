@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { HookSelectorComponent } from "@oh-my-pi/pi-coding-agent/modes/components/hook-selector";
-import { getThemeByName, setThemeInstance, theme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { visibleWidth } from "@oh-my-pi/pi-tui";
+import { HookSelectorComponent } from "@openpaths/coding-agent/modes/components/hook-selector";
+import { getThemeByName, setThemeInstance, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { visibleWidth } from "@openpaths/tui";
 
 beforeAll(async () => {
 	const theme = await getThemeByName("dark");
@@ -34,8 +34,8 @@ describe("HookSelectorComponent", () => {
 
 	it("wraps outlined option text without omitting the tail", () => {
 		const options = [
-			"Option A: Move to OMP-native only by migrating reusable shared AI instructions into .omp/AGENTS.md, .omp/rules, .omp/skills, and .omp/agents while deliberately not creating a root .github directory.",
-			"Option B: Keep dual support by migrating canonical instructions into .omp while also maintaining a root .github/copilot-instructions.md compatibility bridge for editors that do not understand OMP resources yet.",
+			"Option A: Move to OP-native only by migrating reusable shared AI instructions into .op/AGENTS.md, .op/rules, .op/skills, and .op/agents while deliberately not creating a root .github directory.",
+			"Option B: Keep dual support by migrating canonical instructions into .op while also maintaining a root .github/copilot-instructions.md compatibility bridge for editors that do not understand OP resources yet.",
 		];
 		const component = new HookSelectorComponent(
 			"Which migration stance should be used?",
@@ -50,7 +50,7 @@ describe("HookSelectorComponent", () => {
 		const plain = lines.map(line => Bun.stripANSI(line)).join("\n");
 		const normalizedPlain = plain.replace(/[\u2500-\u257f]/g, " ").replace(/\s+/g, " ");
 		expect(normalizedPlain).toContain("not creating a root .github directory");
-		expect(normalizedPlain).toContain("do not understand OMP resources yet");
+		expect(normalizedPlain).toContain("do not understand OP resources yet");
 		for (const line of lines) {
 			expect(visibleWidth(Bun.stripANSI(line))).toBeLessThanOrEqual(width);
 		}
@@ -61,10 +61,10 @@ describe("HookSelectorComponent", () => {
 			{
 				label: "Use existing local credentials",
 				description:
-					"Authenticate via the provider keys and OAuth state already configured under ~/.omp without opening a new browser-based setup flow.",
+					"Authenticate via the provider keys and OAuth state already configured under ~/.op without opening a new browser-based setup flow.",
 			},
 			{
-				label: "Set up Oh My Pi in terminal",
+				label: "Set up OpenPaths in terminal",
 				description:
 					"Launch the local terminal UI to add provider keys, select models, and keep the current editor session waiting for the configured credentials.",
 			},

@@ -11,7 +11,7 @@ ENV PATH="/root/.bun/bin:$PATH"
 # bazelisk and needs only the host addon, so route it through cargo/napi-rs.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly
 ENV PATH="/root/.cargo/bin:$PATH" \
-    OMP_NATIVE_BUILD_BACKEND=cargo
+    OP_NATIVE_BUILD_BACKEND=cargo
 
 # Copy local repo
 WORKDIR /repo
@@ -24,8 +24,8 @@ RUN cd packages/coding-agent && bun run build
 
 # Install binary to PATH
 RUN mkdir -p /root/.local/bin && \
-    cp packages/coding-agent/dist/omp /root/.local/bin/
+    cp packages/coding-agent/dist/op /root/.local/bin/
 ENV PATH="/root/.local/bin:$PATH"
 
 # Verify
-RUN HOME=/tmp/omp-home XDG_DATA_HOME=/tmp/omp-xdg omp --version
+RUN HOME=/tmp/op-home XDG_DATA_HOME=/tmp/op-xdg op --version

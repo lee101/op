@@ -16,15 +16,15 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "bun:
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import type { AssistantMessage } from "@oh-my-pi/pi-ai";
-import { resetSettingsForTest, Settings, settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { SETTINGS_SCHEMA } from "@oh-my-pi/pi-coding-agent/config/settings-schema";
-import { EventController } from "@oh-my-pi/pi-coding-agent/modes/controllers/event-controller";
-import { initTheme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import type { InteractiveModeContext } from "@oh-my-pi/pi-coding-agent/modes/types";
-import type { AgentSessionEvent } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import * as titleGenerator from "@oh-my-pi/pi-coding-agent/utils/title-generator";
-import { TERMINAL } from "@oh-my-pi/pi-tui";
+import type { AssistantMessage } from "@openpaths/ai";
+import { resetSettingsForTest, Settings, settings } from "@openpaths/coding-agent/config/settings";
+import { SETTINGS_SCHEMA } from "@openpaths/coding-agent/config/settings-schema";
+import { EventController } from "@openpaths/coding-agent/modes/controllers/event-controller";
+import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
+import type { AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
+import * as titleGenerator from "@openpaths/coding-agent/utils/title-generator";
+import { TERMINAL } from "@openpaths/tui";
 
 const originalWarpProtocolVersion = process.env.WARP_CLI_AGENT_PROTOCOL_VERSION;
 
@@ -44,7 +44,7 @@ beforeEach(async () => {
 	resetSettingsForTest();
 	// Neutral baseline for notification gates; afterEach restores the suite's inherited value.
 	delete process.env.WARP_CLI_AGENT_PROTOCOL_VERSION;
-	const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "omp-abortguard-"));
+	const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "op-abortguard-"));
 	await Settings.init({ inMemory: true, cwd: tempDir });
 });
 

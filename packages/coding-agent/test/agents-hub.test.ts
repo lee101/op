@@ -8,15 +8,15 @@ import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "bun:
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { Effort } from "@oh-my-pi/pi-ai";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import type { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentsHubComponent } from "@oh-my-pi/pi-coding-agent/modes/components/agents-hub";
-import { initTheme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import * as discovery from "@oh-my-pi/pi-coding-agent/task/discovery";
-import type { TUI } from "@oh-my-pi/pi-tui";
-import { removeWithRetries } from "@oh-my-pi/pi-utils";
+import { Effort } from "@openpaths/ai";
+import { buildModel } from "@openpaths/catalog/build";
+import type { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentsHubComponent } from "@openpaths/coding-agent/modes/components/agents-hub";
+import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import * as discovery from "@openpaths/coding-agent/task/discovery";
+import type { TUI } from "@openpaths/tui";
+import { removeWithRetries } from "@openpaths/utils";
 
 const ANSI_PATTERN = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 let tempCwd: string;
@@ -78,7 +78,7 @@ async function createHub(settings: Settings): Promise<{
 
 beforeAll(async () => {
 	await initTheme(false);
-	tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-agents-hub-"));
+	tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-agents-hub-"));
 });
 
 afterAll(async () => {

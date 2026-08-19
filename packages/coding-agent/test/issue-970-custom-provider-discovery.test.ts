@@ -3,16 +3,16 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { stripVTControlCharacters } from "node:util";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { writeModelCache } from "@oh-my-pi/pi-catalog/model-cache";
-import type { ModelRegistry, ProviderDiscoveryState } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { ModelRegistry as ModelRegistryImpl } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { ModelHubComponent } from "@oh-my-pi/pi-coding-agent/modes/components/model-hub";
-import { getThemeByName, setThemeInstance } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import type { TUI } from "@oh-my-pi/pi-tui";
-import { removeSyncWithRetries, Snowflake } from "@oh-my-pi/pi-utils";
+import { buildModel } from "@openpaths/catalog/build";
+import { writeModelCache } from "@openpaths/catalog/model-cache";
+import type { ModelRegistry, ProviderDiscoveryState } from "@openpaths/coding-agent/config/model-registry";
+import { ModelRegistry as ModelRegistryImpl } from "@openpaths/coding-agent/config/model-registry";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { ModelHubComponent } from "@openpaths/coding-agent/modes/components/model-hub";
+import { getThemeByName, setThemeInstance } from "@openpaths/coding-agent/modes/theme/theme";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import type { TUI } from "@openpaths/tui";
+import { removeSyncWithRetries, Snowflake } from "@openpaths/utils";
 
 function normalizeRenderedText(text: string): string {
 	return stripVTControlCharacters(text).replace(/\s+/g, " ").trim();

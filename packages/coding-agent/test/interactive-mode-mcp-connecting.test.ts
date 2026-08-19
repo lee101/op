@@ -1,20 +1,20 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "bun:test";
 import * as path from "node:path";
-import { Agent } from "@oh-my-pi/pi-agent-core";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
+import { Agent } from "@openpaths/agent-core";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import {
 	formatMCPConnectionStatusMessage,
 	MCP_CONNECTION_STATUS_EVENT_CHANNEL,
 	type McpConnectionStatusEvent,
-} from "@oh-my-pi/pi-coding-agent/mcp/startup-events";
-import { InteractiveMode } from "@oh-my-pi/pi-coding-agent/modes/interactive-mode";
-import { initTheme } from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { EventBus } from "@oh-my-pi/pi-coding-agent/utils/event-bus";
-import { logger, TempDir } from "@oh-my-pi/pi-utils";
+} from "@openpaths/coding-agent/mcp/startup-events";
+import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
+import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
+import { logger, TempDir } from "@openpaths/utils";
 
 /**
  * Behavioral wiring guard for MCP startup status (mirrors

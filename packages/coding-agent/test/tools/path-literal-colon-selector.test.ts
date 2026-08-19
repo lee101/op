@@ -2,19 +2,19 @@ import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { EditTool } from "@oh-my-pi/pi-coding-agent/edit";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { EditTool } from "@openpaths/coding-agent/edit";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
 import {
 	expandPath,
 	probeLiteralPathExists,
 	resolveToCwd,
 	splitPathAndSel,
 	splitPathAndSelPreferringLiteral,
-} from "@oh-my-pi/pi-coding-agent/tools/path-utils";
-import { ReadTool } from "@oh-my-pi/pi-coding-agent/tools/read";
-import { GrepOutputMode } from "@oh-my-pi/pi-natives";
-import { removeWithRetries } from "@oh-my-pi/pi-utils";
+} from "@openpaths/coding-agent/tools/path-utils";
+import { ReadTool } from "@openpaths/coding-agent/tools/read";
+import { GrepOutputMode } from "@openpaths/natives";
+import { removeWithRetries } from "@openpaths/utils";
 import { runGrepCommand } from "../../src/cli/grep-cli";
 import { initTheme } from "../../src/modes/theme/theme";
 import { GrepTool } from "../../src/tools/grep";
@@ -362,7 +362,7 @@ describe("leading-colon path recovery (issue #5508)", () => {
 	}
 
 	it("strips a leading colon before an absolute path in resolveToCwd", () => {
-		expect(resolveToCwd(":/tmp/omp-colon-test.txt", tmpDir)).toBe("/tmp/omp-colon-test.txt");
+		expect(resolveToCwd(":/tmp/op-colon-test.txt", tmpDir)).toBe("/tmp/op-colon-test.txt");
 	});
 
 	it("strips a leading colon before `./` and `../` relative paths in resolveToCwd", () => {
@@ -445,7 +445,7 @@ describe("leading-colon path recovery (issue #5508)", () => {
 	});
 });
 
-// Regression: the `omp grep` CLI subcommand resolved its path argument with a
+// Regression: the `op grep` CLI subcommand resolved its path argument with a
 // bare `path.resolve`, bypassing `expandPath`, so the leading-colon strip from
 // #5529 never reached it — see issue #5624.
 describe("grep CLI subcommand leading-colon path (issue #5624)", () => {

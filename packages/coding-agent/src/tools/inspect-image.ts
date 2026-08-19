@@ -1,6 +1,6 @@
-import { type } from "@oh-my-pi/omptype";
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-pi/pi-agent-core";
-import { instrumentedCompleteSimple, resolveTelemetry } from "@oh-my-pi/pi-agent-core";
+import { type } from "@openpaths/optype";
+import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@openpaths/agent-core";
+import { instrumentedCompleteSimple, resolveTelemetry } from "@openpaths/agent-core";
 import {
 	type Api,
 	type AssistantMessage,
@@ -8,8 +8,8 @@ import {
 	type ImageContent,
 	type Model,
 	type ToolExample,
-} from "@oh-my-pi/pi-ai";
-import { prompt } from "@oh-my-pi/pi-utils";
+} from "@openpaths/ai";
+import { prompt } from "@openpaths/utils";
 import { extractTextContent } from "../commit/utils";
 
 import {

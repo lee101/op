@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { type } from "@oh-my-pi/omptype";
-import { type OpenAICompletionsOptions, streamOpenAICompletions } from "@oh-my-pi/pi-ai/providers/openai-completions";
-import { type OpenAIResponsesOptions, streamOpenAIResponses } from "@oh-my-pi/pi-ai/providers/openai-responses";
-import type { Context, Model, Tool } from "@oh-my-pi/pi-ai/types";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
+import { type } from "@openpaths/optype";
+import { type OpenAICompletionsOptions, streamOpenAICompletions } from "@openpaths/ai/providers/openai-completions";
+import { type OpenAIResponsesOptions, streamOpenAIResponses } from "@openpaths/ai/providers/openai-responses";
+import type { Context, Model, Tool } from "@openpaths/ai/types";
+import { getBundledModel } from "@openpaths/catalog/models";
 
 const echoTool: Tool = {
 	name: "echo",

@@ -1,22 +1,22 @@
 import { describe, expect, it } from "bun:test";
-import type { AssistantMessage, FetchImpl } from "@oh-my-pi/pi-ai";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { Effort } from "@oh-my-pi/pi-catalog/effort";
+import type { AssistantMessage, FetchImpl } from "@openpaths/ai";
+import { buildModel } from "@openpaths/catalog/build";
+import { Effort } from "@openpaths/catalog/effort";
 import {
 	isContextOverflow,
 	parseJsonWithRepair,
 	parseStreamingJson,
 	repairJson,
 	streamSimpleOpenAIResponses,
-} from "@oh-my-pi/pi-coding-agent/extensibility/legacy-pi-ai-shim";
+} from "@openpaths/coding-agent/extensibility/legacy-pi-ai-shim";
 
 // Issue #6859: pi extensions import runtime helpers from the `@earendil-works/pi-ai`
-// (aliased to `@oh-my-pi/pi-ai`) package root that omp's barrel no longer forwards.
-// `isContextOverflow` moved under `@oh-my-pi/pi-ai/error` and the JSON-repair
-// helpers moved to `@oh-my-pi/pi-utils`, so `export * from "@oh-my-pi/pi-ai"` left
+// (aliased to `@openpaths/ai`) package root that op's barrel no longer forwards.
+// `isContextOverflow` moved under `@openpaths/ai/error` and the JSON-repair
+// helpers moved to `@openpaths/utils`, so `export * from "@openpaths/ai"` left
 // them off the shim surface and a named import tripped Bun's static
 // "No matching export" check during plugin validation (e.g.
-// `omp plugin install pi-blackhole`). This pins the bridged root surface so it
+// `op plugin install pi-blackhole`). This pins the bridged root surface so it
 // cannot silently regress the way #6583 / #6648 did one symbol at a time.
 function createErrorMessage(errorMessage: string): AssistantMessage {
 	return {

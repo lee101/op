@@ -1,4 +1,4 @@
-import { logger } from "@oh-my-pi/pi-utils";
+import { logger } from "@openpaths/utils";
 import type { Settings } from "../config/settings";
 import * as git from "../utils/git";
 import { appendRepoFlag } from "./gh-common";

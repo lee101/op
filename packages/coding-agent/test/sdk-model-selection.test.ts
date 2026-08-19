@@ -2,19 +2,19 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi 
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { Effort, type FetchImpl } from "@oh-my-pi/pi-ai";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { writeModelCache } from "@oh-my-pi/pi-catalog/model-cache";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { parseArgs } from "@oh-my-pi/pi-coding-agent/cli/args";
-import { ModelRegistry, type ProviderConfigInput } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { getModelMatchPreferences, resolveModelScope } from "@oh-my-pi/pi-coding-agent/config/model-resolver";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { buildSessionOptions as buildCliSessionOptions } from "@oh-my-pi/pi-coding-agent/main";
-import { createAgentSession, type ExtensionFactory } from "@oh-my-pi/pi-coding-agent/sdk";
-import type { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { removeSyncWithRetries, Snowflake } from "@oh-my-pi/pi-utils";
+import { Effort, type FetchImpl } from "@openpaths/ai";
+import { buildModel } from "@openpaths/catalog/build";
+import { writeModelCache } from "@openpaths/catalog/model-cache";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { parseArgs } from "@openpaths/coding-agent/cli/args";
+import { ModelRegistry, type ProviderConfigInput } from "@openpaths/coding-agent/config/model-registry";
+import { getModelMatchPreferences, resolveModelScope } from "@openpaths/coding-agent/config/model-resolver";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { buildSessionOptions as buildCliSessionOptions } from "@openpaths/coding-agent/main";
+import { createAgentSession, type ExtensionFactory } from "@openpaths/coding-agent/sdk";
+import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { removeSyncWithRetries, Snowflake } from "@openpaths/utils";
 import { createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 
 describe("createAgentSession deferred model pattern resolution", () => {

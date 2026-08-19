@@ -1,8 +1,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "bun:test";
-import { Agent } from "@oh-my-pi/pi-agent-core";
-import { ModelRegistry } from "@oh-my-pi/pi-coding-agent/config/model-registry";
-import { resetSettingsForTest, Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { InteractiveMode } from "@oh-my-pi/pi-coding-agent/modes/interactive-mode";
+import { Agent } from "@openpaths/agent-core";
+import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
 import {
 	enableAutoTheme,
 	getCurrentThemeName,
@@ -11,13 +11,13 @@ import {
 	previewTheme,
 	setTheme,
 	stopThemeWatcher,
-} from "@oh-my-pi/pi-coding-agent/modes/theme/theme";
-import { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import type { AuthStorage } from "@oh-my-pi/pi-coding-agent/session/auth-storage";
-import { SessionManager } from "@oh-my-pi/pi-coding-agent/session/session-manager";
-import { TUI } from "@oh-my-pi/pi-tui";
-import type { TerminalAppearance, TerminalAppearanceRequestToken } from "@oh-my-pi/pi-tui/terminal";
-import { TempDir } from "@oh-my-pi/pi-utils";
+} from "@openpaths/coding-agent/modes/theme/theme";
+import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
+import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
+import { TUI } from "@openpaths/tui";
+import type { TerminalAppearance, TerminalAppearanceRequestToken } from "@openpaths/tui/terminal";
+import { TempDir } from "@openpaths/utils";
 import { VirtualTerminal } from "../../tui/test/virtual-terminal";
 import { createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 

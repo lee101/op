@@ -14,17 +14,17 @@
  *    runtime for internal callers.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
-import { toolWireSchema } from "@oh-my-pi/pi-ai/utils/schema";
-import { AsyncJobManager } from "@oh-my-pi/pi-coding-agent/async/job-manager";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { AgentLifecycleManager } from "@oh-my-pi/pi-coding-agent/registry/agent-lifecycle";
-import { AgentRegistry } from "@oh-my-pi/pi-coding-agent/registry/agent-registry";
-import { TaskTool } from "@oh-my-pi/pi-coding-agent/task";
-import * as discoveryModule from "@oh-my-pi/pi-coding-agent/task/discovery";
-import * as executorModule from "@oh-my-pi/pi-coding-agent/task/executor";
-import type { AgentDefinition, SingleResult, TaskParams } from "@oh-my-pi/pi-coding-agent/task/types";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
-import { isRecord } from "@oh-my-pi/pi-utils";
+import { toolWireSchema } from "@openpaths/ai/utils/schema";
+import { AsyncJobManager } from "@openpaths/coding-agent/async/job-manager";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { AgentLifecycleManager } from "@openpaths/coding-agent/registry/agent-lifecycle";
+import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
+import { TaskTool } from "@openpaths/coding-agent/task";
+import * as discoveryModule from "@openpaths/coding-agent/task/discovery";
+import * as executorModule from "@openpaths/coding-agent/task/executor";
+import type { AgentDefinition, SingleResult, TaskParams } from "@openpaths/coding-agent/task/types";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
+import { isRecord } from "@openpaths/utils";
 
 const taskAgent: AgentDefinition = {
 	name: "task",

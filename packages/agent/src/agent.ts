@@ -21,11 +21,11 @@ import {
 	type ThinkingBudgets,
 	type ToolChoice,
 	type ToolResultMessage,
-} from "@oh-my-pi/pi-ai";
-import type { Dialect } from "@oh-my-pi/pi-ai/dialect";
-import type { HarmonyAuditEvent } from "@oh-my-pi/pi-ai/utils/harmony-leak";
-import { getBundledModel } from "@oh-my-pi/pi-catalog/models";
-import { logger } from "@oh-my-pi/pi-utils";
+} from "@openpaths/ai";
+import type { Dialect } from "@openpaths/ai/dialect";
+import type { HarmonyAuditEvent } from "@openpaths/ai/utils/harmony-leak";
+import { getBundledModel } from "@openpaths/catalog/models";
+import { logger } from "@openpaths/utils";
 import {
 	abortReasonText,
 	agentLoop,

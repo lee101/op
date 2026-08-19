@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { ThinkingLevel } from "@oh-my-pi/pi-agent-core";
-import { Effort } from "@oh-my-pi/pi-ai";
-import { parseArgs } from "@oh-my-pi/pi-coding-agent/cli/args";
-import { AUTO_THINKING } from "@oh-my-pi/pi-coding-agent/thinking";
+import { ThinkingLevel } from "@openpaths/agent-core";
+import { Effort } from "@openpaths/ai";
+import { parseArgs } from "@openpaths/coding-agent/cli/args";
+import { AUTO_THINKING } from "@openpaths/coding-agent/thinking";
 
 describe("parseArgs — --hide-thinking flag", () => {
 	it("parses --hide-thinking as a boolean flag", () => {

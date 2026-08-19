@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { compileRuleCondition } from "@oh-my-pi/pi-coding-agent/capability/rule";
-import { buildRuleFromMarkdown, createSourceMeta } from "@oh-my-pi/pi-coding-agent/discovery/helpers";
-import { TtsrManager } from "@oh-my-pi/pi-coding-agent/export/ttsr";
+import { compileRuleCondition } from "@openpaths/coding-agent/capability/rule";
+import { buildRuleFromMarkdown, createSourceMeta } from "@openpaths/coding-agent/discovery/helpers";
+import { TtsrManager } from "@openpaths/coding-agent/export/ttsr";
 
 /**
  * Regression coverage for issue #4796: a rule with a leading `(?i)` inline regex

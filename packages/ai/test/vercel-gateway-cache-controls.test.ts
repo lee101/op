@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { streamOpenAICompletions } from "@oh-my-pi/pi-ai/providers/openai-completions";
-import { streamOpenAIResponses } from "@oh-my-pi/pi-ai/providers/openai-responses";
-import type { Context, Model, ModelSpec, VercelGatewayRouting } from "@oh-my-pi/pi-ai/types";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
+import { streamOpenAICompletions } from "@openpaths/ai/providers/openai-completions";
+import { streamOpenAIResponses } from "@openpaths/ai/providers/openai-responses";
+import type { Context, Model, ModelSpec, VercelGatewayRouting } from "@openpaths/ai/types";
+import { buildModel } from "@openpaths/catalog/build";
 import { withEnv } from "./helpers";
 
 const context: Context = {

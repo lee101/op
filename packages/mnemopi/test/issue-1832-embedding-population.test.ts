@@ -1,5 +1,5 @@
 /**
- * Regression for https://github.com/can1357/oh-my-pi/issues/1832
+ * Regression for https://github.com/lee101/op/issues/1832
  *
  * Before the fix:
  *   - `remember()`/`rememberBatch()` never invoked `embed()`, so the
@@ -17,13 +17,13 @@ import { randomBytes } from "node:crypto";
 import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import "./setup";
-import { cmdRemember } from "@oh-my-pi/pi-mnemopi/cli";
-import { BeamMemory } from "@oh-my-pi/pi-mnemopi/core/beam";
-import { Mnemopi } from "@oh-my-pi/pi-mnemopi/core/memory";
+import { cmdRemember } from "@openpaths/mnemopi/cli";
+import { BeamMemory } from "@openpaths/mnemopi/core/beam";
+import { Mnemopi } from "@openpaths/mnemopi/core/memory";
 import {
 	type ResolvedMnemopiRuntimeOptions,
 	withMnemopiRuntimeOptions,
-} from "@oh-my-pi/pi-mnemopi/core/runtime-options";
+} from "@openpaths/mnemopi/core/runtime-options";
 
 interface EmbeddingRow {
 	readonly memory_id: string;

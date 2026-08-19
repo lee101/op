@@ -1,12 +1,12 @@
-import type { Api, Model, ModelSpec, RemoteCompactionConfig } from "@oh-my-pi/pi-ai/types";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
+import type { Api, Model, ModelSpec, RemoteCompactionConfig } from "@openpaths/ai/types";
+import { buildModel } from "@openpaths/catalog/build";
 import {
 	getBundledModelReferenceIndex,
 	inheritReferenceThinking,
 	resolveModelReference,
-} from "@oh-my-pi/pi-catalog/identity";
-import { getVariantAliasSources, resolveVariantAlias } from "@oh-my-pi/pi-catalog/variant-collapse";
-import { logger } from "@oh-my-pi/pi-utils";
+} from "@openpaths/catalog/identity";
+import { getVariantAliasSources, resolveVariantAlias } from "@openpaths/catalog/variant-collapse";
+import { logger } from "@openpaths/utils";
 import { createLiveConfigHeaders, type HeaderSource } from "./model-config-values";
 import { type ModelPatch, mergeCompat, mergeRemoteCompactionConfig } from "./model-patch";
 import { parseModelString } from "./model-resolver";

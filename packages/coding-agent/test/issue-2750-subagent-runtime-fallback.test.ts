@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
-import type { Api, Model } from "@oh-my-pi/pi-ai";
-import { buildModel } from "@oh-my-pi/pi-catalog/build";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import * as sdkModule from "@oh-my-pi/pi-coding-agent/sdk";
-import type { AgentSession } from "@oh-my-pi/pi-coding-agent/session/agent-session";
-import type { ServingModel } from "@oh-my-pi/pi-coding-agent/session/retry-fallback-chains";
-import { runSubprocess } from "@oh-my-pi/pi-coding-agent/task/executor";
-import type { AgentDefinition } from "@oh-my-pi/pi-coding-agent/task/types";
+import type { Api, Model } from "@openpaths/ai";
+import { buildModel } from "@openpaths/catalog/build";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import * as sdkModule from "@openpaths/coding-agent/sdk";
+import type { AgentSession } from "@openpaths/coding-agent/session/agent-session";
+import type { ServingModel } from "@openpaths/coding-agent/session/retry-fallback-chains";
+import { runSubprocess } from "@openpaths/coding-agent/task/executor";
+import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
 
 function model(provider: string, id: string): Model<Api> {
 	return buildModel({

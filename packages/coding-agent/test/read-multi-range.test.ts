@@ -2,17 +2,17 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { Patch, Patcher } from "@oh-my-pi/hashline";
-import type { AgentToolResult } from "@oh-my-pi/pi-agent-core";
-import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
-import { getFileSnapshotStore } from "@oh-my-pi/pi-coding-agent/edit/file-snapshot-store";
-import { HashlineFilesystem } from "@oh-my-pi/pi-coding-agent/edit/hashline/filesystem";
-import { writethroughNoop } from "@oh-my-pi/pi-coding-agent/lsp";
-import type { ClientBridge } from "@oh-my-pi/pi-coding-agent/session/client-bridge";
-import type { ToolSession } from "@oh-my-pi/pi-coding-agent/tools";
-import type { ReadToolDetails } from "@oh-my-pi/pi-coding-agent/tools/read";
-import { ReadTool } from "@oh-my-pi/pi-coding-agent/tools/read";
-import { removeWithRetries } from "@oh-my-pi/pi-utils";
+import { Patch, Patcher } from "@openpaths/hashline";
+import type { AgentToolResult } from "@openpaths/agent-core";
+import { Settings } from "@openpaths/coding-agent/config/settings";
+import { getFileSnapshotStore } from "@openpaths/coding-agent/edit/file-snapshot-store";
+import { HashlineFilesystem } from "@openpaths/coding-agent/edit/hashline/filesystem";
+import { writethroughNoop } from "@openpaths/coding-agent/lsp";
+import type { ClientBridge } from "@openpaths/coding-agent/session/client-bridge";
+import type { ToolSession } from "@openpaths/coding-agent/tools";
+import type { ReadToolDetails } from "@openpaths/coding-agent/tools/read";
+import { ReadTool } from "@openpaths/coding-agent/tools/read";
+import { removeWithRetries } from "@openpaths/utils";
 
 function textOutput(result: AgentToolResult<ReadToolDetails>): string {
 	return result.content
