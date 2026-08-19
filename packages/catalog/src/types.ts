@@ -543,6 +543,19 @@ export interface ResolvedBedrockCompat {
 }
 
 /**
+ * OpenRouter `provider.sort` routing directive: a bare strategy string, or an
+ * object with `by` plus an optional `partition` (only meaningful when a single
+ * request carries multiple model fallbacks — Oh My Pi sends one model per
+ * request, so `partition` is accepted for models.yml round-tripping).
+ * @see https://openrouter.ai/docs/features/provider-routing#provider-sorting
+ */
+export type OpenRouterRoutingSort =
+	| "price"
+	| "throughput"
+	| "latency"
+	| { by: "price" | "throughput" | "latency"; partition?: "model" | "none" };
+
+/**
  * OpenRouter provider routing preferences.
  * Controls which upstream providers OpenRouter routes requests to.
  * @see https://openrouter.ai/docs/provider-routing
@@ -552,6 +565,12 @@ export interface OpenRouterRouting {
 	only?: string[];
 	/** List of provider slugs to try in order (e.g., ["anthropic", "openai"]). */
 	order?: string[];
+	/**
+	 * Sort providers by price, throughput, or latency instead of OpenRouter's
+	 * default price-weighted load balancing. Equivalent to the `:floor`
+	 * (`"price"`) and `:nitro` (`"throughput"`) model-id variants.
+	 */
+	sort?: OpenRouterRoutingSort;
 }
 
 /**

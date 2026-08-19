@@ -82,6 +82,7 @@ export interface Args {
 	noTitle?: boolean;
 	autoApprove?: boolean;
 	approvalMode?: "always-ask" | "write" | "yolo";
+	autoNextSteps?: boolean;
 	messages: string[];
 	fileArgs: string[];
 	/** Extension-registered flags this parse recognized — name to value. */
@@ -278,6 +279,8 @@ export function parseArgs(inputArgs: string[], extensionFlags?: Map<string, { ty
 			result.noTitle = true;
 		} else if (arg === "--auto-approve" || arg === "--yolo") {
 			result.autoApprove = true;
+		} else if (arg === "--auto-next-steps") {
+			result.autoNextSteps = true;
 		} else if (arg.startsWith("@")) {
 			let filePath = arg.slice(1);
 			if (filePath.startsWith('"') && filePath.endsWith('"') && filePath.length > 1) {

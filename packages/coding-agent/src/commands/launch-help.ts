@@ -104,6 +104,10 @@ export const launchHelp = {
 			options: ["always-ask", "write", "yolo"],
 			description: "Override tools.approvalMode for this session (always-ask|write|yolo)",
 		}),
+		"auto-next-steps": Flags.boolean({
+			description:
+				"Automatically continue after each turn while the agent still has work: re-prompts with the agent's next steps until it reports done (Esc interrupts; capped per prompt)",
+		}),
 	},
 	examples: [
 		`# Interactive mode\n  ${APP_NAME}`,

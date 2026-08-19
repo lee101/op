@@ -2343,6 +2343,58 @@ describe("applyOpenRouterRoutingVariant", () => {
 	});
 });
 
+describe("OpenRouter provider.sort request body", () => {
+	function openRouterModel(compat?: OpenAICompat): Model<"openai-completions"> {
+		return buildModel({
+			...gpt4oMiniSpec,
+			api: "openai-completions",
+			provider: "openrouter",
+			baseUrl: "https://openrouter.ai/api/v1",
+			id: "anthropic/claude-haiku-latest",
+			compat,
+		} as ModelSpec<"openai-completions">);
+	}
+
+	async function capturePayload(
+		model: Model<"openai-completions">,
+		options: { openrouterSort?: "price" | "throughput" | "latency" } = {},
+	): Promise<unknown> {
+		const { promise, resolve } = Promise.withResolvers<unknown>();
+		const fetchMock = createMockFetch(["[DONE]"]);
+		streamOpenAICompletions(model, baseContext(), {
+			apiKey: "test-key",
+			fetch: fetchMock,
+			signal: createAbortedSignal(),
+			onPayload: payload => resolve(payload),
+			...options,
+		});
+		return promise;
+	}
+
+	it("emits provider.sort from the openrouterSort option on OpenRouter hosts", async () => {
+		const payload = await capturePayload(openRouterModel(), { openrouterSort: "price" });
+		expect(payload).toEqual(expect.objectContaining({ provider: { sort: "price" } }));
+	});
+
+	it("keeps a per-model openRouterRouting.sort authoritative over the option", async () => {
+		const payload = await capturePayload(
+			openRouterModel({ openRouterRouting: { sort: "latency", only: ["anthropic"] } }),
+			{ openrouterSort: "price" },
+		);
+		expect(payload).toEqual(expect.objectContaining({ provider: { sort: "latency", only: ["anthropic"] } }));
+	});
+
+	it("emits the existing routing block without sort when no sort is configured", async () => {
+		const payload = await capturePayload(openRouterModel({ openRouterRouting: { only: ["anthropic"] } }));
+		expect(payload).toEqual(expect.objectContaining({ provider: { only: ["anthropic"] } }));
+	});
+
+	it("emits no provider body without routing config or sort option", async () => {
+		const payload = (await capturePayload(openRouterModel())) as Record<string, unknown>;
+		expect(toObject(payload.provider)).toBeNull();
+	});
+});
+
 describe("anthropic cache control for OpenAI-compatible chat completions", () => {
 	function claudeProxyModel(compat?: OpenAICompat): Model<"openai-completions"> {
 		return buildModel({

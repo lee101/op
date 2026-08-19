@@ -1312,6 +1312,11 @@ export async function runRootCommand(
 		// setup-time checks (e.g. #wrapToolForAcpPermission) also see the yolo intent.
 		settingsInstance.override("tools.approvalMode", "yolo");
 	}
+	if (parsedArgs.autoNextSteps) {
+		// Runtime override (not persisted), mirroring the approval-mode flags above:
+		// the session's turn-settle path reads loop.autoNextSteps to auto-continue.
+		settingsInstance.override("loop.autoNextSteps", true);
+	}
 	if (parsedArgs.mode === "rpc" || parsedArgs.mode === "rpc-ui") {
 		applyRpcDefaultSettingOverrides(settingsInstance);
 	} else if (parsedArgs.mode === "acp") {

@@ -141,12 +141,17 @@ export class SessionProviderBoundary {
 			openrouterRoutingPreset !== "default" && options.openrouterVariant === undefined
 				? openrouterRoutingPreset
 				: undefined;
+		const openrouterSortPreset =
+			provider === "openrouter" ? this.#host.settings.get("providers.openrouterSort") : "none";
+		const openrouterSort =
+			openrouterSortPreset !== "none" && options.openrouterSort === undefined ? openrouterSortPreset : undefined;
 		const antigravityEndpointMode =
 			provider === "google-antigravity" ? this.#host.settings.get("providers.antigravityEndpoint") : undefined;
 
 		const preparedOptions: SimpleStreamOptions = {
 			...options,
 			...(openrouterVariant !== undefined && { openrouterVariant }),
+			...(openrouterSort !== undefined && { openrouterSort }),
 			...(antigravityEndpointMode !== undefined && { antigravityEndpointMode }),
 			maxInFlightRequests: validateProviderMaxInFlightRequests(
 				options.maxInFlightRequests ?? this.#host.settings.get("providers.maxInFlightRequests"),

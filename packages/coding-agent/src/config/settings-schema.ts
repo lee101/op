@@ -1706,6 +1706,18 @@ export const SETTINGS_SCHEMA = {
 		},
 	},
 
+	"loop.autoNextSteps": {
+		type: "boolean",
+		default: false,
+		ui: {
+			tab: "interaction",
+			group: "Input",
+			label: "Auto Next Steps",
+			description:
+				"Automatically continue after each turn while the agent still has work to do: when a turn ends, re-prompt once to proceed with the next step instead of waiting for input. Stops when the agent reports done, only fires after turns that used tools, and is capped per user prompt (Esc interrupts). Set with --auto-next-steps.",
+		},
+	},
+
 	// Input and startup
 	doubleEscapeAction: {
 		type: "enum",
@@ -5295,7 +5307,7 @@ export const SETTINGS_SCHEMA = {
 	"providers.openrouterVariant": {
 		type: "enum",
 		values: ["default", "nitro", "floor", "online", "exacto"] as const,
-		default: "default",
+		default: "floor",
 		ui: {
 			tab: "providers",
 			group: "Protocol",
@@ -5303,14 +5315,48 @@ export const SETTINGS_SCHEMA = {
 			description:
 				"Default routing-variant suffix appended to OpenRouter model IDs (overridden when the selector already names a variant)",
 			options: [
-				{ value: "default", label: "Default", description: "No suffix; use OpenRouter's default routing" },
+				{ value: "floor", label: ":floor", description: "Prioritize cheapest available provider (default)" },
+				{
+					value: "default",
+					label: "Default",
+					description: "No suffix; use OpenRouter's default load-balanced routing",
+				},
 				{ value: "nitro", label: ":nitro", description: "Prioritize throughput / lowest latency" },
-				{ value: "floor", label: ":floor", description: "Prioritize cheapest available provider" },
 				{ value: "online", label: ":online", description: "Enable OpenRouter's web-search plugin" },
 				{
 					value: "exacto",
 					label: ":exacto",
 					description: "Cherry-picked high-quality providers (only defined for select models)",
+				},
+			],
+		},
+	},
+	"providers.openrouterSort": {
+		type: "enum",
+		values: ["none", "price", "throughput", "latency"] as const,
+		default: "none",
+		ui: {
+			tab: "providers",
+			group: "Protocol",
+			label: "OpenRouter Provider Sort",
+			description:
+				"Emit an explicit provider.sort routing body on OpenRouter requests (disables OpenRouter's price-weighted load balancing, like the :floor/:nitro suffixes). none sends no sort body — the :floor routing variant default already prioritizes price. Per-model openRouterRouting.sort in models.yml overrides this.",
+			options: [
+				{ value: "none", label: "None", description: "No provider.sort body; rely on the routing variant suffix" },
+				{
+					value: "price",
+					label: "Price",
+					description: "Always route to the lowest-priced provider (equivalent to :floor)",
+				},
+				{
+					value: "throughput",
+					label: "Throughput",
+					description: "Always route to the highest-throughput provider (equivalent to :nitro)",
+				},
+				{
+					value: "latency",
+					label: "Latency",
+					description: "Always route to the lowest-latency provider",
 				},
 			],
 		},

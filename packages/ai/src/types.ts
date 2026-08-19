@@ -35,7 +35,16 @@ import type {
 } from "@oh-my-pi/pi-catalog/discovery/cursor-gen/agent_pb";
 import type { Effort } from "@oh-my-pi/pi-catalog/effort";
 import { isOpenAIModelId } from "@oh-my-pi/pi-catalog/identity/family";
-import type { Api, FetchImpl, KnownApi, Model, Provider, ThinkingBudgets, Usage } from "@oh-my-pi/pi-catalog/types";
+import type {
+	Api,
+	FetchImpl,
+	KnownApi,
+	Model,
+	OpenRouterRoutingSort,
+	Provider,
+	ThinkingBudgets,
+	Usage,
+} from "@oh-my-pi/pi-catalog/types";
 import type { ApiKey } from "./auth-retry";
 import type { BedrockOptions } from "./providers/amazon-bedrock";
 import type { AnthropicOptions } from "./providers/anthropic";
@@ -653,6 +662,13 @@ export interface SimpleStreamOptions extends Omit<StreamOptions, "apiKey"> {
 	 * or the catalog entry already names the variant).
 	 */
 	openrouterVariant?: string;
+	/**
+	 * OpenRouter `provider.sort` routing directive sent in the request body
+	 * (disables OpenRouter's price-weighted load balancing, like the `:floor` /
+	 * `:nitro` model-id variants). Ignored for non-OpenRouter requests, and
+	 * overridden by a per-model `openRouterRouting.sort` in models.yml.
+	 */
+	openrouterSort?: OpenRouterRoutingSort;
 	/**
 	 * Caller-owned Google context-cache resource name. Forwarded only to the
 	 * direct Gemini GenerateContent and Vertex GenerateContent APIs; all other

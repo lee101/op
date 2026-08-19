@@ -1632,3 +1632,128 @@ describe("AgentSession message pipeline", () => {
 		expect(result.assistantMessage.content.every(block => block.type !== "toolCall")).toBe(true);
 	});
 });
+
+describe("loop.autoNextSteps", () => {
+	async function setupAutoNextStepsSession(autoNextSteps: boolean) {
+		const tempDir = TempDir.createSync("@auto-next-steps-");
+		const api = "test-auto-next-steps";
+		let requests = 0;
+		const continuationContexts: Context[] = [];
+		registerCustomApi(api, (_model, context, _options) => {
+			requests++;
+			const stream = new AssistantMessageEventStream();
+			queueMicrotask(() => {
+				if (requests === 1) {
+					// Tool-using run: the loop executes the tool, then asks again.
+					const message = createAssistantMessage("");
+					const toolCall = {
+						type: "toolCall",
+						id: "call-auto-1",
+						name: "bash",
+						arguments: { command: "echo hi" },
+					} as const;
+					message.content = [toolCall];
+					message.stopReason = "toolUse";
+					stream.push({ type: "toolcall_start", contentIndex: 0, partial: message });
+					stream.push({ type: "toolcall_end", contentIndex: 0, toolCall: toolCall as never, partial: message });
+					stream.push({ type: "done", reason: "toolUse", message });
+				} else if (requests === 2) {
+					const message = createAssistantMessage("first pass done");
+					stream.push({ type: "done", reason: "stop", message });
+				} else {
+					// Auto-next-steps continuation (or beyond): text-only, no tools.
+					continuationContexts.push(context);
+					const message = createAssistantMessage("all done, no work remains");
+					stream.push({ type: "done", reason: "stop", message });
+				}
+			});
+			return stream;
+		});
+		const model = buildModel({
+			id: "auto-next-steps-model",
+			name: "Auto Next Steps Model",
+			api,
+			provider: "ollama",
+			baseUrl: "http://127.0.0.1:11434",
+			reasoning: false,
+			input: ["text"],
+			cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+			contextWindow: 4096,
+			maxTokens: 1024,
+		} as ModelSpec<Api>) as Model<Api>;
+		const authStorage = await AuthStorage.create(tempDir.join("auth.db"));
+		const modelRegistry = new ModelRegistry(authStorage, tempDir.join("models.yml"));
+		const { session } = await createAgentSession({
+			cwd: tempDir.path(),
+			agentDir: tempDir.path(),
+			sessionManager: SessionManager.inMemory(tempDir.path()),
+			authStorage,
+			modelRegistry,
+			settings: Settings.isolated({
+				"compaction.enabled": false,
+				"bash.autoBackground.enabled": false,
+				"bashInterceptor.enabled": false,
+				...(autoNextSteps ? { "loop.autoNextSteps": true } : {}),
+			}),
+			model,
+			disableExtensionDiscovery: true,
+			skills: [],
+			contextFiles: [],
+			promptTemplates: [],
+			slashCommands: [],
+			enableMCP: false,
+			enableLsp: false,
+			skipPythonPreflight: true,
+			toolNames: ["bash"],
+		});
+		return {
+			session,
+			getState: () => ({ requests, continuationContexts }),
+			cleanup: async () => {
+				await session.dispose();
+				authStorage.close();
+				tempDir[Symbol.dispose]();
+			},
+		};
+	}
+
+	function continuationText(contexts: Context[]): string {
+		return contexts
+			.flatMap(context =>
+				context.messages.flatMap(message => {
+					if (typeof message.content === "string") return [message.content];
+					return message.content.flatMap(part => (part.type === "text" ? [part.text] : []));
+				}),
+			)
+			.join("\n");
+	}
+
+	it("re-prompts with the next-steps directive after a tool-using turn until the model stops using tools", async () => {
+		const { session, getState, cleanup } = await setupAutoNextStepsSession(true);
+		try {
+			await session.sendUserMessage("do the work");
+
+			// Initial run: toolCall + final text (2 requests). Auto-next-steps
+			// continuation: 1 more request. The text-only continuation ends the loop.
+			expect(getState().requests).toBe(3);
+			expect(continuationText(getState().continuationContexts)).toContain(
+				"Continue executing the current task autonomously",
+			);
+		} finally {
+			await cleanup();
+		}
+	});
+
+	it("stays silent when loop.autoNextSteps is off", async () => {
+		const { session, getState, cleanup } = await setupAutoNextStepsSession(false);
+		try {
+			await session.sendUserMessage("do the work");
+
+			// Same tool-using run, but no continuation prompt fires.
+			expect(getState().requests).toBe(2);
+			expect(getState().continuationContexts).toHaveLength(0);
+		} finally {
+			await cleanup();
+		}
+	});
+});

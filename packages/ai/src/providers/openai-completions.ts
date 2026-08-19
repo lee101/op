@@ -2,7 +2,7 @@ import type { Effort } from "@oh-my-pi/pi-catalog/effort";
 import { isKimiModelId } from "@oh-my-pi/pi-catalog/identity";
 import { resolveWireModelId } from "@oh-my-pi/pi-catalog/model-thinking";
 import { calculateCost } from "@oh-my-pi/pi-catalog/models";
-import type { ResolvedOpenAICompat } from "@oh-my-pi/pi-catalog/types";
+import type { OpenRouterRoutingSort, ResolvedOpenAICompat } from "@oh-my-pi/pi-catalog/types";
 import { $env, logger, parseStreamingJson, parseStreamingJsonThrottled } from "@oh-my-pi/pi-utils";
 import { renderDemotedThinking } from "../dialect/demotion";
 import * as AIError from "../error";
@@ -484,6 +484,12 @@ export interface OpenAICompletionsOptions extends StreamOptions {
 	 * with the variant baked in).
 	 */
 	openrouterVariant?: string;
+	/**
+	 * OpenRouter `provider.sort` routing directive sent in the request body.
+	 * Ignored for non-OpenRouter requests; a per-model
+	 * `openRouterRouting.sort` in models.yml overrides this.
+	 */
+	openrouterSort?: OpenRouterRoutingSort;
 	/** Opt-in GPT-5.6+ prompt-cache policy. Unsupported explicit mode fails locally. */
 	promptCache?: OpenAIPromptCacheOptions;
 }
@@ -1728,7 +1734,7 @@ function buildParams(
 	applyChatCompletionsCompatPolicy(params, finalPolicy);
 	dropOpenRouterKimiForcedToolReasoning(params, model, finalPolicy);
 
-	applyOpenAIGatewayRouting(params, compat, cacheRetention !== "none");
+	applyOpenAIGatewayRouting(params, compat, cacheRetention !== "none", options?.openrouterSort);
 
 	applyOpenAIExtraBody(params, compat.extraBody, {
 		dropThinkingWhenReasoningEffort: compat.dropThinkingWhenReasoningEffort,

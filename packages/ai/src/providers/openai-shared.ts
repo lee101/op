@@ -8,6 +8,7 @@ import type {
 	OpenAIReasoningDisableMode,
 	OpenAIStreamMarkupHealingPattern,
 	OpenRouterRouting,
+	OpenRouterRoutingSort,
 	ResolvedOpenAICompat,
 	ResolvedOpenAIResponsesCompat,
 	ResolvedOpenAISharedCompat,
@@ -641,15 +642,24 @@ export interface OpenAIGatewayRoutingCompat {
 /**
  * Apply gateway routing preferences to the request body. OpenRouter routes via
  * the top-level `provider` field; the Vercel AI Gateway routes Chat
- * Completions through `providerOptions.gateway`.
+ * Completions through `providerOptions.gateway`. `openRouterSort` is the
+ * per-request `provider.sort` directive (from `providers.openrouterSort`); a
+ * per-model `compat.openRouterRouting.sort` wins over it.
  */
 export function applyOpenAIGatewayRouting(
 	params: OpenAIGatewayRoutingParams,
 	compat: OpenAIGatewayRoutingCompat,
 	cacheEnabled = true,
+	openRouterSort?: OpenRouterRoutingSort,
 ): void {
-	if (compat.isOpenRouterHost && compat.openRouterRouting) {
-		params.provider = compat.openRouterRouting;
+	if (compat.isOpenRouterHost) {
+		const routing = compat.openRouterRouting;
+		// A per-model openRouterRouting.sort (models.yml) wins over the global
+		// providers.openrouterSort option.
+		const optionSort = routing?.sort === undefined ? openRouterSort : undefined;
+		if (routing || optionSort !== undefined) {
+			params.provider = { ...routing, ...(optionSort !== undefined ? { sort: optionSort } : {}) };
+		}
 	}
 	if (compat.isVercelGatewayHost && compat.vercelGatewayRouting) {
 		const routing = compat.vercelGatewayRouting;

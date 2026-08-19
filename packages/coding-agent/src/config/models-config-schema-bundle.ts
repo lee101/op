@@ -2,9 +2,13 @@ import { type } from "@oh-my-pi/omptype";
 import { once } from "@oh-my-pi/pi-utils";
 
 export const getModelsConfigSchemaBundle = once(() => {
+	const OpenRouterRoutingSortSchema = type('"price" | "throughput" | "latency"').or(
+		type({ by: '"price" | "throughput" | "latency"', "partition?": '"model" | "none"' }),
+	);
 	const OpenRouterRoutingSchema = type({
 		"only?": "string[]",
 		"order?": "string[]",
+		"sort?": OpenRouterRoutingSortSchema,
 	});
 
 	const VercelGatewayRoutingSchema = type({

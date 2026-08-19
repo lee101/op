@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Added `openrouterSort` stream option: forwards an OpenRouter `provider.sort` routing directive into the chat-completions and Responses request bodies (a per-model `openRouterRouting.sort` in models.yml wins over it).
+
 ## [17.3.7] - 2026-08-17
 
 ### Changed

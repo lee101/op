@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- Added `--auto-next-steps` CLI flag and the `loop.autoNextSteps` setting: after a turn that used tools settles, the agent re-prompts itself to continue with the next step until it reports done (Esc interrupts; capped at 25 turns per user prompt; suppressed in plan mode and under an active goal).
+- Added `providers.openrouterSort` setting to emit an explicit `provider.sort` routing body on OpenRouter requests (`price`, `throughput`, or `latency`).
+
+### Changed
+- `providers.openrouterVariant` now defaults to `floor`, so OpenRouter models route to the cheapest available provider by default (choose `default` for OpenRouter's load-balanced routing).
+
 ## [17.3.7] - 2026-08-17
 
 ### Changed

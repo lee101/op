@@ -10,6 +10,7 @@ import type {
 	Context,
 	Model,
 	OpenAICompat,
+	OpenRouterRoutingSort,
 	ProviderSessionState,
 	RawSseEvent,
 	ServiceTier,
@@ -110,6 +111,12 @@ export interface OpenAIResponsesOptions extends StreamOptions {
 	textVerbosity?: "low" | "medium" | "high";
 	toolChoice?: ToolChoice;
 	openrouterVariant?: string;
+	/**
+	 * OpenRouter `provider.sort` routing directive sent in the request body.
+	 * Ignored for non-OpenRouter requests; a per-model
+	 * `openRouterRouting.sort` in models.yml overrides this.
+	 */
+	openrouterSort?: OpenRouterRoutingSort;
 	maxTokensExplicit?: boolean;
 	disableReasoning?: boolean;
 	/**
@@ -1310,7 +1317,7 @@ export function buildParams(
 	if (model.compat.isVercelGatewayHost) {
 		applyVercelResponsesCacheControls(params, model.compat, cacheRetention);
 	} else {
-		applyOpenAIGatewayRouting(params, model.compat);
+		applyOpenAIGatewayRouting(params, model.compat, true, options?.openrouterSort);
 	}
 
 	applyOpenAIExtraBody(params, options?.extraBody);

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Added `OpenRouterRouting.sort`: a `provider.sort` directive (`"price"`, `"throughput"`, `"latency"`, or an object with `by` and optional `partition`) expressible per model in models.yml.
+
 ## [17.3.6] - 2026-08-17
 
 ### Changed

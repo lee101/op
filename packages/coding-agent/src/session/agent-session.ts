@@ -161,6 +161,7 @@ import type { PlanModeState } from "../plan-mode/state";
 import goalModeContextPrompt from "../prompts/goals/goal-mode-context.md" with { type: "text" };
 import goalTodoContextPrompt from "../prompts/goals/goal-todo-context.md" with { type: "text" };
 import autoContinuePrompt from "../prompts/system/auto-continue.md" with { type: "text" };
+import autoNextStepsPrompt from "../prompts/system/auto-next-steps.md" with { type: "text" };
 import checkpointActiveNoticeTemplate from "../prompts/system/checkpoint-active-notice.md" with { type: "text" };
 import interruptedThinkingTemplate from "../prompts/system/interrupted-thinking.md" with { type: "text" };
 import planModeActivePrompt from "../prompts/system/plan-mode-active.md" with { type: "text" };
@@ -348,6 +349,14 @@ export * from "./agent-session-types";
 export type { AdvisorStats, PerAdvisorStat } from "./session-advisors";
 
 const SESSION_STOP_CONTINUATION_CAP = 8;
+
+/**
+ * Max consecutive auto-next-step continuations per user prompt. The natural
+ * stop rule (a text-only turn after a tool-using run) terminates most sessions
+ * earlier; the cap only guards pathological tool-use loops from burning tokens
+ * with no user in the loop.
+ */
+const AUTO_NEXT_STEPS_MAX_TURNS = 25;
 
 import { LoopGuards, type StreamGuardsHost, StreamingEditGuard } from "./stream-guards";
 import { TodoTracker, type TodoTrackerHost } from "./todo-tracker";
@@ -662,6 +671,12 @@ export class AgentSession {
 	 * Cleared before every new prompt turn so the next turn evaluates cleanly.
 	 */
 	#yieldTerminationPending = false;
+	/**
+	 * Consecutive auto-next-step continuations within one user prompt. Capped so a
+	 * pathological tool-use loop cannot burn tokens forever without a user in the
+	 * loop; reset by #resetPromptMaintenanceState on every new prompt.
+	 */
+	#autoNextStepsCount = 0;
 	#synchronouslyTerminatedYieldToolCallIds = new Set<string>();
 	#providerSessionState = new Map<string, ProviderSessionState>();
 	#hindsightSessionState: HindsightSessionState | undefined = undefined;
@@ -671,6 +686,7 @@ export class AgentSession {
 	#resetPromptMaintenanceState(): void {
 		this.#recovery.resetForNewPrompt();
 		this.#yieldTerminationPending = false;
+		this.#autoNextStepsCount = 0;
 	}
 
 	#acquirePowerAssertion(): void {
@@ -3134,7 +3150,12 @@ export class AgentSession {
 				return;
 			}
 			const sessionStopWillContinue = await this.#emitSessionStopEvent(activeMessages, msg);
-			await emitAgentEndNotification(sessionStopWillContinue ? { willContinue: true } : undefined);
+			const autoNextStepsScheduled = sessionStopWillContinue
+				? false
+				: this.#scheduleAutoNextSteps(msg, settledMessages);
+			await emitAgentEndNotification(
+				sessionStopWillContinue || autoNextStepsScheduled ? { willContinue: true } : undefined,
+			);
 		}
 	};
 
@@ -3280,7 +3301,7 @@ export class AgentSession {
 		return this.#scheduleAutoContinuePrompt(options.generation);
 	}
 
-	#scheduleAutoContinuePrompt(generation: number): boolean {
+	#scheduleAutoContinuePrompt(generation: number, promptText: string = autoContinuePrompt): boolean {
 		const continuePrompt = async () => {
 			// Compaction summarizes away the first-message eager preludes, so re-assert the
 			// delegate-via-tasks / phased-todo reminders on this auto-resumed turn. This runs
@@ -3290,11 +3311,11 @@ export class AgentSession {
 			await this.#promptWithMessage(
 				{
 					role: "developer",
-					content: [{ type: "text", text: autoContinuePrompt }],
+					content: [{ type: "text", text: promptText }],
 					attribution: "agent",
 					timestamp: Date.now(),
 				},
-				autoContinuePrompt,
+				promptText,
 				{
 					skipPostPromptRecoveryWait: true,
 					prependMessages: eagerNudges.length > 0 ? eagerNudges : undefined,
@@ -3317,6 +3338,46 @@ export class AgentSession {
 			{ generation },
 		);
 		return true;
+	}
+
+	/**
+	 * Auto-next-steps (--auto-next-steps / loop.autoNextSteps): after a turn
+	 * settles with a terminal answer, keep executing the task by re-prompting
+	 * with {@link autoNextStepsPrompt} instead of handing control back to the
+	 * user. Only fires when the finished run actually used tools — a text-only
+	 * turn with no tool calls is the model's own "done" signal and stops the
+	 * loop — and never in plan mode (convergence stays user-driven) or while an
+	 * active goal owns continuation. Capped at {@link AUTO_NEXT_STEPS_MAX_TURNS}
+	 * per user prompt.
+	 */
+	#scheduleAutoNextSteps(msg: AssistantMessage, settledMessages: AgentMessage[]): boolean {
+		if (!this.settings.get("loop.autoNextSteps")) return false;
+		if (this.#abortInProgress || this.#isDisposed) return false;
+		// During mode-exit teardown the exiting mode's tools/context are still
+		// live; an auto-resumed turn would race the teardown (issue #8326 pattern).
+		if (this.#modeExitDrainSuppressionDepth > 0) return false;
+		if (msg.stopReason === "error" || msg.stopReason === "aborted" || msg.stopReason === "length") return false;
+		if (this.#planModeState?.enabled) return false;
+		// An active goal already auto-continues between turns; running both would
+		// double-prompt.
+		const activeGoal = this.#goalModeState?.enabled === true && this.#goalModeState.goal.status === "active";
+		if (activeGoal) return false;
+		// A session_stop hook continuation already owns the next turn.
+		if (this.#sessionStopHookActive) return false;
+		// Only resume when the finished run did real work.
+		const ranTools = settledMessages.some(
+			message => message.role === "assistant" && message.content.some(content => content.type === "toolCall"),
+		);
+		if (!ranTools) return false;
+		if (this.#autoNextStepsCount >= AUTO_NEXT_STEPS_MAX_TURNS) {
+			logger.info("auto-next-steps cap reached; stopping autonomous continuation", {
+				sessionId: this.sessionId,
+				cap: AUTO_NEXT_STEPS_MAX_TURNS,
+			});
+			return false;
+		}
+		this.#autoNextStepsCount++;
+		return this.#scheduleAutoContinuePrompt(this.#promptGeneration, autoNextStepsPrompt);
 	}
 
 	async #cancelPostPromptTasks(): Promise<void> {

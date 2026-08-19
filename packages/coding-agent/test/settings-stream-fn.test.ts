@@ -1,8 +1,9 @@
 /**
  * Contract: `createSettingsAwareStreamFn` layers session provider settings
- * (`providers.openrouterVariant`, `providers.antigravityEndpoint`,
- * `providers.stream*TimeoutSeconds`, `providers.maxInFlightRequests`,
- * `model.loopGuard.*`, `textVerbosity` for Responses-family requests)
+ * (`providers.openrouterVariant`, `providers.openrouterSort`,
+ * `providers.antigravityEndpoint`, `providers.stream*TimeoutSeconds`,
+ * `providers.maxInFlightRequests`, `model.loopGuard.*`, `textVerbosity` for
+ * Responses-family requests)
  * options win — the same wiring the main agent and the advisor agent share so
  * OpenRouter sticky-routing / response caching behaves the same on advisor turns
  * (can1357/oh-my-pi#3639).
@@ -137,7 +138,17 @@ describe("createSettingsAwareStreamFn", () => {
 		expect(calls[1]?.options?.maxRetryDelayMs).toBe(5_000);
 	});
 
-	it("treats the default openrouterVariant as absent so the base call carries no variant", () => {
+	it("applies the :floor routing variant by default for OpenRouter", () => {
+		const settings = Settings.isolated({});
+		const { fn: base, calls } = captureBase();
+		const wrapped = createSettingsAwareStreamFn(settings, base);
+
+		wrapped(stubModel, stubContext, undefined);
+
+		expect(calls[0]?.options?.openrouterVariant).toBe("floor");
+	});
+
+	it("treats the explicit 'default' openrouterVariant as absent so the base call carries no variant", () => {
 		const settings = Settings.isolated({ "providers.openrouterVariant": "default" });
 		const { fn: base, calls } = captureBase();
 		const wrapped = createSettingsAwareStreamFn(settings, base);
@@ -147,9 +158,24 @@ describe("createSettingsAwareStreamFn", () => {
 		expect(calls[0]?.options?.openrouterVariant).toBeUndefined();
 	});
 
+	it("forwards a configured provider sort and treats 'none' as absent", () => {
+		const priced = Settings.isolated({ "providers.openrouterSort": "price" });
+		const { fn: pricedBase, calls: pricedCalls } = captureBase();
+		const pricedWrapped = createSettingsAwareStreamFn(priced, pricedBase);
+		pricedWrapped(stubModel, stubContext, undefined);
+		expect(pricedCalls[0]?.options?.openrouterSort).toBe("price");
+
+		const none = Settings.isolated({ "providers.openrouterSort": "none" });
+		const { fn: noneBase, calls: noneCalls } = captureBase();
+		const noneWrapped = createSettingsAwareStreamFn(none, noneBase);
+		noneWrapped(stubModel, stubContext, undefined);
+		expect(noneCalls[0]?.options?.openrouterSort).toBeUndefined();
+	});
+
 	it("lets caller-supplied options override the session settings", () => {
 		const settings = Settings.isolated({
 			"providers.openrouterVariant": "floor",
+			"providers.openrouterSort": "price",
 			"providers.antigravityEndpoint": "sandbox",
 			"providers.maxInFlightRequests": { openrouter: 4 },
 			"model.loopGuard.enabled": true,
@@ -159,6 +185,7 @@ describe("createSettingsAwareStreamFn", () => {
 
 		wrapped(stubModel, stubContext, {
 			openrouterVariant: "nitro",
+			openrouterSort: "throughput",
 			antigravityEndpointMode: "production",
 			maxInFlightRequests: { openrouter: 1 },
 			loopGuard: { enabled: false },
@@ -167,6 +194,7 @@ describe("createSettingsAwareStreamFn", () => {
 
 		const options = calls[0]?.options;
 		expect(options?.openrouterVariant).toBe("nitro");
+		expect(options?.openrouterSort).toBe("throughput");
 		expect(options?.antigravityEndpointMode).toBe("production");
 		expect(options?.maxInFlightRequests).toEqual({ openrouter: 1 });
 		// Loop guard merges per-field: caller wins on `enabled`, settings fill
