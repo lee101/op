@@ -47,6 +47,7 @@ import {
 	MODELS_DEV_PROVIDER_DESCRIPTORS,
 	mapModelsDevToModels,
 	OPENAI_DAYBREAK_CURATED_FALLBACK_MODELS,
+	OPENROUTER_STATIC_MODELS,
 	projectOpenAIProReasoningAliases,
 	SAKANA_FUGU_STATIC_MODELS,
 	stripFireworksDeepSeekThinkingToggle,
@@ -673,6 +674,10 @@ async function generateModels() {
 	}
 
 	allModels = applyGlobalModelsDevFallback(allModels, modelsDevModels);
+	// OpenRouter stealth models are not reliably exposed by `/v1/models`.
+	// Seed the current one so `openrouter/stealth/ox-alpha` resolves without
+	// requiring a prior discovery/cache pass.
+	allModels.push(...OPENROUTER_STATIC_MODELS);
 	// Seed QwenCloud's documented Token Plan models when credentialed
 	// discovery is unavailable. A successful `/models` response is authoritative
 	// for the subscribed edition and must not be widened by the fallback.

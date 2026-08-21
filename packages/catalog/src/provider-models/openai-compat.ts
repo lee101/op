@@ -2648,6 +2648,26 @@ export function openrouterModelManagerOptions(
 	};
 }
 
+/**
+ * OpenRouter stealth models are intentionally omitted from the public catalog
+ * endpoint. Keep the current model usable on a fresh install until it is
+ * advertised there (or is retired).
+ */
+export const OPENROUTER_STATIC_MODELS: readonly ModelSpec<"openrouter">[] = [
+	{
+		id: "stealth/ox-alpha",
+		name: "Ox Alpha (Stealth)",
+		api: "openrouter",
+		provider: "openrouter",
+		baseUrl: "https://openrouter.ai/api/v1",
+		reasoning: false,
+		input: ["text"],
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 1_000_000,
+		maxTokens: 32_768,
+	},
+];
+
 const ZENMUX_OPENAI_BASE_URL = "https://zenmux.ai/api/v1";
 const ZENMUX_ANTHROPIC_BASE_URL = "https://zenmux.ai/api/anthropic";
 

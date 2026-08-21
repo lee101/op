@@ -26,10 +26,6 @@ The most capable agent surface that ships. Continuously tuned by real-world use 
 
 **60+** providers · **31** built-in tools · **14** lsp ops · **28** dap ops · **~80k** lines of Rust core.
 
-> [!NOTE]
-> Install/media assets under `omp.sh` are still served by upstream until the
-> matching `openpaths.io` endpoints are live.
-
 ## Install
 
 **macOS · Linux**
@@ -52,44 +48,27 @@ brew install lee101/tap/op
 bun install -g @openpaths/coding-agent
 ```
 
-**Nix**
-
-```sh
-# Run without installing
-nix run github:lee101/op
-
-# Or install into the active profile
-nix profile install github:lee101/op
-```
-
-Flake consumers can use `packages.<system>.op`, `overlays.default`, `nixosModules.default`, or `homeManagerModules.default`. A Home Manager configuration can install OP and own its settings declaratively:
-
-```nix
-{
-  inputs.op.url = "github:lee101/op";
-
-  # In your Home Manager module:
-  imports = [ inputs.op.homeManagerModules.default ];
-  programs.op = {
-    enable = true;
-    settings.startup.quiet = true;
-  };
-}
-```
-
 **Windows (PowerShell)**
 
 ```powershell
 irm https://openpaths.io/install.ps1 | iex
 ```
 
-**Pinned versions (mise)**
+macOS · Linux · Windows · bun ≥ 1.3.14
+
+The supported command after installation is simply `op`. For a source
+checkout, run `bun setup`, then `bun run dev` or `bun run build`.
+
+### OpenRouter
+
+Set `OPENROUTER_API_KEY`, then select the current stealth model with:
 
 ```sh
-mise use -g github:lee101/op
+op --model openrouter/stealth/ox-alpha
 ```
 
-macOS · Linux · Windows · bun ≥ 1.3.14
+The model is bundled so it can be selected on a fresh install; OpenRouter may
+retire or replace stealth models without notice.
 
 ### Shell completions
 
