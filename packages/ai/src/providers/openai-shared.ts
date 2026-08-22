@@ -544,9 +544,11 @@ export function isOpenRouterAnthropicModel(model: OpenAIModelIdentity): boolean 
  * "already present" when `modelId` contains a colon after the last `/` separator —
  * which covers both user-typed selectors (`anthropic/claude-haiku:nitro`) and catalog
  * entries that bake the variant in (`deepseek/deepseek-v3.1-terminus:exacto`).
+ * OpenRouter's private `secret/*` model ids do not support routing variants.
  */
 export function applyOpenRouterRoutingVariant(modelId: string, variant: string | undefined): string {
 	if (!variant) return modelId;
+	if (modelId.toLowerCase().startsWith("secret/")) return modelId;
 	const lastSlash = modelId.lastIndexOf("/");
 	const lastColon = modelId.lastIndexOf(":");
 	if (lastColon > lastSlash) return modelId;

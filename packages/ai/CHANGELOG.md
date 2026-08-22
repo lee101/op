@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Skip OpenRouter routing-variant suffixes for private `secret/*` models, which reject ids such as `secret/oxalpha:floor`.
+
 ### Added
 - Added `openrouterSort` stream option: forwards an OpenRouter `provider.sort` routing directive into the chat-completions and Responses request bodies (a per-model `openRouterRouting.sort` in models.yml wins over it).
 
