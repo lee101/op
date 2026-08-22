@@ -1970,6 +1970,21 @@ describe("provider routing selector (@upstream)", () => {
 		expect(result.selector).toBe("openrouter/z-ai/glm-4.7@cerebras");
 		expect(openRouterOnly(result.model)).toEqual(["cerebras"]);
 	});
+
+	test("passes an unknown explicit OpenRouter model id through literally", () => {
+		const registry = { getAll: () => allModels, getAvailable: () => allModels } as unknown as Parameters<
+			typeof resolveCliModel
+		>[0]["modelRegistry"];
+		const result = resolveCliModel({
+			cliModel: "openrouter/secret/oxalpha",
+			modelRegistry: registry,
+		});
+
+		expect(result.error).toBeUndefined();
+		expect(result.selector).toBe("openrouter/secret/oxalpha");
+		expect(result.model?.api).toBe("openrouter");
+		expect(result.model?.id).toBe("secret/oxalpha");
+	});
 });
 
 describe("filterAvailableModelsByEnabledPatterns", () => {

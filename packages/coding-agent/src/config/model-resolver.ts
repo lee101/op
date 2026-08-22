@@ -51,6 +51,21 @@ function isKnownProvider(provider: string): provider is KnownProvider {
 	return provider in DEFAULT_MODEL_PER_PROVIDER;
 }
 
+function buildOpenRouterLiteralModel(id: string): Model<"openrouter"> {
+	return buildModel({
+		id,
+		name: id,
+		api: "openrouter",
+		provider: "openrouter",
+		baseUrl: "https://openrouter.ai/api/v1",
+		reasoning: false,
+		input: ["text"],
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 128000,
+		maxTokens: 16384,
+	});
+}
+
 /**
  * Pick the first provider-default model in availability order.
  *
@@ -1920,6 +1935,18 @@ export function resolveCliModel(options: {
 	const { model, thinkingLevel, warning, upstream } = parsed;
 
 	if (!model) {
+		if (provider?.toLowerCase() === "openrouter" && pattern.length > 0 && !pattern.includes("*")) {
+			const routing = splitUpstreamRouting(pattern);
+			const literal = buildOpenRouterLiteralModel(routing?.base ?? pattern);
+			const routed = routing ? applyUpstreamRouting(literal, routing.upstream) : literal;
+			return {
+				model: routed,
+				selector: `${formatModelString(routed)}${routing ? `@${routing.upstream}` : ""}`,
+				warning: undefined,
+				thinkingLevel: undefined,
+				error: undefined,
+			};
+		}
 		const display = provider ? `${provider}/${pattern}` : cliModel;
 		return {
 			model: undefined,
