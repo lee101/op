@@ -2341,6 +2341,11 @@ describe("applyOpenRouterRoutingVariant", () => {
 	it("appends the variant when the id has no slash separator", () => {
 		expect(applyOpenRouterRoutingVariant("opaque-id", "nitro")).toBe("opaque-id:nitro");
 	});
+
+	it("does not append routing variants to private secret model ids", () => {
+		expect(applyOpenRouterRoutingVariant("secret/oxalpha", "floor")).toBe("secret/oxalpha");
+		expect(applyOpenRouterRoutingVariant("stealth/ox-alpha", "floor")).toBe("stealth/ox-alpha");
+	});
 });
 
 describe("OpenRouter provider.sort request body", () => {
