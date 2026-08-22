@@ -9,6 +9,10 @@
 ### Changed
 - `providers.openrouterVariant` now defaults to `floor`, so OpenRouter models route to the cheapest available provider by default (choose `default` for OpenRouter's load-balanced routing).
 
+### Fixed
+
+- Allow explicit OpenRouter model IDs that are not present in the local catalog, including `openrouter/secret/oxalpha`.
+
 ## [17.3.7] - 2026-08-17
 
 ### Changed
