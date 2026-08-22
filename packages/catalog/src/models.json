@@ -85211,7 +85211,8 @@
 					"max"
 				]
 			},
-			"supportsComputerUse": false
+			"supportsComputerUse": false,
+			"supportsComputerUseConfig": false
 		},
 		"deepseek/deepseek-v4-flash:free": {
 			"id": "deepseek/deepseek-v4-flash:free",
@@ -87268,7 +87269,8 @@
 					"high"
 				]
 			},
-			"supportsComputerUse": false
+			"supportsComputerUse": false,
+			"supportsComputerUseConfig": false
 		},
 		"minimax/minimax-m1": {
 			"id": "minimax/minimax-m1",
@@ -94157,7 +94159,8 @@
 				"cacheWrite": 0
 			},
 			"contextWindow": 1000000,
-			"maxTokens": 32768
+			"maxTokens": 32768,
+			"supportsComputerUse": false
 		},
 		"stealth/ox-alpha": {
 			"id": "stealth/ox-alpha",
@@ -94543,6 +94546,7 @@
 				]
 			},
 			"supportsComputerUse": false,
+			"supportsComputerUseConfig": false,
 			"compat": {
 				"supportsToolChoice": false
 			}
@@ -94607,6 +94611,7 @@
 				]
 			},
 			"supportsComputerUse": false,
+			"supportsComputerUseConfig": false,
 			"compat": {
 				"supportsToolChoice": false
 			}

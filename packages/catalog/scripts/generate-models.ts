@@ -675,7 +675,7 @@ async function generateModels() {
 
 	allModels = applyGlobalModelsDevFallback(allModels, modelsDevModels);
 	// OpenRouter stealth models are not reliably exposed by `/v1/models`.
-	// Seed the current one so `openrouter/secret/oxalpha` resolves without
+	// Seed the current one so `openrouter/stealth/ox-alpha` resolves without
 	// requiring a prior discovery/cache pass.
 	allModels.push(...OPENROUTER_STATIC_MODELS);
 	// Seed QwenCloud's documented Token Plan models when credentialed

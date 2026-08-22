@@ -2655,7 +2655,7 @@ export function openrouterModelManagerOptions(
  */
 export const OPENROUTER_STATIC_MODELS: readonly ModelSpec<"openrouter">[] = [
 	{
-		id: "secret/oxalpha",
+		id: "stealth/ox-alpha",
 		name: "Ox Alpha (Stealth)",
 		api: "openrouter",
 		provider: "openrouter",

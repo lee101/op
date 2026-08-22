@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- Added the current OpenRouter Ox Alpha stealth model as `openrouter/secret/oxalpha` so it is selectable before catalog discovery.
+- Added the current OpenRouter Ox Alpha model as `openrouter/stealth/ox-alpha` so it is selectable before catalog discovery.
 - Added `OpenRouterRouting.sort`: a `provider.sort` directive (`"price"`, `"throughput"`, `"latency"`, or an object with `by` and optional `partition`) expressible per model in models.yml.
 
 ## [17.3.6] - 2026-08-17

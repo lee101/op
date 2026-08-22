@@ -64,7 +64,7 @@ checkout, run `bun setup`, then `bun run dev` or `bun run build`.
 Set `OPENROUTER_API_KEY`, then select the current stealth model with:
 
 ```sh
-op --model openrouter/secret/oxalpha
+op --model openrouter/stealth/ox-alpha
 ```
 
 The model is bundled so it can be selected on a fresh install; OpenRouter may
