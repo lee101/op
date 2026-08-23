@@ -28,39 +28,26 @@ curl -fsSL https://openpaths.io/install | sh
 
 > **Alpine / musl:** the prebuilt musl binary links `libstdc++`/`libgcc` dynamically, which stock Alpine does not ship. Install them first: `apk add libstdc++ libgcc`.
 
-**Homebrew**
-
-```sh
-brew install lee101/tap/op
-```
-
-**Bun (recommended)**
-
-```sh
-bun install -g @openpaths/coding-agent
-```
-
-**Windows (PowerShell)**
+**Local (recommended)**
 
 ```powershell
 irm https://openpaths.io/install.ps1 | iex
 ```
 
-macOS · Linux · Windows · bun ≥ 1.3.14
-
 The supported command after installation is simply `op`. For a source
 checkout, run `bun setup`, then `bun run dev` or `bun run build`.
 
-### OpenRouter
+### OpenRouter or OpenPaths
 
 Set `OPENROUTER_API_KEY`, then select the current stealth model with:
 
 ```sh
 op --model openrouter/stealth/ox-alpha
 ```
+OPENPATHS_API_KEY can be used for [OpenPaths](https://openpaths.io)
 
 The model is bundled so it can be selected on a fresh install; OpenRouter may
-retire or replace stealth models without notice.
+retire or replace stealth models without notice but we fallback to deepseekexp
 
 ### Shell completions
 
