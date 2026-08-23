@@ -1516,6 +1516,25 @@ export const SETTINGS_SCHEMA = {
 		},
 	},
 
+	"retry.emptyStopMaxRetries": {
+		type: "number",
+		default: 100,
+		ui: {
+			tab: "model",
+			group: "Retry & Fallback",
+			label: "Empty Stop Retries",
+			description:
+				"Retry budget for turns that end without actionable output. Later attempts back off progressively and periodically compact the middle of the context to lighten the request.",
+			options: [
+				{ value: "3", label: "3 retries" },
+				{ value: "10", label: "10 retries" },
+				{ value: "25", label: "25 retries" },
+				{ value: "50", label: "50 retries" },
+				{ value: "100", label: "100 retries" },
+			],
+		},
+	},
+
 	"retry.baseDelayMs": { type: "number", default: 500 },
 	"retry.maxDelayMs": {
 		type: "number",
@@ -5761,6 +5780,7 @@ export interface ContextPromotionSettings {
 export interface RetrySettings {
 	enabled: boolean;
 	maxRetries: number;
+	emptyStopMaxRetries: number;
 	baseDelayMs: number;
 	maxDelayMs: number;
 	modelFallback: boolean;

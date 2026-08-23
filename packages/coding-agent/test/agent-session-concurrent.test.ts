@@ -661,7 +661,7 @@ describe("AgentSession concurrent prompt guard", () => {
 			emitSessionStop: vi.fn().mockResolvedValue(undefined),
 		} as unknown as ExtensionRunner;
 		const sessionManager = SessionManager.inMemory();
-		const settings = Settings.isolated();
+		const settings = Settings.isolated({ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 });
 		const modelRegistry = sharedModelRegistry;
 		session = new AgentSession({ agent, sessionManager, settings, modelRegistry, extensionRunner });
 

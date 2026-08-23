@@ -70,7 +70,9 @@ import { classifyUnexpectedStop, isUnexpectedStopCandidate } from "./unexpected-
 const THINKING_LOOP_REDIRECT_TYPE = "thinking-loop-redirect";
 const UNEXPECTED_STOP_MAX_RETRIES = 3;
 const UNEXPECTED_STOP_TIMEOUT_MS = 4000;
-const EMPTY_STOP_MAX_RETRIES = 3;
+/** First empty-stop retry attempt that lightens the request via recovery compaction; reruns every interval. */
+const EMPTY_STOP_COMPACTION_FIRST_ATTEMPT = 10;
+const EMPTY_STOP_COMPACTION_INTERVAL = 25;
 const SIBLING_UNBLOCK_BUFFER_MS = 1_000;
 const NON_WHITESPACE_RE = /\S/;
 const USAGE_PREFLIGHT_BLOCKED_PREFIX = "Usage preflight blocked:";
@@ -677,7 +679,8 @@ export class TurnRecovery {
 		}
 
 		this.#emptyStopRetryCount++;
-		if (this.#emptyStopRetryCount > EMPTY_STOP_MAX_RETRIES) {
+		const retrySettings = this.#host.settings.getGroup("retry");
+		if (this.#emptyStopRetryCount > retrySettings.emptyStopMaxRetries) {
 			const attempts = this.#emptyStopRetryCount - 1;
 			const outputTokens = assistantMessage.usage.output;
 			const outputTokensExcludingKnownReasoning = Math.max(
@@ -723,25 +726,57 @@ export class TurnRecovery {
 			await this.#dropAssistantTurnDurably(assistantMessage);
 			return "terminal";
 		}
-		// The reparented leaf must be durably persisted before the retry continues:
-		// the loader rebuilds the active branch from the last physical entry, so an
-		// in-memory-only reparent lets the empty stop resurface on reload or after
-		// a mid-retry process kill.
-		await this.#dropAssistantTurnDurably(assistantMessage);
+		let contextCompacted = false;
+		const compactionSettings = this.#host.settings.getGroup("compaction");
+		if (
+			this.#emptyStopRetryCount >= EMPTY_STOP_COMPACTION_FIRST_ATTEMPT &&
+			(this.#emptyStopRetryCount - EMPTY_STOP_COMPACTION_FIRST_ATTEMPT) % EMPTY_STOP_COMPACTION_INTERVAL === 0 &&
+			compactionSettings.enabled &&
+			compactionSettings.strategy !== "off"
+		) {
+			logger.warn("Empty stop retry backing off: compacting context to lighten the next request", {
+				attempt: this.#emptyStopRetryCount,
+				model: assistantMessage.model,
+				provider: assistantMessage.provider,
+			});
+			const entryBefore = getLatestCompactionEntry(this.#host.sessionManager.getBranch());
+			const compaction = await this.#runRecoveryCompactionWithRollback("incomplete", assistantMessage, false, {
+				autoContinue: false,
+			});
+			if (compaction.continuationScheduled || compaction.deferredHandoff) return "continue";
+			contextCompacted =
+				compaction.historyRewritten === true ||
+				getLatestCompactionEntry(this.#host.sessionManager.getBranch()) !== entryBefore;
+		}
+		if (!contextCompacted) {
+			// The reparented leaf must be durably persisted before the retry continues:
+			// the loader rebuilds the active branch from the last physical entry, so an
+			// in-memory-only reparent lets the empty stop resurface on reload or after
+			// a mid-retry process kill.
+			await this.#dropAssistantTurnDurably(assistantMessage);
+		}
 		this.#host.agent.appendMessage({
 			role: "developer",
 			content: [{ type: "text", text: this.#emptyStopRetryReminder() }],
 			attribution: "agent",
 			timestamp: Date.now(),
 		});
-		this.#host.scheduleAgentContinue({ generation: this.#host.promptGeneration() });
+		this.#host.scheduleAgentContinue({
+			// First retry stays immediate so a one-off glitch recovers snappily;
+			// later attempts ramp up the standard capped exponential backoff.
+			delayMs:
+				this.#emptyStopRetryCount <= 1
+					? 0
+					: calculateRetryBackoffDelayMs(retrySettings.baseDelayMs, this.#emptyStopRetryCount - 1),
+			generation: this.#host.promptGeneration(),
+		});
 		return "continue";
 	}
 
 	#emptyStopRetryReminder(): string {
 		return prompt.render(emptyStopRetryTemplate, {
 			retryCount: this.#emptyStopRetryCount,
-			maxRetries: EMPTY_STOP_MAX_RETRIES,
+			maxRetries: this.#host.settings.getGroup("retry").emptyStopMaxRetries,
 		});
 	}
 	async #handleUnexpectedAssistantStop(assistantMessage: AssistantMessage): Promise<boolean> {

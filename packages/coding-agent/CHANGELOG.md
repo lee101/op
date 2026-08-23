@@ -5,6 +5,7 @@
 ### Added
 - Added `--auto-next-steps` CLI flag and the `loop.autoNextSteps` setting: after a turn that used tools settles, the agent re-prompts itself to continue with the next step until it reports done (Esc interrupts; capped at 25 turns per user prompt; suppressed in plan mode and under an active goal).
 - Added `providers.openrouterSort` setting to emit an explicit `provider.sort` routing body on OpenRouter requests (`price`, `throughput`, or `latency`).
+- Added `retry.emptyStopMaxRetries` (default 100): empty-stop recovery now retries up to one hundred attempts instead of three. The first retry stays immediate; later attempts back off with capped exponential delay, and from attempt 10 onward (then every 25) the retry loop runs recovery compaction over the middle of the context so subsequent requests are lighter.
 
 ### Changed
 - `providers.openrouterVariant` now defaults to `floor`, so OpenRouter models route to the cheapest available provider by default (choose `default` for OpenRouter's load-balanced routing).

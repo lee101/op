@@ -302,6 +302,7 @@ describe("AgentSession empty stop guard", () => {
 				"retry.baseDelayMs": 5,
 				"retry.maxDelayMs": 5_000,
 				"retry.maxRetries": 2,
+				"retry.emptyStopMaxRetries": 3,
 			},
 		);
 		const retryStartEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_start" }>> = [];
@@ -352,13 +353,16 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("removes orphaned tool-use stops even when retry cap is hit", async () => {
-		const { session, mock } = await createHarness([
-			recordCall("gamma", "call-record-gamma"),
-			orphanedToolUseStop(),
-			orphanedToolUseStop(),
-			orphanedToolUseStop(),
-			orphanedToolUseStop(),
-		]);
+		const { session, mock } = await createHarness(
+			[
+				recordCall("gamma", "call-record-gamma"),
+				orphanedToolUseStop(),
+				orphanedToolUseStop(),
+				orphanedToolUseStop(),
+				orphanedToolUseStop(),
+			],
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
+		);
 		await session.prompt("record gamma");
 		await session.waitForIdle();
 		expect(mock.calls).toHaveLength(5);
@@ -376,13 +380,10 @@ describe("AgentSession empty stop guard", () => {
 		expect(orphanedToolUseStops).toHaveLength(0);
 	});
 	it("caps empty stop retries at three attempts and discards the final empty turn", async () => {
-		const { session, mock } = await createHarness([
-			recordCall("beta", "call-record-beta"),
-			emptyStop(),
-			emptyStop(),
-			emptyStop(),
-			emptyStop(),
-		]);
+		const { session, mock } = await createHarness(
+			[recordCall("beta", "call-record-beta"), emptyStop(), emptyStop(), emptyStop(), emptyStop()],
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
+		);
 
 		await session.prompt("record beta");
 		await session.waitForIdle();
@@ -431,7 +432,7 @@ describe("AgentSession empty stop guard", () => {
 		} as unknown as ExtensionRunner;
 		const { session } = await createHarness(
 			[emptyStop(), emptyStop(), emptyStop(), emptyStop()],
-			{},
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
 			{ extensionRunner },
 		);
 
@@ -469,7 +470,10 @@ describe("AgentSession empty stop guard", () => {
 				usage: { input: 172_000, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 172_001 },
 			}),
 		);
-		const { session, mock } = await createHarness(billedEmptyStops);
+		const { session, mock } = await createHarness(billedEmptyStops, {
+			"retry.emptyStopMaxRetries": 3,
+			"retry.baseDelayMs": 1,
+		});
 
 		await expectPromptCompletes(session.prompt("answer from compacted context"));
 		await session.waitForIdle();
@@ -480,7 +484,10 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("emits failed auto-retry end when repeated empty stops exhaust the retry cap", async () => {
-		const { session, mock } = await createHarness([emptyStop(), emptyStop(), emptyStop(), emptyStop()]);
+		const { session, mock } = await createHarness([emptyStop(), emptyStop(), emptyStop(), emptyStop()], {
+			"retry.emptyStopMaxRetries": 3,
+			"retry.baseDelayMs": 1,
+		});
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
 		session.subscribe(event => {
 			if (event.type === "auto_retry_end") {
@@ -502,12 +509,15 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("names billed output tokens instead of the context hint when a capped empty stop billed output", async () => {
-		const { session, mock } = await createHarness([
-			filteredEmptyStop(),
-			filteredEmptyStop(),
-			filteredEmptyStop(),
-			filteredEmptyStop(),
-		]);
+		const { session, mock } = await createHarness(
+			[
+				filteredEmptyStop(),
+				filteredEmptyStop(),
+				filteredEmptyStop(),
+				filteredEmptyStop(),
+			],
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
+		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
 		session.subscribe(event => {
 			if (event.type === "auto_retry_end") {
@@ -527,12 +537,15 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("keeps the context hint when a capped zero-block stop billed only reasoning tokens", async () => {
-		const { session, mock } = await createHarness([
-			reasoningOnlyEmptyStop(),
-			reasoningOnlyEmptyStop(),
-			reasoningOnlyEmptyStop(),
-			reasoningOnlyEmptyStop(),
-		]);
+		const { session, mock } = await createHarness(
+			[
+				reasoningOnlyEmptyStop(),
+				reasoningOnlyEmptyStop(),
+				reasoningOnlyEmptyStop(),
+				reasoningOnlyEmptyStop(),
+			],
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
+		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
 		session.subscribe(event => {
 			if (event.type === "auto_retry_end") {
@@ -552,12 +565,15 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("keeps the context hint for a capped thinking-only stop even though it billed output", async () => {
-		const { session, mock } = await createHarness([
-			thinkingOnlyStop(),
-			thinkingOnlyStop(),
-			thinkingOnlyStop(),
-			thinkingOnlyStop(),
-		]);
+		const { session, mock } = await createHarness(
+			[
+				thinkingOnlyStop(),
+				thinkingOnlyStop(),
+				thinkingOnlyStop(),
+				thinkingOnlyStop(),
+			],
+			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
+		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
 		session.subscribe(event => {
 			if (event.type === "auto_retry_end") {
@@ -585,6 +601,7 @@ describe("AgentSession empty stop guard", () => {
 				"retry.baseDelayMs": 5,
 				"retry.maxDelayMs": 5_000,
 				"retry.maxRetries": 2,
+				"retry.emptyStopMaxRetries": 3,
 			},
 		);
 		const retryStartEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_start" }>> = [];
@@ -743,5 +760,83 @@ describe("AgentSession empty stop guard", () => {
 		expect(withTool.mock.calls).toHaveLength(2);
 		expect(reminderMessages(withTool.session.agent.state.messages)).toHaveLength(0);
 		expect(assistantText(withTool.session.agent.state.messages)).toContain("tool path complete");
+	});
+
+	it("retries empty stops up to one hundred attempts by default before recovering", async () => {
+		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		const { session, mock } = await createHarness([
+			...Array.from({ length: 100 }, () => emptyStop()),
+			{ content: ["recovered at last"], stopReason: "stop" },
+		]);
+
+		await expectPromptCompletes(session.prompt("answer eventually"));
+		await session.waitForIdle();
+
+		expect(mock.calls).toHaveLength(101);
+		expect(reminderMessages(session.agent.state.messages)).toHaveLength(100);
+		expect(assistantText(session.agent.state.messages)).toContain("recovered at last");
+		expect(emptyAssistantStops(session.agent.state.messages)).toHaveLength(0);
+	});
+
+	it("settles the empty-stop retry saga after one hundred one failed attempts", async () => {
+		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		const { session, mock } = await createHarness(Array.from({ length: 101 }, () => emptyStop()));
+		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
+		session.subscribe(event => {
+			if (event.type === "auto_retry_end") retryEndEvents.push(event);
+		});
+
+		await expectPromptCompletes(session.prompt("answer never"));
+		await session.waitForIdle();
+
+		expect(mock.calls).toHaveLength(101);
+		expect(reminderMessages(session.agent.state.messages)).toHaveLength(100);
+		expect(retryEndEvents).toHaveLength(1);
+		expect(retryEndEvents[0]).toMatchObject({ type: "auto_retry_end", success: false, attempt: 100 });
+		expect(emptyAssistantStops(session.agent.state.messages)).toHaveLength(0);
+	});
+
+	it("escalates to recovery compaction once empty-stop retries reach the backoff milestone", async () => {
+		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		const { session, mock } = await createHarness(
+			[...Array.from({ length: 10 }, () => emptyStop()), { content: ["recovered post-cull"], stopReason: "stop" }],
+			{ "compaction.enabled": true },
+		);
+		const incompleteCompactions: Array<Extract<AgentSessionEvent, { type: "auto_compaction_start" }>> = [];
+		session.subscribe(event => {
+			if (event.type === "auto_compaction_start" && event.reason === "incomplete") {
+				incompleteCompactions.push(event);
+			}
+		});
+
+		await expectPromptCompletes(session.prompt("answer eventually"));
+		await session.waitForIdle();
+
+		expect(incompleteCompactions).toHaveLength(1);
+		expect(mock.calls).toHaveLength(11);
+		expect(reminderMessages(session.agent.state.messages)).toHaveLength(10);
+		expect(assistantText(session.agent.state.messages)).toContain("recovered post-cull");
+	});
+
+	it("does not escalate to recovery compaction below the backoff milestone", async () => {
+		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		const { session, mock } = await createHarness(
+			[...Array.from({ length: 9 }, () => emptyStop()), { content: ["recovered pre-cull"], stopReason: "stop" }],
+			{ "compaction.enabled": true },
+		);
+		const incompleteCompactions: Array<Extract<AgentSessionEvent, { type: "auto_compaction_start" }>> = [];
+		session.subscribe(event => {
+			if (event.type === "auto_compaction_start" && event.reason === "incomplete") {
+				incompleteCompactions.push(event);
+			}
+		});
+
+		await expectPromptCompletes(session.prompt("answer soon"));
+		await session.waitForIdle();
+
+		expect(incompleteCompactions).toHaveLength(0);
+		expect(mock.calls).toHaveLength(10);
+		expect(reminderMessages(session.agent.state.messages)).toHaveLength(9);
+		expect(assistantText(session.agent.state.messages)).toContain("recovered pre-cull");
 	});
 });
