@@ -29741,6 +29741,26 @@
 			"supportsComputerUse": false,
 			"supportsComputerUseConfig": false
 		},
+		"inclusionAI/Ling-3.0-flash": {
+			"id": "inclusionAI/Ling-3.0-flash",
+			"name": "inclusionAI/Ling-3.0-flash",
+			"api": "openai-completions",
+			"provider": "huggingface",
+			"baseUrl": "https://router.huggingface.co/v1",
+			"reasoning": false,
+			"input": [
+				"text"
+			],
+			"cost": {
+				"input": 0,
+				"output": 0,
+				"cacheRead": 0,
+				"cacheWrite": 0
+			},
+			"contextWindow": 262144,
+			"maxTokens": 32768,
+			"supportsComputerUse": false
+		},
 		"meta-llama/Llama-3.1-8B-Instruct": {
 			"id": "meta-llama/Llama-3.1-8B-Instruct",
 			"name": "Llama-3.1-8B-Instruct",
@@ -32195,13 +32215,13 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.065,
-				"output": 0.18,
-				"cacheRead": 0.02,
+				"input": 0.055,
+				"output": 0.14,
+				"cacheRead": 0.01,
 				"cacheWrite": 0
 			},
-			"contextWindow": 1048576,
-			"maxTokens": 1048576,
+			"contextWindow": 262144,
+			"maxTokens": 262144,
 			"thinking": {
 				"mode": "effort",
 				"efforts": [
@@ -34635,8 +34655,8 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.14,
-				"output": 0.28,
+				"input": 0.44,
+				"output": 1.32,
 				"cacheRead": 0.028,
 				"cacheWrite": 0
 			},
@@ -34663,9 +34683,9 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.44,
-				"output": 1.32,
-				"cacheRead": 0.014,
+				"input": 0.22,
+				"output": 0.66,
+				"cacheRead": 0.007,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -35714,8 +35734,8 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.05,
-				"output": 0.25,
+				"input": 0.042,
+				"output": 0.22,
 				"cacheRead": 0,
 				"cacheWrite": 0
 			},
@@ -41906,8 +41926,8 @@
 				"cacheRead": 0,
 				"cacheWrite": 0
 			},
-			"contextWindow": 131072,
-			"maxTokens": 8192,
+			"contextWindow": 40960,
+			"maxTokens": 16384,
 			"thinking": {
 				"mode": "effort",
 				"efforts": [
@@ -42422,7 +42442,7 @@
 				"cacheWrite": 0
 			},
 			"contextWindow": 262144,
-			"maxTokens": 65536,
+			"maxTokens": 262144,
 			"thinking": {
 				"mode": "effort",
 				"efforts": [
@@ -43703,6 +43723,26 @@
 		"tencent/hy-mt2-30b-a3b": {
 			"id": "tencent/hy-mt2-30b-a3b",
 			"name": "Hy-MT2-30B-A3B",
+			"api": "openai-completions",
+			"provider": "kilo",
+			"baseUrl": "https://api.kilo.ai/api/gateway",
+			"reasoning": false,
+			"input": [
+				"text"
+			],
+			"cost": {
+				"input": 0,
+				"output": 0,
+				"cacheRead": 0,
+				"cacheWrite": 0
+			},
+			"contextWindow": null,
+			"maxTokens": null,
+			"supportsComputerUse": false
+		},
+		"tencent/hy-mt2-7b": {
+			"id": "tencent/hy-mt2-7b",
+			"name": "Hy-MT2-7B",
 			"api": "openai-completions",
 			"provider": "kilo",
 			"baseUrl": "https://api.kilo.ai/api/gateway",
@@ -51339,9 +51379,9 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.44,
-				"output": 1.32,
-				"cacheRead": 0.014,
+				"input": 0.22,
+				"output": 0.66,
+				"cacheRead": 0.007,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -54843,10 +54883,10 @@
 				"image"
 			],
 			"cost": {
-				"input": 1.5,
-				"output": 9,
-				"cacheRead": 0.15,
-				"cacheWrite": 0
+				"input": 0.375,
+				"output": 1.875,
+				"cacheRead": 0.0375,
+				"cacheWrite": 0.020833
 			},
 			"contextWindow": 1048576,
 			"maxTokens": 65536,
@@ -54859,9 +54899,7 @@
 					"high",
 					"xhigh"
 				]
-			},
-			"supportsComputerUse": false,
-			"supportsComputerUseConfig": false
+			}
 		},
 		"google/gemini-flash-lite-latest": {
 			"id": "google/gemini-flash-lite-latest",
@@ -54982,6 +55020,26 @@
 					"xhigh"
 				]
 			}
+		},
+		"google/gemma-4-26b-a4b-uncensored": {
+			"id": "google/gemma-4-26b-a4b-uncensored",
+			"name": "Gemma 4 26B A4B Uncensored",
+			"api": "openai-completions",
+			"provider": "nanogpt",
+			"baseUrl": "https://nano-gpt.com/api/v1",
+			"reasoning": false,
+			"input": [
+				"text",
+				"image"
+			],
+			"cost": {
+				"input": 0.08,
+				"output": 0.33,
+				"cacheRead": 0.04,
+				"cacheWrite": 0
+			},
+			"contextWindow": 131072,
+			"maxTokens": 32768
 		},
 		"google/gemma-4-31b-it": {
 			"id": "google/gemma-4-31b-it",
@@ -69669,8 +69727,8 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.14,
-				"output": 0.28,
+				"input": 0.44,
+				"output": 1.32,
 				"cacheRead": 0.028,
 				"cacheWrite": 0
 			},
@@ -72632,6 +72690,33 @@
 				]
 			}
 		},
+		"deepseek-ai/deepseek-v4-flash-0731": {
+			"id": "deepseek-ai/deepseek-v4-flash-0731",
+			"name": "DeepSeek V4 Flash 0731",
+			"api": "openai-completions",
+			"provider": "nvidia",
+			"baseUrl": "https://integrate.api.nvidia.com/v1",
+			"reasoning": true,
+			"input": [
+				"text"
+			],
+			"cost": {
+				"input": 0,
+				"output": 0,
+				"cacheRead": 0,
+				"cacheWrite": 0
+			},
+			"contextWindow": 1000000,
+			"maxTokens": 384000,
+			"thinking": {
+				"mode": "effort",
+				"efforts": [
+					"low",
+					"high",
+					"max"
+				]
+			}
+		},
 		"deepseek-ai/deepseek-v4-pro": {
 			"id": "deepseek-ai/deepseek-v4-pro",
 			"name": "DeepSeek V4 Pro",
@@ -74139,6 +74224,39 @@
 					"high",
 					"xhigh"
 				]
+			}
+		},
+		"moonshotai/kimi-k3": {
+			"id": "moonshotai/kimi-k3",
+			"name": "Kimi K3",
+			"api": "openai-completions",
+			"provider": "nvidia",
+			"baseUrl": "https://integrate.api.nvidia.com/v1",
+			"reasoning": true,
+			"input": [
+				"text",
+				"image"
+			],
+			"cost": {
+				"input": 0,
+				"output": 0,
+				"cacheRead": 0,
+				"cacheWrite": 0
+			},
+			"contextWindow": 1048576,
+			"maxTokens": 131072,
+			"thinking": {
+				"mode": "effort",
+				"efforts": [
+					"low",
+					"high",
+					"max"
+				],
+				"defaultLevel": "max",
+				"effortMap": {
+					"max": "max"
+				},
+				"requiresEffort": true
 			}
 		},
 		"nv-mistralai/mistral-nemo-12b-instruct": {
@@ -82795,9 +82913,9 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.065,
-				"output": 0.18,
-				"cacheRead": 0.02,
+				"input": 0.049999999999999996,
+				"output": 0.09999999999999999,
+				"cacheRead": 0.01,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1310720,
@@ -85137,9 +85255,9 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.07266,
-				"output": 0.14532,
-				"cacheRead": 0.014532000000000002,
+				"input": 0.05166,
+				"output": 0.10332,
+				"cacheRead": 0.010332,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -85196,9 +85314,9 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.44,
-				"output": 1.32,
-				"cacheRead": 0.014,
+				"input": 0.22,
+				"output": 0.66,
+				"cacheRead": 0.007,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -85254,9 +85372,9 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.46458,
-				"output": 0.92916,
-				"cacheRead": 0.038715,
+				"input": 0.396894,
+				"output": 0.793788,
+				"cacheRead": 0.0330745,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -85281,9 +85399,9 @@
 				"text"
 			],
 			"cost": {
-				"input": 1.1880000000000002,
-				"output": 3.564,
-				"cacheRead": 0.039599999999999996,
+				"input": 1.122,
+				"output": 3.366,
+				"cacheRead": 0.037399999999999996,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -87160,8 +87278,8 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.3,
-				"output": 1.1,
+				"input": 0.35,
+				"output": 1.5,
 				"cacheRead": 0.04,
 				"cacheWrite": 0
 			},
@@ -88230,9 +88348,9 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.5415,
-				"output": 2.2800000000000002,
-				"cacheRead": 0.09119999999999999,
+				"input": 0.95,
+				"output": 4,
+				"cacheRead": 0.16,
 				"cacheWrite": 0
 			},
 			"contextWindow": 262144,
@@ -91178,7 +91296,7 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.03,
+				"input": 0.037,
 				"output": 0.16999999999999998,
 				"cacheRead": 0.03,
 				"cacheWrite": 0
@@ -92658,13 +92776,13 @@
 				"text"
 			],
 			"cost": {
-				"input": 0.13,
-				"output": 0.52,
+				"input": 0.12,
+				"output": 0.5,
 				"cacheRead": 0,
 				"cacheWrite": 0
 			},
 			"contextWindow": 131072,
-			"maxTokens": 8192,
+			"maxTokens": 16384,
 			"thinking": {
 				"mode": "effort",
 				"efforts": [
@@ -93314,7 +93432,7 @@
 				"cacheWrite": 0
 			},
 			"contextWindow": 262144,
-			"maxTokens": 65536,
+			"maxTokens": 262144,
 			"thinking": {
 				"mode": "effort",
 				"efforts": [
@@ -93893,8 +94011,8 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.44999999999999996,
-				"output": 3.1999999999999997,
+				"input": 0.39999999999999997,
+				"output": 3,
 				"cacheRead": 0.049999999999999996,
 				"cacheWrite": 0
 			},
@@ -94160,7 +94278,8 @@
 			},
 			"contextWindow": 1000000,
 			"maxTokens": 32768,
-			"supportsComputerUse": false
+			"supportsComputerUse": false,
+			"supportsComputerUseConfig": false
 		},
 		"stealth/ox-alpha": {
 			"id": "stealth/ox-alpha",
@@ -94467,9 +94586,9 @@
 				"image"
 			],
 			"cost": {
-				"input": 0.95,
+				"input": 1,
 				"output": 4.05,
-				"cacheRead": 0.16,
+				"cacheRead": 0.16999999999999998,
 				"cacheWrite": 0
 			},
 			"contextWindow": 1048576,
@@ -105721,8 +105840,38 @@
 				"cacheRead": 0.01,
 				"cacheWrite": 0
 			},
-			"contextWindow": 262144,
-			"maxTokens": 131072,
+			"contextWindow": 1000000,
+			"maxTokens": 32768,
+			"thinking": {
+				"mode": "budget",
+				"efforts": [
+					"minimal",
+					"low",
+					"medium",
+					"high",
+					"xhigh"
+				]
+			},
+			"supportsComputerUse": false
+		},
+		"nvidia/nemotron-3.5-lightning-free": {
+			"id": "nvidia/nemotron-3.5-lightning-free",
+			"name": "Nemotron 3.5 Lightning 30B (Free)",
+			"api": "anthropic-messages",
+			"provider": "vercel-ai-gateway",
+			"baseUrl": "https://ai-gateway.vercel.sh",
+			"reasoning": true,
+			"input": [
+				"text"
+			],
+			"cost": {
+				"input": 0,
+				"output": 0,
+				"cacheRead": 0,
+				"cacheWrite": 0
+			},
+			"contextWindow": 1000000,
+			"maxTokens": 32768,
 			"thinking": {
 				"mode": "budget",
 				"efforts": [
