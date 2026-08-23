@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="https://github.com/lee101/op/blob/main/assets/hero.png?raw=true" alt="op">
-</p>
 
 <p align="center">
   <strong>A coding agent with the IDE wired in.</strong>
