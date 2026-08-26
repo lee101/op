@@ -9,6 +9,7 @@ import { Editor } from "@openpaths/tui/components/editor";
 import { KeybindingsManager, setKeybindings, TUI_KEYBINDINGS } from "@openpaths/tui/keybindings";
 import { setKittyProtocolActive } from "@openpaths/tui/keys";
 import { visibleWidth } from "@openpaths/tui/utils";
+import { getProjectDir } from "@openpaths/utils";
 import { defaultEditorTheme } from "./test-themes";
 import { VirtualTerminal } from "./virtual-terminal";
 
@@ -397,6 +398,48 @@ describe("Editor component", () => {
 			editor.handleInput("\x1b[B");
 			editor.handleInput("\x1b[B"); // at bottom, exit history
 			expect(editor.getText()).toBe("");
+		});
+
+		it("cycles current-directory prompts before prompts from other directories", () => {
+			const editor = new Editor(defaultEditorTheme);
+			const here = getProjectDir();
+
+			editor.setHistoryStorage({
+				add: async () => {},
+				getRecent: () => [
+					{ prompt: "here newer", cwd: here },
+					{ prompt: "elsewhere newer", cwd: "/tmp/elsewhere" },
+					{ prompt: "legacy without cwd" },
+					{ prompt: "here older", cwd: here },
+					{ prompt: "elsewhere oldest", cwd: "/tmp/elsewhere" },
+				],
+			});
+
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("here newer");
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("here older");
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("elsewhere newer");
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("legacy without cwd");
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("elsewhere oldest");
+		});
+
+		it("cycles freshly submitted prompts ahead of stored prompts from other directories", () => {
+			const editor = new Editor(defaultEditorTheme);
+			editor.setHistoryStorage({
+				add: async () => {},
+				getRecent: () => [{ prompt: "stored elsewhere", cwd: "/tmp/elsewhere" }],
+			});
+
+			editor.addToHistory("fresh local");
+
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("fresh local");
+			editor.handleInput("\x1b[A");
+			expect(editor.getText()).toBe("stored elsewhere");
 		});
 	});
 

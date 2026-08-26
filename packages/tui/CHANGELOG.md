@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Up/Down prompt history now cycles prompts submitted from the current directory first, then falls back to the rest of the global history.
+
 ## [17.3.5] - 2026-08-16
 
 ### Fixed
