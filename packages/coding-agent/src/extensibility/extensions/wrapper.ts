@@ -30,16 +30,20 @@ export class RegisteredToolAdapter implements AgentTool<any, any, any> {
 	declare label: string;
 	declare strict: boolean;
 
-	renderCall?: (args: any, options: any, theme: any) => any;
-	renderResult?: (result: any, options: any, theme: any, args?: any) => any;
+	// Materialize these fields before applyToolProxy(). Newer Bun versions do not
+	// emit declaration-only optional fields as own properties, so the proxy would
+	// otherwise install readonly accessors for them before the constructor assigns
+	// the optional renderers below.
+	renderCall: ((args: any, options: any, theme: any) => any) | undefined = undefined;
+	renderResult: ((result: any, options: any, theme: any, args?: any) => any) | undefined = undefined;
 	readonly loadMode: ToolLoadMode;
 
 	constructor(
 		private registeredTool: RegisteredTool,
 		private runner: ExtensionRunner,
 	) {
-		applyToolProxy(registeredTool.definition, this);
 		this.loadMode = defaultLoadModeForToolName(registeredTool.definition.name, registeredTool.definition.loadMode);
+		applyToolProxy(registeredTool.definition, this);
 
 		// Only define render methods when the underlying definition provides them.
 		// If these exist unconditionally on the prototype, ToolExecutionComponent
