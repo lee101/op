@@ -6,7 +6,7 @@
  */
 
 /** Mode selector for `AgentSession.shake`. */
-export type ShakeMode = "elide" | "images";
+export type ShakeMode = "elide" | "images" | "truncate";
 
 /** Outcome of an `AgentSession.shake` run. */
 export interface ShakeResult {
@@ -31,6 +31,8 @@ export function formatShakeSummary(result: ShakeResult): string {
 			? "No images found in this session."
 			: `Dropped ${n} image${n === 1 ? "" : "s"} from this session.`;
 	}
+	const verb = result.mode === "truncate" ? "Middle-out truncated" : "Shook";
+	const none = result.mode === "truncate" ? "Nothing to truncate." : "Nothing to shake.";
 	const parts: string[] = [];
 	if (result.toolResultsDropped > 0) {
 		parts.push(`${result.toolResultsDropped} tool result${result.toolResultsDropped === 1 ? "" : "s"}`);
@@ -38,6 +40,6 @@ export function formatShakeSummary(result: ShakeResult): string {
 	if (result.blocksDropped > 0) {
 		parts.push(`${result.blocksDropped} block${result.blocksDropped === 1 ? "" : "s"}`);
 	}
-	if (parts.length === 0) return "Nothing to shake.";
-	return `Shook ${parts.join(" + ")} (~${result.tokensFreed} tokens freed).`;
+	if (parts.length === 0) return none;
+	return `${verb} ${parts.join(" + ")} (~${result.tokensFreed} tokens freed).`;
 }

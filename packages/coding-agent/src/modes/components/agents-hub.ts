@@ -1013,12 +1013,15 @@ export class AgentsHubComponent implements Component {
 			return;
 		}
 		if (this.#createGenerating) return;
-		if (matchesAppFollowUp(data)) {
-			void this.#generateAgentFromDescription(this.#createInput?.getExpandedText() ?? this.#createDescription);
-			return;
-		}
+		// Scope toggle first: plain Tab sits in the app.message.followUp default
+		// chord, but here it must keep flipping project/user scope; generation
+		// stays on Ctrl+Q / Ctrl+Enter.
 		if (matchesKey(data, "tab") || matchesKey(data, "shift+tab")) {
 			this.#createScope = this.#createScope === "project" ? "user" : "project";
+			return;
+		}
+		if (matchesAppFollowUp(data)) {
+			void this.#generateAgentFromDescription(this.#createInput?.getExpandedText() ?? this.#createDescription);
 			return;
 		}
 		if (matchesKey(data, "enter") || matchesKey(data, "return") || data === "\n") {

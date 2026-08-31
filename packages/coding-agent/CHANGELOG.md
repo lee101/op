@@ -3,16 +3,20 @@
 ## [Unreleased]
 
 ### Added
+
+- Added `/shake truncate`: middle-out truncates oversized outputs (keeps head + tail) as a manual remedy for a full context.
 - Added `--auto-next-steps` CLI flag and the `loop.autoNextSteps` setting: after a turn that used tools settles, the agent re-prompts itself to continue with the next step until it reports done (Esc interrupts; capped at 25 turns per user prompt; suppressed in plan mode and under an active goal).
-- Added `providers.openrouterSort` setting to emit an explicit `provider.sort` routing body on OpenRouter requests (`price`, `throughput`, or `latency`).
 - Added `retry.emptyStopMaxRetries` (default 100): empty-stop recovery now retries up to one hundred attempts instead of three. The first retry stays immediate; later attempts back off with capped exponential delay, and from attempt 10 onward (then every 25) the retry loop runs recovery compaction over the middle of the context so subsequent requests are lighter.
 
 ### Changed
-- `providers.openrouterVariant` now defaults to `floor`, so OpenRouter models route to the cheapest available provider by default (choose `default` for OpenRouter's load-balanced routing).
+
+- Automatic compaction dead ends now run a final middle-out truncation rescue tier (Claude-Code-style head+tail excerpting with an artifact recovery link) before pausing, and accept rescued headroom when nothing older remains to summarize. A pre-prompt pass over a not-yet-persisted prompt is a silent no-op instead of a spurious dead-end warning, and a rescue tier that frees zero tokens no longer counts as progress.
+- The default `app.message.followUp` binding now also includes `Tab`, so a single unmodified key queues a follow-up message. An open autocomplete popup keeps precedence (Tab still applies its selection), the agent dashboard's new-agent form keeps Tab as its project/user scope toggle, and a user remap that claims `Tab` elsewhere removes it from follow-up defaults — mirroring the existing `Ctrl+Q` yield rule.
 
 ### Fixed
 
 - Allow explicit OpenRouter model IDs that are not present in the local catalog, including `openrouter/secret/oxalpha`.
+- Fixed the clipboard image read on Linux X11 / macOS surfacing "Failed to read clipboard" when the native bridge (arboard) could not open the display or rejected a payload: the read now degrades to "no image" so the smart text paste fallback runs instead of aborting.
 
 ## [17.3.7] - 2026-08-17
 

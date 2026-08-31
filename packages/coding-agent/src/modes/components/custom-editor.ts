@@ -983,8 +983,13 @@ export class CustomEditor extends Editor {
 			// Check custom key handlers (extensions)
 			const handler = this.#customMatchKeys.get(canonical);
 			if (handler) {
-				handler();
-				return;
+				// Plain Tab doubles as the queue chord (app.message.followUp), but an
+				// open completion popup keeps precedence: fall through so Tab still
+				// applies the selection (or stale-cancels) in super.handleInput.
+				if (canonical !== "tab" || !this.isShowingAutocomplete()) {
+					handler();
+					return;
+				}
 			}
 		}
 

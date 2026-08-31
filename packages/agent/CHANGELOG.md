@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `truncate` shake machinery: `collectTruncationRegions` finds oversized unfenced text carriers (plain pastes/prose that elision cannot see, plus protected tool results), and `buildMiddleOutText` rewrites each to a token-budgeted head+tail excerpt around an explicit marker. `ShakeConfig.truncateTokenBudget` sizes the per-carrier ceiling, and `RESCUE_TRUNCATE_SHAKE_CONFIG` is the dead-end rescue preset.
+
 ## [17.3.5] - 2026-08-16
 
 ### Added

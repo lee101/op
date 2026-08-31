@@ -136,8 +136,9 @@ export const KEYBINDINGS = {
 	"app.message.followUp": {
 		// Ctrl+Enter is preserved for terminals that deliver it (Kitty/iTerm2/WezTerm/Ghostty),
 		// but Windows Terminal does not emit a distinct event for Ctrl+Enter — Ctrl+Q is listed
-		// first so the default binding works there without remapping (#1903).
-		defaultKeys: ["ctrl+q", "ctrl+enter"],
+		// first so the default binding works there without remapping (#1903). Tab queues when
+		// no completion popup is open; see CustomEditor.handleInput.
+		defaultKeys: ["ctrl+q", "ctrl+enter", "tab"],
 		description: "Send follow-up message",
 	},
 	"app.retry": {
@@ -522,13 +523,15 @@ function migrateKeybindingsConfigFile(agentDir: string): void {
 }
 
 const FOLLOW_UP_KEYBINDING: AppKeybinding = "app.message.followUp";
-const WINDOWS_FOLLOW_UP_FALLBACK_KEY: KeyId = "ctrl+q";
 const DEQUEUE_KEYBINDING: AppKeybinding = "app.message.dequeue";
 const MACOS_DEQUEUE_FALLBACK_KEY: KeyId = "shift+up";
-function getFallbackKey(keybinding: Keybinding): KeyId | undefined {
-	if (keybinding === FOLLOW_UP_KEYBINDING) return WINDOWS_FOLLOW_UP_FALLBACK_KEY;
-	if (keybinding === DEQUEUE_KEYBINDING) return MACOS_DEQUEUE_FALLBACK_KEY;
-	return undefined;
+// Follow-up default keys that yield to another action's user remap:
+// Ctrl+Q (Windows Terminal fallback, #1903) and Tab (queue chord).
+const FOLLOW_UP_YIELDING_KEYS: KeyId[] = ["ctrl+q", "tab"];
+function getYieldingKeys(keybinding: Keybinding): KeyId[] {
+	if (keybinding === FOLLOW_UP_KEYBINDING) return FOLLOW_UP_YIELDING_KEYS;
+	if (keybinding === DEQUEUE_KEYBINDING) return [MACOS_DEQUEUE_FALLBACK_KEY];
+	return [];
 }
 function keyListIncludes(keys: KeyId | KeyId[] | undefined, target: KeyId): boolean {
 	if (keys === undefined) return false;
@@ -611,13 +614,15 @@ export class KeybindingsManager extends TuiKeybindingsManager {
 		this.#userBindings = userBindings;
 		super.setUserBindings(userBindings);
 	}
-
 	override getKeys(keybinding: Keybinding): KeyId[] {
 		const keys = super.getKeys(keybinding);
-		const fallbackKey = getFallbackKey(keybinding);
-		if (fallbackKey === undefined || this.#userBindings[keybinding] !== undefined) return keys;
-		if (!userBindingClaimsKey(this.#userBindings, fallbackKey, keybinding)) return keys;
-		return removeKey(keys, fallbackKey);
+		const yieldingKeys = getYieldingKeys(keybinding);
+		if (yieldingKeys.length === 0 || this.#userBindings[keybinding] !== undefined) return keys;
+		let result = keys;
+		for (const yieldingKey of yieldingKeys) {
+			if (userBindingClaimsKey(this.#userBindings, yieldingKey, keybinding)) result = removeKey(result, yieldingKey);
+		}
+		return result;
 	}
 
 	override getResolvedBindings(): KeybindingsConfig {

@@ -318,7 +318,17 @@ export async function readImageFromClipboard(): Promise<ClipboardImage | null> {
 		return null;
 	}
 
-	return (await nativeReadImageFromClipboard()) ?? null;
+	// Any native read failure (arboard cannot open the X11/Wayland connection,
+	// or rejects a payload it cannot convert) must not abort the whole paste —
+	// the caller's smart text fallback should run instead of surfacing an
+	// opaque "Failed to read clipboard". Matches the win32 branch above, which
+	// already guards the native read.
+	try {
+		return (await nativeReadImageFromClipboard()) ?? null;
+	} catch (err) {
+		logger.warn("clipboard: native image read failed", { error: String(err) });
+		return null;
+	}
 }
 
 /**

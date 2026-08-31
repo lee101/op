@@ -37,7 +37,8 @@ function parseShakeMode(args: string): ShakeMode | { error: string } {
 	const verb = args.trim().toLowerCase();
 	if (verb === "" || verb === "elide") return "elide";
 	if (verb === "images") return "images";
-	return { error: `Unknown /shake mode "${verb}". Use elide or images.` };
+	if (verb === "truncate") return "truncate";
+	return { error: `Unknown /shake mode "${verb}". Use elide, images, or truncate.` };
 }
 
 /** Format the session's workspace directories (cwd + additional) for display. */
@@ -173,8 +174,9 @@ export const BUILTIN_LIFECYCLE_SLASH_COMMANDS: ReadonlyArray<SlashCommandSpec> =
 		subcommands: [
 			{ name: "elide", description: "Strip tool results + large blocks (default)" },
 			{ name: "images", description: "Strip image blocks" },
+			{ name: "truncate", description: "Middle-out truncate oversized outputs (keeps head + tail)" },
 		],
-		acpInputHint: "[elide|images]",
+		acpInputHint: "[elide|images|truncate]",
 		allowArgs: true,
 		handle: async (command, runtime) => {
 			const mode = parseShakeMode(command.args);

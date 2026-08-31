@@ -4,7 +4,7 @@
  *
  * Two modes:
  * - Default (hook): Enter inserts newline, the `app.message.followUp` chord
- *   (Ctrl+Q / Ctrl+Enter) submits, bordered popup
+ *   (Ctrl+Q / Ctrl+Enter / Tab) submits, bordered popup
  * - Prompt-style (ask): Enter submits, Shift+Enter inserts newline, legacy ask chrome
  */
 import { Container, Editor, type Focusable, matchesKey, Spacer, Text, type TUI } from "@openpaths/tui";
@@ -127,7 +127,7 @@ export class HookEditorComponent extends Container implements Focusable {
 
 	/**
 	 * Prompt-style: raw Enter submits; Editor owns newline-producing sequences.
-	 * The follow-up chord (`app.message.followUp` → Ctrl+Q / Ctrl+Enter) also
+	 * The follow-up chord (`app.message.followUp` → Ctrl+Q / Ctrl+Enter / Tab) also
 	 * submits, so muscle memory from the main editor / hook-style surface works
 	 * here and Windows Terminal — which can't deliver a distinct Ctrl+Enter
 	 * event (#1903) — still has a working chord via Ctrl+Q (#3353).
@@ -162,7 +162,7 @@ export class HookEditorComponent extends Container implements Focusable {
 		this.#editor.handleInput(keyData);
 	}
 
-	/** Hook-style: Enter=newline, app.message.followUp chord (Ctrl+Q/Ctrl+Enter) submits. */
+	/** Hook-style: Enter=newline, app.message.followUp chord (Ctrl+Q/Ctrl+Enter/Tab) submits. */
 	#handleHookStyleInput(keyData: string): void {
 		// Submit on the follow-up chord. Uses the shared keybinding so Ctrl+Q works
 		// on Windows Terminal (#1903) and any user remap of `app.message.followUp`
