@@ -367,7 +367,7 @@ export const CATALOG_PROVIDERS = [
 	},
 	{
 		id: "openrouter",
-		defaultModel: "openai/gpt-5.5",
+		defaultModel: "stealth/union-alpha",
 		envVars: ["OPENROUTER_API_KEY"],
 		createModelManagerOptions: (config: ModelManagerConfig) => openrouterModelManagerOptions(config),
 		catalogDiscovery: { label: "OpenRouter", allowUnauthenticated: true },

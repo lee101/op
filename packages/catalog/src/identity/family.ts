@@ -85,14 +85,17 @@ export const isDeepseekModelIdOrName = memo((value: string): boolean => {
 
 /**
  * DeepSeek V4 Flash SKU in any host/namespace form (`deepseek-v4-flash`, dated
- * `deepseek-v4-flash-0731`, `deepseek-ai/DeepSeek-V4-Flash`). Both V4 SKUs
+ * `deepseek-v4-flash-0731`, `deepseek-ai/DeepSeek-V4-Flash`). V4.1 Flash ships
+ * under the bare `deepseek-flash` id (no `v4` segment). Both V4 SKUs
  * (Flash and Pro) accept the `low` reasoning_effort tier; this predicate keeps
  * Flash distinguishable from Pro where a host quirk splits them (e.g.
  * OpenRouter exposes `low` on Flash but only `high` on non-Flash V4).
  * See https://api-docs.deepseek.com/api/create-chat-completion.
  */
 export const isDeepseekV4FlashModelId = memo((modelId: string): boolean => {
-	return bareModelId(modelId).toLowerCase().includes("deepseek-v4-flash");
+	const bare = bareModelId(modelId).toLowerCase();
+	if (bare.includes("deepseek-v4-flash")) return true;
+	return bare === "deepseek-flash" || bare.startsWith("deepseek-flash-") || bare.startsWith("deepseek-flash:");
 });
 
 /** Xiaomi MiMo family by id or display name. */

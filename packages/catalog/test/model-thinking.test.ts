@@ -314,6 +314,26 @@ describe("model thinking derivation", () => {
 		expect(getSupportedEfforts(v32)).toEqual([Effort.High, Effort.Max]);
 	});
 
+	it("applies the Flash low/high/max ladder to the bare deepseek-flash (V4.1) id on the direct API", () => {
+		const flash = createModel({
+			id: "deepseek-flash",
+			api: "openai-completions",
+			provider: "deepseek",
+			baseUrl: "https://api.deepseek.com",
+		});
+		const flashDated = createModel({
+			id: "deepseek-flash-0813",
+			api: "openai-completions",
+			provider: "deepseek",
+			baseUrl: "https://api.deepseek.com",
+		});
+
+		// V4.1 Flash ships without the `v4` id segment; without Flash
+		// recognition it would fall through to the older high/max ladder.
+		expect(getSupportedEfforts(flash)).toEqual([Effort.Low, Effort.High, Effort.Max]);
+		expect(getSupportedEfforts(flashDated)).toEqual([Effort.Low, Effort.High, Effort.Max]);
+	});
+
 	it("grants the low/high/max ladder to OpenRouter deepseek-v4-pro-0813 but not the undated route (issue #8517)", () => {
 		// OpenRouter's /models advertises reasoning.supported_efforts
 		// [low, high, max] for the dated SKU; the discovered ladder is baked

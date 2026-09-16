@@ -2650,8 +2650,8 @@ export function openrouterModelManagerOptions(
 
 /**
  * OpenRouter stealth models are intentionally omitted from the public catalog
- * endpoint. Keep the current model usable on a fresh install until it is
- * advertised there (or is retired).
+ * endpoint. Keep the current models usable on a fresh install until they are
+ * advertised there (or are retired).
  */
 export const OPENROUTER_STATIC_MODELS: readonly ModelSpec<"openrouter">[] = [
 	{
@@ -2665,6 +2665,18 @@ export const OPENROUTER_STATIC_MODELS: readonly ModelSpec<"openrouter">[] = [
 		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		contextWindow: 1_000_000,
 		maxTokens: 32_768,
+	},
+	{
+		id: "stealth/union-alpha",
+		name: "Union Alpha (Stealth)",
+		api: "openrouter",
+		provider: "openrouter",
+		baseUrl: "https://openrouter.ai/api/v1",
+		reasoning: false,
+		input: ["text", "image"],
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 262_144,
+		maxTokens: 131_072,
 	},
 ];
 
@@ -5915,9 +5927,11 @@ const MODELS_DEV_PROVIDER_DESCRIPTORS_CORE: readonly ModelsDevProviderDescriptor
 	}),
 	// --- DeepSeek ---
 	openAiCompletionsDescriptor("deepseek", "deepseek", "https://api.deepseek.com", {
-		// Only ship the v4 family as built-ins; older deepseek-chat / deepseek-reasoner
-		// ids are kept off the catalog until the issue thread asks for them.
-		filterModel: (id, m) => m.tool_call === true && id.startsWith("deepseek-v4"),
+		// Only ship the v4 generation as built-ins; older deepseek-chat /
+		// deepseek-reasoner ids are kept off the catalog until the issue thread
+		// asks for them. V4.1 Flash ships under the bare `deepseek-flash` id
+		// (no `v4` segment), so match that lineage alongside `deepseek-v4*`.
+		filterModel: (id, m) => m.tool_call === true && (id.startsWith("deepseek-v4") || id.startsWith("deepseek-flash")),
 		compat: {
 			// DeepSeek V4 effort remapping is derived in model-thinking metadata; this
 			// descriptor keeps only transport-shape compat.

@@ -39,6 +39,13 @@ export interface EnhancedPasteHandlers {
 	pasteText(text: string): void;
 	pasteImage(image: ImageContent): void | Promise<void>;
 	showStatus(message: string): void;
+	/**
+	 * Invoked when the terminal denies the enhanced read (e.g. `status=EPERM`
+	 * when clipboard access is restricted) so the caller can fall back to the
+	 * normal host-clipboard paste. When absent, the denial surfaces as a
+	 * status message instead.
+	 */
+	pasteFallback?(): void | Promise<void>;
 }
 
 export function isOsc5522Packet(data: string): boolean {
@@ -123,6 +130,10 @@ export class EnhancedPasteController {
 		}
 		if (status) {
 			this.#state = undefined;
+			if (this.#handlers.pasteFallback) {
+				void this.#handlers.pasteFallback();
+				return;
+			}
 			this.#handlers.showStatus(`Enhanced paste failed: ${status}`);
 		}
 	}

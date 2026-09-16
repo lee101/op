@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- Added DeepSeek V4.1 Flash as `deepseek-flash` on the `deepseek` provider (1M context, image input, `low`/`high`/`max` reasoning efforts). Discovery now keeps the bare `deepseek-flash` lineage instead of only `deepseek-v4*` ids.
+- Added the OpenRouter Union Alpha model as `openrouter/stealth/union-alpha` (262k context, free) so it is selectable before catalog discovery, and made it the OpenRouter default.
 - Added the current OpenRouter Ox Alpha model as `openrouter/stealth/ox-alpha` so it is selectable before catalog discovery.
 - Added `OpenRouterRouting.sort`: a `provider.sort` directive (`"price"`, `"throughput"`, `"latency"`, or an object with `by` and optional `partition`) expressible per model in models.yml.
 

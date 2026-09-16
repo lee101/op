@@ -176,4 +176,41 @@ describe("EnhancedPasteController", () => {
 
 		expect(writes.at(-1)).toBe(`${OSC}type=read;${imageMime}${BEL}`);
 	});
+
+	it("falls back to the normal paste when the terminal denies the enhanced read", () => {
+		const statuses: string[] = [];
+		let fallbacks = 0;
+		const controller = new EnhancedPasteController({
+			write: () => {},
+			pasteText: () => {
+				statuses.push("unexpected text paste");
+			},
+			pasteImage: () => {
+				statuses.push("unexpected image paste");
+			},
+			showStatus: message => statuses.push(message),
+			pasteFallback: () => {
+				fallbacks += 1;
+			},
+		});
+
+		expect(controller.handleInput(packet("type=read:status=EPERM"))).toBe(true);
+
+		expect(fallbacks).toBe(1);
+		expect(statuses).toEqual([]);
+	});
+
+	it("reports the denial status when no fallback is registered", () => {
+		const statuses: string[] = [];
+		const controller = new EnhancedPasteController({
+			write: () => {},
+			pasteText: () => {},
+			pasteImage: () => {},
+			showStatus: message => statuses.push(message),
+		});
+
+		expect(controller.handleInput(packet("type=read:status=EPERM"))).toBe(true);
+
+		expect(statuses).toEqual(["Enhanced paste failed: EPERM"]);
+	});
 });

@@ -16,6 +16,8 @@
 ### Fixed
 
 - Allow explicit OpenRouter model IDs that are not present in the local catalog, including `openrouter/secret/oxalpha`.
+- Fixed `op update` failing with `Failed to fetch release info for @openpaths/coding-agent: Not Found`: the rebrand renamed the npm packages before the new names were published, so the version lookup now falls back to the pre-rebrand `@oh-my-pi/pi-coding-agent` / `@oh-my-pi/pi-natives` release line until the first `@openpaths/*` publish lands.
+- Fixed denied enhanced (OSC 5522) pastes dead-ending on `Enhanced paste failed: EPERM` when the terminal restricts clipboard access: the denial now falls back to the normal host-clipboard smart paste so the keypress still lands as image or text.
 - Fixed the clipboard image read on Linux X11 / macOS surfacing "Failed to read clipboard" when the native bridge (arboard) could not open the display or rejected a payload: the read now degrades to "no image" so the smart text paste fallback runs instead of aborting.
 
 ## [17.3.7] - 2026-08-17

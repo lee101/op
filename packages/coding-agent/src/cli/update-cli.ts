@@ -82,6 +82,14 @@ export interface ReleaseRename {
 
 const CURRENT_PACKAGES: ReleasePackages = { pkg: PACKAGE, natives: NATIVES_PACKAGE };
 
+/**
+ * Pre-rebrand npm names. The rebrand renamed the packages before the new
+ * names were published, so the registry still serves releases under the old
+ * names until the first `@openpaths/*` publish lands. The version lookup
+ * falls back to these when the current names 404.
+ */
+const LEGACY_PACKAGES: ReleasePackages = { pkg: "@oh-my-pi/pi-coding-agent", natives: "@oh-my-pi/pi-natives" };
+
 export interface ReleaseInfo {
 	tag: string;
 	version: string;
@@ -657,6 +665,16 @@ async function resolveUpdateTarget(options: { allowPackageManagers: boolean }): 
 /** Bound on `op.rename` hops so a broken pointer chain cannot loop forever. */
 const MAX_RENAME_HOPS = 3;
 
+/** Thrown when the npm registry has no such package (HTTP 404 on `/latest`). */
+export class RegistryPackageNotFoundError extends Error {
+	readonly pkg: string;
+	constructor(pkg: string) {
+		super(`Failed to fetch release info for ${pkg}: Not Found`);
+		this.name = "RegistryPackageNotFoundError";
+		this.pkg = pkg;
+	}
+}
+
 async function fetchLatestManifest(
 	pkg: string,
 	timeoutMs: number,
@@ -673,6 +691,9 @@ async function fetchLatestManifest(
 			});
 		}
 		throw err;
+	}
+	if (response.status === 404) {
+		throw new RegistryPackageNotFoundError(pkg);
 	}
 	if (!response.ok) {
 		throw new Error(`Failed to fetch release info for ${pkg}: ${response.statusText}`);
@@ -691,12 +712,26 @@ async function fetchLatestManifest(
  * npm name. Version, dist, and install names all come from the final manifest
  * in the chain. Uses npm instead of GitHub API to avoid unauthenticated rate
  * limiting.
+ *
+ * When the current names have never been published (the rebrand renamed the
+ * packages before the first `@openpaths/*` publish), the lookup falls back
+ * to the pre-rebrand names so `op update` keeps tracking the live release
+ * line instead of failing with a 404.
  */
 export async function getLatestRelease(options: { timeoutMs?: number } = {}): Promise<ReleaseInfo> {
 	const timeoutMs = options.timeoutMs ?? RELEASE_METADATA_TIMEOUT_MS;
 	const packages: ReleasePackages = { ...CURRENT_PACKAGES };
 	const visited = new Set([packages.pkg]);
-	let latest = await fetchLatestManifest(packages.pkg, timeoutMs);
+	let latest: { version: string; manifest: Record<string, unknown> };
+	try {
+		latest = await fetchLatestManifest(packages.pkg, timeoutMs);
+	} catch (err) {
+		if (!(err instanceof RegistryPackageNotFoundError) || visited.has(LEGACY_PACKAGES.pkg)) throw err;
+		packages.pkg = LEGACY_PACKAGES.pkg;
+		packages.natives = LEGACY_PACKAGES.natives;
+		visited.add(packages.pkg);
+		latest = await fetchLatestManifest(packages.pkg, timeoutMs);
+	}
 	for (let hop = 0; hop < MAX_RENAME_HOPS; hop++) {
 		const rename = resolveReleaseRename(latest.manifest);
 		if (!rename || visited.has(rename.pkg)) break;
