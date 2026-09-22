@@ -72,6 +72,12 @@ const HIGH_MAX_REASONING_EFFORTS: readonly Effort[] = [Effort.High, Effort.Max];
 /** OpenRouter's DeepSeek route accepts only `high`. */
 const HIGH_ONLY_REASONING_EFFORTS: readonly Effort[] = [Effort.High];
 /**
+ * RunAnywhere's Wally Cloud: wire-exact `low`/`medium`/`xhigh`, with `xhigh`
+ * the service default ("Supported types are xhigh (default), medium, and low").
+ * `max` and `minimal` are answered with HTTP 400, so neither tier is exposed.
+ */
+const WALLY_REASONING_EFFORTS: readonly Effort[] = [Effort.Low, Effort.Medium, Effort.XHigh];
+/**
  * Five wire tiers with a `low` floor: GPT-5.6+, Anthropic adaptive models
  * with the real xhigh tier (Opus 4.7+, Sonnet 5+, Fable/Mythos 5), and the
  * Fire Pass Kimi router (distinct xhigh and max budgets).
@@ -181,7 +187,8 @@ function fillThinkingWireDefaults<TApi extends Api>(
 		supportsAdaptiveThinkingDisplay(spec.id);
 	const needsRequiresEffort = thinking.requiresEffort === undefined && impliesMandatoryReasoning(parsed, spec.id);
 	const needsDefaultLevel =
-		thinking.defaultLevel === undefined && (isKimiK3ModelId(spec.id) || isGlm53ReasoningEffortModelId(spec.id));
+		thinking.defaultLevel === undefined &&
+		(isKimiK3ModelId(spec.id) || isGlm53ReasoningEffortModelId(spec.id) || spec.provider === "runanywhere");
 	if (!effortsChanged && !shouldReplaceEffortMap && !needsDisplay && !needsRequiresEffort && !needsDefaultLevel) {
 		return thinking;
 	}
@@ -200,7 +207,7 @@ function fillThinkingWireDefaults<TApi extends Api>(
 		filled.supportsDisplay = true;
 	}
 	if (needsDefaultLevel) {
-		filled.defaultLevel = Effort.Max;
+		filled.defaultLevel = spec.provider === "runanywhere" ? Effort.XHigh : Effort.Max;
 	}
 	if (needsRequiresEffort) {
 		filled.requiresEffort = true;
@@ -221,6 +228,10 @@ export function deriveThinking<TApi extends Api>(spec: ModelSpec<TApi>, compat: 
 	};
 	if (isKimiK3ModelId(spec.id) || isGlm53ReasoningEffortModelId(spec.id)) {
 		config.defaultLevel = Effort.Max;
+	} else if (spec.provider === "runanywhere") {
+		// Wally Cloud's own default tier, so an unspecified request matches the
+		// service default instead of op's global default.
+		config.defaultLevel = Effort.XHigh;
 	}
 	const effortMap = inferEffortMap(spec, compat, config.mode, config.efforts);
 	if (effortMap !== undefined) {
@@ -315,6 +326,13 @@ function getModelDefinedEfforts<TApi extends Api>(
 	spec: ModelSpec<TApi>,
 	compat: CompatOf<TApi>,
 ): readonly Effort[] | undefined {
+	if (spec.provider === "runanywhere") {
+		// Provider-scoped because the hosted SKUs run wider ladders elsewhere:
+		// Z.ai's route to the same GLM-5.3-Flash serves low/high/max, and
+		// Cerebras's Qwen 3.8 27B serves none/low/medium/high. Wally Cloud
+		// answers anything outside low/medium/xhigh with HTTP 400.
+		return WALLY_REASONING_EFFORTS;
+	}
 	if (isGlm53ReasoningEffortModelId(spec.id)) {
 		// GLM-5.3+ exposes a uniform wire-exact low/high/max ladder on every
 		// host — unlike GLM-5.2, whose reasoning_effort dialect is

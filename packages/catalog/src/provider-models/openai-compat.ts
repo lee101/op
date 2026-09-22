@@ -5516,6 +5516,61 @@ export function anthropicModelManagerOptions(
 }
 
 // ---------------------------------------------------------------------------
+// 25. RunAnywhere (Wally Cloud)
+// ---------------------------------------------------------------------------
+
+/**
+ * Bundled seed for RunAnywhere's Wally Cloud, an OpenAI-compatible hosted
+ * inference API. Generation runs without `RUNANYWHERE_API_KEY`, so a regen
+ * would otherwise leave the provider slice empty and the descriptor's
+ * `defaultModel` unresolvable on a fresh install. Live `/v1/models` discovery
+ * is authoritative for the ID set and overrides context/max-token limits, but
+ * `mapWithBundledReference` keeps the reference's cost/reasoning/thinking.
+ *
+ * Values are Wally Cloud's own published per-1M-token rates ("cost to
+ * send/answer ~750,000 words", which is the same 1M-token unit Wally bills on;
+ * 1M tokens ~= 750k words):
+ *   - glm-5.3-flash  $0.10 / $0.35 per 1M
+ *   - qwen3.8-27b    $0.20 / $2.50 per 1M
+ * Wally publishes no cache-read tariff and its `/v1/models` response reports
+ * `cached_tokens` without a discount, so cacheRead stays 0.
+ *
+ * Effort ladders are the ones the service accepts: glm-5.3-flash and
+ * qwen3.8-27b both take low/medium/xhigh (xhigh is Wally's default) and 400 on
+ * `max`/`minimal`, so those tiers are absent from the seed and never sent.
+ */
+const RUNANYWHERE_BASE_URL = "https://inference.runanywhere.ai/v1";
+
+export const RUNANYWHERE_STATIC_MODELS: readonly ModelSpec<"openai-completions">[] = [
+	{
+		id: "glm-5.3-flash",
+		name: "GLM-5.3 Flash",
+		api: "openai-completions",
+		provider: "runanywhere",
+		baseUrl: RUNANYWHERE_BASE_URL,
+		reasoning: true,
+		input: ["text", "image"],
+		cost: { input: 0.1, output: 0.35, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 1048567,
+		maxTokens: 131072,
+		thinking: { mode: "effort", efforts: [Effort.Low, Effort.Medium, Effort.XHigh], defaultLevel: Effort.XHigh },
+	},
+	{
+		id: "qwen3.8-27b",
+		name: "Qwen 3.8 27B",
+		api: "openai-completions",
+		provider: "runanywhere",
+		baseUrl: RUNANYWHERE_BASE_URL,
+		reasoning: true,
+		input: ["text", "image"],
+		cost: { input: 0.2, output: 2.5, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 262137,
+		maxTokens: 40960,
+		thinking: { mode: "effort", efforts: [Effort.Low, Effort.Medium, Effort.XHigh], defaultLevel: Effort.XHigh },
+	},
+];
+
+// ---------------------------------------------------------------------------
 // Models.dev provider descriptors for generate-models.ts
 // ---------------------------------------------------------------------------
 

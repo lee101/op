@@ -8,6 +8,7 @@
 
 ### Added
 - Added `openrouterSort` stream option: forwards an OpenRouter `provider.sort` routing directive into the chat-completions and Responses request bodies (a per-model `openRouterRouting.sort` in models.yml wins over it).
+- Added the RunAnywhere (Wally Cloud) provider (`runanywhere`) with API-key login validated against `https://inference.runanywhere.ai/v1/models` and `RUNANYWHERE_API_KEY` as the environment fallback.
 
 ## [17.3.7] - 2026-08-17
 
