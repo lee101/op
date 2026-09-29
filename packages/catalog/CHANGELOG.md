@@ -3,7 +3,8 @@
 ## [Unreleased]
 
 ### Added
-- Added the current OpenRouter Ox Alpha model as `openrouter/stealth/ox-alpha` so it is selectable before catalog discovery.
+- Added OpenRouter Space Bunny Alpha as `openrouter/stealth/space-bunny-alpha` (1M context, image input, free).
+- Added the current OpenRouter Ox Alpha model as `openrouter/secret/ox-alpha` so it is selectable before catalog discovery.
 - Added `OpenRouterRouting.sort`: a `provider.sort` directive (`"price"`, `"throughput"`, `"latency"`, or an object with `by` and optional `partition`) expressible per model in models.yml.
 
 ## [17.3.6] - 2026-08-17

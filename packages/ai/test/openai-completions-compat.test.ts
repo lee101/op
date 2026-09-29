@@ -2344,7 +2344,7 @@ describe("applyOpenRouterRoutingVariant", () => {
 
 	it("does not append routing variants to private secret model ids", () => {
 		expect(applyOpenRouterRoutingVariant("secret/oxalpha", "floor")).toBe("secret/oxalpha");
-		expect(applyOpenRouterRoutingVariant("stealth/ox-alpha", "floor")).toBe("stealth/ox-alpha");
+		expect(applyOpenRouterRoutingVariant("secret/ox-alpha", "floor")).toBe("secret/ox-alpha");
 	});
 });
 

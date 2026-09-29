@@ -2649,14 +2649,14 @@ export function openrouterModelManagerOptions(
 }
 
 /**
- * OpenRouter stealth models are intentionally omitted from the public catalog
+ * OpenRouter secret models are intentionally omitted from the public catalog
  * endpoint. Keep the current model usable on a fresh install until it is
  * advertised there (or is retired).
  */
 export const OPENROUTER_STATIC_MODELS: readonly ModelSpec<"openrouter">[] = [
 	{
-		id: "stealth/ox-alpha",
-		name: "Ox Alpha (Stealth)",
+		id: "secret/ox-alpha",
+		name: "Ox Alpha (Secret)",
 		api: "openrouter",
 		provider: "openrouter",
 		baseUrl: "https://openrouter.ai/api/v1",
