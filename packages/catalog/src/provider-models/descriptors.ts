@@ -367,7 +367,7 @@ export const CATALOG_PROVIDERS = [
 	},
 	{
 		id: "openrouter",
-		defaultModel: "openai/gpt-5.5",
+		defaultModel: "stealth/union-alpha",
 		envVars: ["OPENROUTER_API_KEY"],
 		createModelManagerOptions: (config: ModelManagerConfig) => openrouterModelManagerOptions(config),
 		catalogDiscovery: { label: "OpenRouter", allowUnauthenticated: true },
@@ -388,6 +388,15 @@ export const CATALOG_PROVIDERS = [
 			label: "Qwen Portal",
 			oauthProvider: "qwen-portal",
 		},
+	},
+	{
+		id: "runanywhere",
+		defaultModel: "glm-5.3-flash",
+		envVars: ["RUNANYWHERE_API_KEY"],
+		// Deliberately no model manager or catalogDiscovery: Wally bills against
+		// prepaid credits but its `/v1/models` answer carries no rates, so a
+		// discovered row would be offered with a fake $0 cost. The two bundled
+		// seeds are the whole catalogue until a new model ships with its rate.
 	},
 	{
 		id: "sakana",

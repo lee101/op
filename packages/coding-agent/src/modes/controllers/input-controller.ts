@@ -612,18 +612,24 @@ export class InputController {
 				target.pasteText(text);
 				this.ctx.ui.requestRender();
 			},
-			pasteImage: async image => {
-				// Images can only land in the main editor — when a modal Input is
-				// focused, refuse rather than dump the binary blob in a hidden buffer.
-				const focused = this.ctx.ui.getFocused();
-				if (focused && focused !== this.ctx.editor && hasPasteText(focused)) {
-					this.ctx.showStatus("Image paste is not supported in this prompt");
-					return;
-				}
-				await this.#normalizeAndInsertPastedImage(image, `Unsupported pasted image format: ${image.mimeType}`);
-			},
-			showStatus: message => this.ctx.showStatus(message),
-		});
+		pasteImage: async image => {
+			// Images can only land in the main editor — when a modal Input is
+			// focused, refuse rather than dump the binary blob in a hidden buffer.
+			const focused = this.ctx.ui.getFocused();
+			if (focused && focused !== this.ctx.editor && hasPasteText(focused)) {
+				this.ctx.showStatus("Image paste is not supported in this prompt");
+				return;
+			}
+			await this.#normalizeAndInsertPastedImage(image, `Unsupported pasted image format: ${image.mimeType}`);
+		},
+		pasteFallback: () => {
+			// The terminal denied the enhanced read (e.g. EPERM under a
+			// restricted clipboard policy). Fall back to the normal
+			// host-clipboard smart paste so the keypress still lands.
+			void this.handleImagePaste();
+		},
+		showStatus: message => this.ctx.showStatus(message),
+	});
 		this.ctx.ui.addInputListener(data => (this.#enhancedPaste?.handleInput(data) ? { consume: true } : undefined));
 		this.ctx.ui.addStartListener(() => this.#enhancedPaste?.enable());
 	}

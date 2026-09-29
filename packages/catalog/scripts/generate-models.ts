@@ -49,6 +49,7 @@ import {
 	OPENAI_DAYBREAK_CURATED_FALLBACK_MODELS,
 	OPENROUTER_STATIC_MODELS,
 	projectOpenAIProReasoningAliases,
+	RUNANYWHERE_STATIC_MODELS,
 	SAKANA_FUGU_STATIC_MODELS,
 	stripFireworksDeepSeekThinkingToggle,
 } from "../src/provider-models/openai-compat";
@@ -599,6 +600,11 @@ async function generateModels() {
 	if (!authoritativeCatalogProviders.has("gmi-cloud")) {
 		allModels.push(...GMI_CLOUD_STATIC_MODELS);
 	}
+	// RunAnywhere's Wally Cloud rates are hand-pinned because `/v1/models`
+	// returns no prices, and its descriptor carries no catalogDiscovery or
+	// runtime model manager: these two seeds are the entire catalogue, so a new
+	// Wally model must arrive here with its published rate.
+	allModels.push(...RUNANYWHERE_STATIC_MODELS);
 	// Seed the GitLab Duo Agent fallback model so a fresh install (no credentialed
 	// dynamic discovery/cache yet) still surfaces the provider's default model in the
 	// built-in catalog. The descriptor deliberately has NO `catalogDiscovery`, so it is

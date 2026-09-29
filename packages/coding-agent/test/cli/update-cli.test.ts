@@ -88,4 +88,19 @@ describe("getLatestRelease rename pointers", () => {
 		expect(release.version).toBe("999.0.0");
 		expect(release.packages).toEqual({ pkg: "@openpaths/coding-agent", natives: "@openpaths/natives" });
 	});
+
+	it("falls back to the pre-rebrand names when the current names are unpublished", async () => {
+		const urls = stubRegistry({
+			"@oh-my-pi/pi-coding-agent": { version: "999.0.0" },
+		});
+
+		const release = await getLatestRelease();
+
+		expect(release.version).toBe("999.0.0");
+		expect(release.packages).toEqual({ pkg: "@oh-my-pi/pi-coding-agent", natives: "@oh-my-pi/pi-natives" });
+		expect(urls).toEqual([
+			"https://registry.npmjs.org/@openpaths/coding-agent/latest",
+			"https://registry.npmjs.org/@oh-my-pi/pi-coding-agent/latest",
+		]);
+	});
 });

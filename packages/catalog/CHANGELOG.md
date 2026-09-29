@@ -5,6 +5,9 @@
 ### Added
 - Added OpenRouter Space Bunny Alpha as `openrouter/stealth/space-bunny-alpha` (1M context, image input, free).
 - Added the current OpenRouter Ox Alpha model as `openrouter/secret/ox-alpha` so it is selectable before catalog discovery.
+- Added the RunAnywhere (Wally Cloud) provider (`runanywhere`), an OpenAI-compatible hosted inference API authenticated with `RUNANYWHERE_API_KEY`, bundling `glm-5.3-flash` ($0.10/$0.35 per 1M, 1M context) and `qwen3.8-27b` ($0.20/$2.50 per 1M, 262K context). Wally answers HTTP 400 for `max`/`minimal` reasoning effort, so both lanes expose the wire-exact `low`/`medium`/`xhigh` ladder with `xhigh` as the default.
+- Added DeepSeek V4.1 Flash as `deepseek-flash` on the `deepseek` provider (1M context, image input, `low`/`high`/`max` reasoning efforts). Discovery now keeps the bare `deepseek-flash` lineage instead of only `deepseek-v4*` ids.
+- Added the OpenRouter Union Alpha model as `openrouter/stealth/union-alpha` (262k context, free) so it is selectable before catalog discovery, and made it the OpenRouter default.
 - Added `OpenRouterRouting.sort`: a `provider.sort` directive (`"price"`, `"throughput"`, `"latency"`, or an object with `by` and optional `partition`) expressible per model in models.yml.
 
 ## [17.3.6] - 2026-08-17

@@ -41,6 +41,12 @@ export interface ShakeConfig {
 	 * boundary — that is its job as a compaction-class reducer.
 	 */
 	keepBoundaryId?: string;
+	/**
+	 * Middle-out truncation budget (`truncate` mode only): per-carrier token
+	 * ceiling the truncated head+tail text must land under. Undefined =
+	 * {@link TRUNCATE_TOKEN_BUDGET}.
+	 */
+	truncateTokenBudget?: number;
 }
 
 /** Auto-shake config: protects the live tail, conservative thresholds. */
@@ -64,6 +70,14 @@ export const AGGRESSIVE_SHAKE_CONFIG: ShakeConfig = {
 	fenceMinTokens: 400,
 };
 
+/**
+ * Per-carrier token ceiling for middle-out truncation: a truncated carrier
+ * keeps head + tail around an explicit marker and must land at or under this
+ * budget. Small enough that one recent turn cannot re-trip maintenance, large
+ * enough that the head/tail edges stay useful context.
+ */
+export const TRUNCATE_TOKEN_BUDGET = 2_000;
+
 /** Compaction dead-end rescue: aggressive reach, but artifact recovery reads stay protected. */
 export const RESCUE_SHAKE_CONFIG: ShakeConfig = {
 	...AGGRESSIVE_SHAKE_CONFIG,
@@ -72,6 +86,27 @@ export const RESCUE_SHAKE_CONFIG: ShakeConfig = {
 	// cannot drop its blocker is not a recovery.
 	protectTokens: 0,
 	protectedTools: [...AGGRESSIVE_SHAKE_CONFIG.protectedTools, isArtifactRecoveryToolResult],
+};
+
+/** Manual `/shake truncate`: middle-out truncation with the manual preset's reach. */
+export const TRUNCATE_SHAKE_CONFIG: ShakeConfig = {
+	...AGGRESSIVE_SHAKE_CONFIG,
+	truncateTokenBudget: TRUNCATE_TOKEN_BUDGET,
+};
+
+/**
+ * Compaction dead-end rescue for `truncate` mode. Unlike elide, truncation
+ * keeps a head+tail excerpt inline, so carriers that elide must protect whole
+ * (skill contents, artifact recovery reads — their `artifact://` link already
+ * sits in the preceding placeholder) are safe to shrink: the excerpt preserves
+ * their shape. Only plan-protection matchers survive, re-added by the session's
+ * `#withPlanProtection` wrapper.
+ */
+export const RESCUE_TRUNCATE_SHAKE_CONFIG: ShakeConfig = {
+	...AGGRESSIVE_SHAKE_CONFIG,
+	protectTokens: 0,
+	protectedTools: [],
+	truncateTokenBudget: TRUNCATE_TOKEN_BUDGET,
 };
 
 /** Rough token cost of a placeholder line; used only for the savings gate. */
@@ -354,10 +389,155 @@ export function collectShakeRegions(entries: SessionEntry[], config: ShakeConfig
 		}
 	}
 
+	return filterBySavings(regions, config.minSavings);
+}
+
+/** Rough chars-per-token ratio used to size the head/tail halves before exact counting. */
+const APPROX_CHARS_PER_TOKEN = 4;
+/** Slack subtracted from the truncation budget for marker/newline overhead before sizing. */
+const TRUNCATION_SLACK_TOKENS = 32;
+
+/**
+ * Middle-out truncation: keep the head and tail of `originalText` around
+ * `marker` so the result counts at or under `budgetTokens` (cl100k estimates,
+ * same baseline as {@link estimateTokens}). Halves snap to line boundaries so
+ * neither edge ends mid-line; when the budget cannot fit even a short excerpt,
+ * returns just the marker. Pure — no I/O.
+ */
+export function buildMiddleOutText(originalText: string, budgetTokens: number, marker: string): string {
+	if (countTokens(originalText) <= budgetTokens) return originalText;
+	const markerCost = Math.max(countTokens(marker), 1);
+	let halfChars = Math.floor(((budgetTokens - markerCost - TRUNCATION_SLACK_TOKENS) * APPROX_CHARS_PER_TOKEN) / 2);
+	for (let attempt = 0; attempt < 6 && halfChars >= 1; attempt++) {
+		let head = originalText.slice(0, halfChars);
+		// Snap the head back to the last complete line when one exists past the midpoint.
+		const headBreak = head.lastIndexOf("\n");
+		if (headBreak > halfChars / 2) head = head.slice(0, headBreak);
+
+		let tail = originalText.slice(originalText.length - halfChars);
+		// Snap the tail forward past the first incomplete line when one sits near the start.
+		const tailBreak = tail.indexOf("\n");
+		if (tailBreak !== -1 && tailBreak < halfChars / 2) tail = tail.slice(tailBreak + 1);
+
+		const candidate = `${head}\n${marker}\n${tail}`;
+		if (countTokens(candidate) <= budgetTokens) return candidate;
+		halfChars = Math.floor(halfChars / 2);
+	}
+	return marker;
+}
+
+/**
+ * Pure detection for `truncate` mode: locate every oversized text carrier on a
+ * branch — whole tool results and individual text blocks in user/developer/
+ * assistant/custom messages — regardless of fences or XML shape. This is the
+ * elide gap: plain unfenced pastes and prose never form fenced/XML blocks, and
+ * protected tool results are unreachable by elision. Truncation only replaces
+ * their text with a head+tail excerpt, so it can safely reach carriers whose
+ * full replacement would destroy needed context.
+ *
+ * Walks the protect-recent window like {@link collectShakeRegions} (useless
+ * results bypass it), honors `protectedTools` and the compaction boundary, and
+ * skips already-pruned results. A carrier is eligible only when its tokens are
+ * at least double the truncate budget — truncation must reclaim at least half.
+ * Returns regions in document order; `[]` when the combined savings misses
+ * `minSavings`.
+ */
+export function collectTruncationRegions(entries: SessionEntry[], config: ShakeConfig): ShakeRegion[] {
+	const n = entries.length;
+	if (n === 0) return [];
+
+	const budget = config.truncateTokenBudget ?? TRUNCATE_TOKEN_BUDGET;
+	const minCarrierTokens = budget * 2;
+
+	const accumulatedAfter = new Array<number>(n);
+	let acc = 0;
+	for (let i = n - 1; i >= 0; i--) {
+		accumulatedAfter[i] = acc;
+		acc += entryTokens(entries[i]);
+	}
+
+	const toolCallsById = collectToolCallsById(entries);
+
+	const boundaryIndex =
+		config.keepBoundaryId === undefined
+			? 0
+			: Math.max(
+					0,
+					entries.findIndex(entry => entry.id === config.keepBoundaryId),
+				);
+
+	const regions: ShakeRegion[] = [];
+	for (let i = 0; i < n; i++) {
+		const entry = entries[i];
+		if (i < boundaryIndex) continue;
+		const toolResult = getToolResultMessage(entry);
+		const uselessResult = toolResult !== undefined && toolResult.useless === true && toolResult.isError !== true;
+		if (!uselessResult && accumulatedAfter[i] < config.protectTokens) continue;
+		if (toolResult) {
+			if (toolResult.prunedAt !== undefined) continue;
+			if (isProtectedToolResult(toolResult, toolCallsById.get(toolResult.toolCallId), config.protectedTools))
+				continue;
+			const text = toolResultText(toolResult);
+			const tokens = estimateTokens(toolResult as AgentMessage);
+			if (text.length === 0 || tokens < minCarrierTokens) continue;
+			regions.push({
+				kind: "toolResult",
+				entry: entry as SessionMessageEntry,
+				tokens,
+				originalText: text,
+				label: toolResult.toolName,
+			});
+			continue;
+		}
+		collectOversizedTextBlocks(entry, minCarrierTokens, regions);
+	}
+
+	return filterBySavings(regions, config.minSavings);
+}
+
+function collectOversizedTextBlocks(entry: SessionEntry, minBlockTokens: number, out: ShakeRegion[]): void {
+	const push = (entry: SessionMessageEntry | CustomMessageEntry, blockIndex: number, text: string, label: string) => {
+		const tokens = countTokens(text);
+		if (tokens < minBlockTokens) return;
+		out.push({ kind: "block", entry, blockIndex, start: 0, end: text.length, tokens, originalText: text, label });
+	};
+	if (entry.type === "custom_message") {
+		scanTruncationContent(entry, entry.content, entry.customType, push);
+		return;
+	}
+	if (entry.type !== "message") return;
+	const message = entry.message;
+	if (message.role === "assistant" || message.role === "user" || message.role === "developer") {
+		scanTruncationContent(
+			entry,
+			message.content as string | Array<{ type: string; text?: string }>,
+			message.role,
+			push,
+		);
+	}
+}
+
+function scanTruncationContent(
+	entry: SessionMessageEntry | CustomMessageEntry,
+	content: string | Array<{ type: string; text?: string }>,
+	label: string,
+	push: (entry: SessionMessageEntry | CustomMessageEntry, blockIndex: number, text: string, label: string) => void,
+): void {
+	if (typeof content === "string") {
+		push(entry, -1, content, label);
+		return;
+	}
+	for (let bi = 0; bi < content.length; bi++) {
+		const block = content[bi];
+		if (block.type === "text" && typeof block.text === "string") push(entry, bi, block.text, label);
+	}
+}
+
+/** Shared savings gate: drop the batch when estimated reclaimed tokens miss `minSavings`. */
+function filterBySavings(regions: ShakeRegion[], minSavings: number): ShakeRegion[] {
 	let savings = 0;
 	for (const region of regions) savings += Math.max(0, region.tokens - PLACEHOLDER_TOKEN_ESTIMATE);
-	if (savings < config.minSavings) return [];
-
+	if (savings < minSavings) return [];
 	return regions;
 }
 

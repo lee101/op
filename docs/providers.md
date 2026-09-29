@@ -134,6 +134,7 @@ Each provider has one or more environment variables that supply a key when no st
 | `minimax`                        | `MINIMAX_API_KEY`                                                             |
 | `alibaba-coding-plan`            | `ALIBABA_CODING_PLAN_API_KEY`                                                 |
 | `sakana`                         | `SAKANA_API_KEY`, then `FUGU_API_KEY`                                         |
+| `runanywhere`                    | `RUNANYWHERE_API_KEY`                                                         |
 | `aimlapi`                        | `AIMLAPI_API_KEY`                                                             |
 | `gitlab-duo`, `gitlab-duo-agent` | `GITLAB_TOKEN`                                                                |
 | `opencode-zen`, `opencode-go`    | `OPENCODE_API_KEY`                                                            |

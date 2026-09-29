@@ -197,6 +197,21 @@ describe("readImageFromClipboard dispatch", () => {
 		expect(nativeSpy).toHaveBeenCalledTimes(1);
 	});
 
+	it("returns null instead of throwing when the native bridge rejects on X11 linux", async () => {
+		// A native read failure (arboard cannot open the X11 connection, or
+		// rejects a payload) must degrade to "no image" so the caller's smart
+		// text fallback runs instead of surfacing "Failed to read clipboard".
+		setPlatform("linux");
+		process.env.DISPLAY = ":0";
+		const spawnSpy = vi.spyOn(Bun, "spawn");
+		vi.spyOn(native, "readImageFromClipboard").mockRejectedValue(
+			new Error("Failed to access clipboard"),
+		);
+
+		expect(await readImageFromClipboard()).toBeNull();
+		expect(spawnSpy).not.toHaveBeenCalled();
+	});
+
 	it.each(["image/png", "image/jpeg", "image/gif", "image/webp"] as const)(
 		"reads %s bytes through wl-paste before the native bridge on Wayland-only Linux",
 		async mimeType => {

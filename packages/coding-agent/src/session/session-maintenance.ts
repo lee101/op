@@ -14,12 +14,14 @@ import {
 	AGGRESSIVE_SHAKE_CONFIG,
 	AUTO_HANDOFF_THRESHOLD_FOCUS,
 	applyShakeRegions,
+	buildMiddleOutText,
 	CompactionCancelledError,
 	type CompactionPreparation,
 	type CompactionResult,
 	type CompactionSettings,
 	calculateContextTokens,
 	collectShakeRegions,
+	collectTruncationRegions,
 	compact,
 	compactionContextTokens,
 	createCompactionSummaryMessage,
@@ -30,6 +32,7 @@ import {
 	NativeCompactionError,
 	prepareCompaction,
 	RESCUE_SHAKE_CONFIG,
+	RESCUE_TRUNCATE_SHAKE_CONFIG,
 	resolveBudgetReserveTokens,
 	resolveThresholdTokens,
 	type ShakeConfig,
@@ -38,6 +41,7 @@ import {
 	shouldCompact,
 	shouldUseOpenAiRemoteCompaction,
 	shouldUseProviderNativeCompaction,
+	TRUNCATE_TOKEN_BUDGET,
 } from "@openpaths/agent-core/compaction";
 import {
 	DEFAULT_PRUNE_CONFIG,
@@ -50,8 +54,8 @@ import type { AssistantMessage, CodexCompactionContext, Message, Model, Provider
 import * as AIError from "@openpaths/ai/error";
 import { preferredDialect } from "@openpaths/catalog/identity";
 import { modelsAreEqual } from "@openpaths/catalog/models";
-import { logger } from "@openpaths/utils";
 import * as snapcompact from "@openpaths/snapcompact";
+import { logger } from "@openpaths/utils";
 import type { ModelRegistry } from "../config/model-registry";
 import { MODEL_ROLE_IDS } from "../config/model-roles";
 import type { Settings } from "../config/settings";
@@ -480,13 +484,28 @@ export class SessionMaintenance {
 			// only churns persisted history with no prompt/cache effect.
 			keepBoundaryId: latestCompaction?.firstKeptEntryId,
 		});
-		const regions = collectShakeRegions(branchEntries, config);
+		// `truncate` reaches carriers elide cannot: unfenced pastes/prose (no
+		// fenced/XML shape) and protected results, shrinking each to a head+tail
+		// excerpt around an explicit marker instead of a full placeholder.
+		const regions =
+			mode === "truncate"
+				? collectTruncationRegions(branchEntries, config)
+				: collectShakeRegions(branchEntries, config);
 		if (regions.length === 0) {
 			return { mode, toolResultsDropped: 0, blocksDropped: 0, tokensFreed: 0 };
 		}
 
 		const artifactId = await this.#saveShakeArtifact(regions);
-		const replacements = regions.map((region, index) => this.#shakeElidePlaceholder(region, index, artifactId));
+		const replacements =
+			mode === "truncate"
+				? regions.map((region, index) =>
+						buildMiddleOutText(
+							region.originalText,
+							config.truncateTokenBudget ?? TRUNCATE_TOKEN_BUDGET,
+							this.#truncateMarker(region, index, artifactId),
+						),
+					)
+				: regions.map((region, index) => this.#shakeElidePlaceholder(region, index, artifactId));
 
 		const hasRemoteReplacementHistory = getOpenAiRemoteCompactionPayload(latestCompaction) !== undefined;
 		const compactionIndex = latestCompaction ? branchEntries.lastIndexOf(latestCompaction) : -1;
@@ -553,6 +572,12 @@ export class SessionMaintenance {
 			return `[shaken ~${region.tokens} tokens — recover: artifact://${artifactId} (region ${index + 1})]`;
 		}
 		return `[shaken ~${region.tokens} tokens]`;
+	}
+
+	/** Inline marker for one middle-out truncation: size, recovery link, and that the cut is lossy. */
+	#truncateMarker(region: ShakeRegion, index: number, artifactId: string | undefined): string {
+		const recovered = artifactId ? ` — recover: artifact://${artifactId} (region ${index + 1})` : "";
+		return `[middle-out truncated ~${region.tokens} tokens${recovered}]`;
 	}
 
 	/**
@@ -1899,6 +1924,12 @@ export class SessionMaintenance {
 	 * Image blocks are stripped from the branch; unlike elided text they are NOT
 	 * artifact-recoverable, so this tier only runs once elide has failed the
 	 * progress re-test.
+	 * Tier 3 — `shake("truncate")`: middle-out truncation of the carriers even
+	 * elide cannot reach (unfenced pastes/prose have no fenced/XML shape; skill /
+	 * artifact-recovery reads stay elision-protected) and of any residual bulk
+	 * after tiers 1–2. Each carrier keeps its head and tail around an explicit
+	 * marker plus an `artifact://` recovery link, so progress no longer requires
+	 * fully discarding content. Runs last: it is lossy in the middle by design.
 	 *
 	 * Each tier that rewrote history re-anchors the in-flight context snapshot,
 	 * then the caller's progress predicate is re-tested; the first tier that
@@ -1942,7 +1973,10 @@ export class SessionMaintenance {
 					error: error instanceof Error ? error.message : String(error),
 				});
 			}
-			if (elided > 0 && options.hasProgress()) {
+			// A zero-value shake (e.g. a placeholder larger than the result it
+			// replaced) must not claim progress — "freed too little" is a token
+			// count, so require the pass to have actually freed some.
+			if (elided > 0 && elidedTokens > 0 && options.hasProgress()) {
 				this.#host.emitNotice(
 					"info",
 					`Compaction dead-end recovery: ${this.#describeElideRescue(elided, elidedTokens, elideSink)} so maintenance could make progress.`,
@@ -1969,6 +2003,32 @@ export class SessionMaintenance {
 				"compaction",
 			);
 			return true;
+		}
+		if (signal.aborted) return false;
+		// Tier 3 — middle-out truncation (Claude-Code style): keep head + tail of
+		// every oversized carrier so the tail fits the band without discarding it.
+		let truncated = 0;
+		try {
+			const result = await this.#host.shake("truncate", { config: RESCUE_TRUNCATE_SHAKE_CONFIG, signal });
+			truncated = result.toolResultsDropped + result.blocksDropped;
+			if (truncated > 0 && result.tokensFreed > 0) {
+				// The truncate pass rewrote history; re-anchor the in-flight snapshot
+				// so the headroom re-test measures the truncated context.
+				this.#host.rebaseAfterCompaction();
+				if (options.hasProgress()) {
+					const sink = result.artifactId ? ` to an artifact (${result.artifactId})` : "";
+					this.#host.emitNotice(
+						"info",
+						`Compaction dead-end recovery: middle-out truncated ${truncated} oversized output${truncated === 1 ? "" : "s"} (~${result.tokensFreed.toLocaleString()} tokens)${sink} so maintenance could make progress.`,
+						"compaction",
+					);
+					return true;
+				}
+			}
+		} catch (error) {
+			logger.warn("Dead-end truncate rescue failed", {
+				error: error instanceof Error ? error.message : String(error),
+			});
 		}
 		return false;
 	}
@@ -2388,7 +2448,18 @@ export class SessionMaintenance {
 				// warning the user should see.
 				let frameRescueResult: snapcompact.CompactionResult | undefined;
 				let frameRescueCreatedHeadroom = false;
-				if (reason !== "idle") {
+				// Set when a rescue tier freed real headroom without producing a
+				// summarizable prefix (the kept region is still one oversized turn):
+				// the session is safe to continue even though summary compaction
+				// cannot start.
+				let rescueCreatedHeadroom = false;
+				// A pre-prompt pass fires before the pending prompt is persisted: with
+				// no message entries on the branch there is nothing any rescue tier
+				// can reach (they rewrite persisted history), and the dead-end
+				// warning would be spurious — post-turn maintenance owns the tail
+				// once the turn persists.
+				const branchHasMessages = pathEntriesForCompaction.some(entry => entry.type === "message");
+				if (reason !== "idle" && branchHasMessages) {
 					frameRescueResult = await this.#rescueSnapcompactFrameOverflow(
 						pathEntriesForCompaction,
 						compactionSettings,
@@ -2408,13 +2479,19 @@ export class SessionMaintenance {
 								rescueRewroteHistory = true;
 								pathEntriesForCompaction = this.#host.sessionManager.getBranch();
 								preparation = prepareCompaction(pathEntriesForCompaction, compactionSettings, this.#model);
-								return preparation !== undefined;
+								if (preparation !== undefined) return true;
+								// Truncation may drop the context under the recovery band
+								// while leaving nothing to summarize — that also unblocks
+								// the session.
+								rescueCreatedHeadroom = this.#compactionCreatedHeadroom();
+								return rescueCreatedHeadroom;
 							},
 						});
 					}
 				}
 				if (!preparation) {
-					const noProgressDeadEnd = reason !== "idle" && !frameRescueCreatedHeadroom;
+					const noProgressDeadEnd =
+						reason !== "idle" && branchHasMessages && !frameRescueCreatedHeadroom && !rescueCreatedHeadroom;
 					const deadEndWarning = noProgressDeadEnd
 						? compactionDeadEndWarning("shrink it (e.g. clear large tool output)")
 						: undefined;
@@ -2452,7 +2529,7 @@ export class SessionMaintenance {
 						options.detachPostCommit === true,
 					);
 					let continuationScheduled = false;
-					if (frameRescueCreatedHeadroom) {
+					if (frameRescueCreatedHeadroom || rescueCreatedHeadroom) {
 						continuationScheduled = this.#host.scheduleCompactionContinuation({
 							generation,
 							autoContinue: shouldAutoContinue,

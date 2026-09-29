@@ -5,10 +5,13 @@ import {
 	AGGRESSIVE_SHAKE_CONFIG,
 	applyShakeRegion,
 	applyShakeRegions,
+	buildMiddleOutText,
 	collectShakeRegions,
+	collectTruncationRegions,
 	DEFAULT_SHAKE_CONFIG,
 	estimateTokens,
 	RESCUE_SHAKE_CONFIG,
+	TRUNCATE_TOKEN_BUDGET,
 } from "@openpaths/agent-core/compaction";
 import type { AssistantMessage, TextContent, ToolCall, ToolResultMessage } from "@openpaths/ai";
 
@@ -253,5 +256,116 @@ describe("collectShakeRegions — useless results", () => {
 	test("an error result never bypasses the window even when flagged", () => {
 		const entry = messageEntry(toolResultMessage("search", "boom\n".repeat(50), { useless: true, isError: true }));
 		expect(collectShakeRegions([entry], cfg({ protectTokens: 1_000_000 }))).toHaveLength(0);
+	});
+});
+
+describe("collectTruncationRegions", () => {
+	/** Plain text with no fence/XML shape — the carrier class elide cannot see. Sized to ~`approxTokens` real tokens. */
+	function plainText(approxTokens: number): string {
+		const lines: string[] = [];
+		let chars = 0;
+		for (let i = 0; chars < approxTokens * 4; i++) {
+			const line = `log line ${i}: event ${i.toString(36)}-${((i * 2654435761) >>> 0).toString(16)}`;
+			lines.push(line);
+			chars += line.length + 1;
+		}
+		return lines.join("\n");
+	}
+
+	test("collects an unfenced oversized user paste as a whole-text block region", () => {
+		const entry = messageEntry({ role: "user", content: plainText(2_000), timestamp: Date.now() } as AgentMessage);
+		const regions = collectTruncationRegions([entry], cfg({ truncateTokenBudget: 400 }));
+
+		expect(regions).toHaveLength(1);
+		const region = regions[0];
+		expect(region.kind).toBe("block");
+		if (region.kind !== "block") return;
+		expect(region.start).toBe(0);
+		expect(region.end).toBeGreaterThan(0);
+
+		applyShakeRegion(region, "head\n[truncated]\ntail");
+		const message: unknown = entry.message;
+		if (!(typeof message === "object" && message !== null && "content" in message)) {
+			throw new Error("Expected message content");
+		}
+		expect(message.content).toBe("head\n[truncated]\ntail");
+	});
+
+	test("collects oversized tool results and stamps prunedAt on apply", () => {
+		const tr = toolResultMessage("bash", plainText(2_000));
+		const entry = messageEntry(tr);
+		const regions = collectTruncationRegions([entry], cfg({ truncateTokenBudget: 400 }));
+		expect(regions).toHaveLength(1);
+		expect(regions[0].kind).toBe("toolResult");
+
+		applyShakeRegion(regions[0], "excerpt");
+		expect(tr.prunedAt).toBeGreaterThan(0);
+		expect(tr.content).toEqual([{ type: "text", text: "excerpt" }]);
+	});
+
+	test("skips carriers under twice the budget — truncation must reclaim at least half", () => {
+		const entry = messageEntry(toolResultMessage("bash", plainText(500)));
+		expect(collectTruncationRegions([entry], cfg({ truncateTokenBudget: 400 }))).toHaveLength(0);
+	});
+
+	test("skips protected tool results and already-pruned ones", () => {
+		const planRead = messageEntry(toolResultMessage("read", plainText(2_000)));
+		const pruned = messageEntry(toolResultMessage("bash", plainText(2_000), { prunedAt: Date.now() }));
+		const regions = collectTruncationRegions(
+			[planRead, pruned],
+			cfg({ truncateTokenBudget: 400, protectedTools: ["read"] }),
+		);
+		expect(regions).toHaveLength(0);
+	});
+
+	test("honors the protect-recent window and the compaction boundary", () => {
+		const oldest = messageEntry(toolResultMessage("bash", plainText(2_000)));
+		const middle = messageEntry(toolResultMessage("bash", plainText(2_000)));
+		const recent = messageEntry(toolResultMessage("bash", plainText(2_000)));
+		const perEntry = estimateTokens(oldest.message);
+
+		// Window covers ~1.5 entries → oldest (two entries after it) eligible, rest protected.
+		const windowed = collectTruncationRegions(
+			[oldest, middle, recent],
+			cfg({ truncateTokenBudget: 400, protectTokens: Math.floor(perEntry * 1.5) }),
+		);
+		expect(windowed).toHaveLength(1);
+		expect(windowed[0].entry).toBe(oldest);
+
+		// Boundary at `recent`: entries before it are summarized away and never
+		// returned; the boundary entry itself stays live (zero protect window).
+		const bounded = collectTruncationRegions(
+			[oldest, middle, recent],
+			cfg({ truncateTokenBudget: 400, keepBoundaryId: recent.id }),
+		);
+		expect(bounded).toHaveLength(1);
+		expect(bounded[0].entry).toBe(recent);
+	});
+
+	test("default budget comes from TRUNCATE_TOKEN_BUDGET", () => {
+		const small = messageEntry(toolResultMessage("bash", plainText(TRUNCATE_TOKEN_BUDGET / 4)));
+		const big = messageEntry(toolResultMessage("bash", plainText(TRUNCATE_TOKEN_BUDGET * 3)));
+		const regions = collectTruncationRegions([small, big], cfg());
+		expect(regions).toHaveLength(1);
+		expect(regions[0].entry).toBe(big);
+	});
+});
+
+describe("buildMiddleOutText", () => {
+	const original = `${Array.from({ length: 300 }, (_, i) => `head-side line ${i}`).join("\n")}\n${Array.from({ length: 300 }, (_, i) => `tail-side line ${i}`).join("\n")}`;
+
+	test("result fits the budget and keeps head start, tail end, and the marker", () => {
+		const out = buildMiddleOutText(original, 200, "[... cut ...]");
+		expect(out.startsWith("head-side line 0")).toBe(true);
+		expect(out.endsWith("tail-side line 299")).toBe(true);
+		expect(out.length).toBeLessThan(original.length);
+	});
+
+	test("a budget too small for any excerpt degrades to the marker alone", () => {
+		expect(buildMiddleOutText(original, 8, "[... cut ...]")).toBe("[... cut ...]");
+	});
+
+	test("text already under the budget is returned unchanged", () => {
+		expect(buildMiddleOutText("short", 200, "[... cut ...]")).toBe("short");
 	});
 });

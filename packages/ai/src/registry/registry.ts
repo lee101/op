@@ -54,6 +54,7 @@ import { parallelProvider } from "./parallel";
 import { perplexityProvider } from "./perplexity";
 import { qianfanProvider } from "./qianfan";
 import { qwenPortalProvider } from "./qwen-portal";
+import { runanywhereProvider } from "./runanywhere";
 import { sakanaProvider } from "./sakana";
 import { siliconflowProvider } from "./siliconflow";
 import { siliconflowCnProvider } from "./siliconflow-cn";
@@ -160,6 +161,7 @@ const ALL = [
 	amazonBedrockProvider,
 	bedrockMantleProvider,
 	gmiCloudProvider,
+	runanywhereProvider,
 ];
 
 export type RegistryDef = (typeof ALL)[number];

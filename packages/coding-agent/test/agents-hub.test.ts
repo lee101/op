@@ -221,3 +221,19 @@ describe("AgentsHub configuration strips", () => {
 		expect(cancelled()).toBe(false);
 	});
 });
+
+describe("AgentsHub create flow", () => {
+	test("Tab toggles scope in the create form instead of firing the follow-up chord", async () => {
+		mockAgents();
+		const { hub, strip } = await createHub(Settings.isolated());
+		// Rows: dev, scout, task, + New agent.
+		for (let i = 0; i < 3; i++) hub.handleInput("\x1b[B");
+		hub.handleInput("\r");
+		expect(strip()).toContain("scope: project");
+
+		// Plain Tab is part of app.message.followUp's defaults, but here it must
+		// keep flipping project/user scope; generation stays on Ctrl+Q/Ctrl+Enter.
+		hub.handleInput("\t");
+		expect(strip()).toContain("scope: user");
+	});
+});

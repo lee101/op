@@ -397,6 +397,7 @@ export interface EditorTopBorder {
 
 interface HistoryEntry {
 	prompt: string;
+	cwd?: string;
 }
 
 interface HistoryStorage {
@@ -488,9 +489,9 @@ export class Editor implements Component, Focusable {
 	// Bracketed paste mode buffering
 	#pasteHandler = new BracketedPasteHandler();
 
-	// Prompt history for up/down navigation
-	#history: string[] = [];
+	#history: HistoryEntry[] = [];
 	#historyIndex: number = -1; // -1 = not browsing, 0 = most recent, 1 = older, etc.
+	#historyView: string[] = [];
 	#historyStorage?: HistoryStorage;
 
 	// Undo stack for editor state changes
@@ -645,8 +646,8 @@ export class Editor implements Component, Focusable {
 
 	setHistoryStorage(storage: HistoryStorage): void {
 		this.#historyStorage = storage;
-		const recent = storage.getRecent(100);
-		this.#history = recent.map(entry => entry.prompt);
+		this.#history = storage.getRecent(100);
+		this.#historyView = [];
 		this.#historyIndex = -1;
 	}
 
@@ -657,10 +658,8 @@ export class Editor implements Component, Focusable {
 	addToHistory(text: string): void {
 		const trimmed = text.trim();
 		if (!trimmed) return;
-		// Don't add consecutive duplicates
-		if (this.#history.length > 0 && this.#history[0] === trimmed) return;
-		this.#history.unshift(trimmed);
-		// Limit history size
+		if (this.#history[0]?.prompt === trimmed) return;
+		this.#history.unshift({ prompt: trimmed, cwd: getProjectDir() });
 		if (this.#history.length > 100) {
 			this.#history.pop();
 		}
@@ -691,18 +690,35 @@ export class Editor implements Component, Focusable {
 
 	#navigateHistory(direction: 1 | -1): void {
 		this.#resetKillSequence();
-		if (this.#history.length === 0) return;
+		if (direction === -1 && this.#historyIndex === -1) {
+			this.#historyView = this.#buildHistoryView();
+		}
+		const view = this.#historyView;
+		if (view.length === 0) return;
 		const newIndex = this.#historyIndex - direction; // Up(-1) increases index, Down(1) decreases
-		if (newIndex < -1 || newIndex >= this.#history.length) return;
+		if (newIndex < -1 || newIndex >= view.length) return;
 		this.#historyIndex = newIndex;
 		if (this.#historyIndex === -1) {
 			// Returned to "current" state - clear editor
 			this.#setTextInternal("", "end");
 		} else {
 			const cursorAnchor: HistoryCursorAnchor = direction === -1 ? "start" : "end";
-			this.#setTextInternal(this.#history[this.#historyIndex] || "", cursorAnchor);
+			this.#setTextInternal(view[this.#historyIndex] || "", cursorAnchor);
 		}
 	}
+
+	/** Cycling order: prompts sent from the current directory newest-first, then everything else. */
+	#buildHistoryView(): string[] {
+		const cwd = getProjectDir();
+		const sameDir: string[] = [];
+		const other: string[] = [];
+		for (const entry of this.#history) {
+			if (entry.cwd !== undefined && entry.cwd === cwd) sameDir.push(entry.prompt);
+			else other.push(entry.prompt);
+		}
+		return [...sameDir, ...other];
+	}
+
 	/** Internal setText that doesn't reset history state - used by navigateHistory */
 	#setTextInternal(text: string, cursorAnchor: HistoryCursorAnchor = "end"): void {
 		this.#undoStack.length = 0;
