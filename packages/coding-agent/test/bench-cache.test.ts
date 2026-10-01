@@ -12,7 +12,8 @@ import type {
 	Model,
 	SimpleStreamOptions,
 } from "@openpaths/ai";
-import { type BenchModelRegistry, runBenchCommand } from "@openpaths/coding-agent/cli/bench-cli";
+import { runBenchCommand } from "@openpaths/coding-agent/cli/bench-cli";
+import type { BenchModelRegistry } from "@openpaths/coding-agent/cli/bench-runtime";
 
 const model = {
 	provider: "openai",
@@ -412,7 +413,8 @@ describe("bench cache mode", () => {
 			},
 		);
 		expect(summary.runs).toBe(10);
-		expect(summary.maxTokens).toBe(512);
+		expect(summary.maxTokens).toBeUndefined();
+		expect(summary.profile).toBe("chat");
 		expect(maxActive).toBe(4);
 		await expect(
 			runBenchCommand(
@@ -458,7 +460,7 @@ describe("bench cache mode", () => {
 	});
 
 	it("truncates the default prefix-file reader at a UTF-8 boundary before decoding", async () => {
-		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-bench-cache-prefix-"));
+		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-bench-cache-prefix-"));
 		const prefixPath = path.join(tempDir, "prefix.txt");
 		const stablePrefixes: string[] = [];
 		await Bun.write(prefixPath, "ab😀cd");
@@ -496,7 +498,7 @@ describe("bench cache mode", () => {
 	});
 
 	it("preserves significant whitespace and replacement patterns from the default prefix-file reader", async () => {
-		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-bench-cache-prefix-whitespace-"));
+		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-bench-cache-prefix-whitespace-"));
 		const prefixPath = path.join(tempDir, "prefix.txt");
 		const exactPrefix = "line one  \n\n\n$& $' $` $$ line two\t\n";
 		const stablePrefixes: string[] = [];

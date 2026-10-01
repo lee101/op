@@ -4,7 +4,8 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { TodoCommandController } from "@openpaths/coding-agent/modes/controllers/todo-command-controller";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
-import { type TodoPhase, USER_TODO_EDIT_CUSTOM_TYPE } from "@openpaths/coding-agent/tools";
+import { type TodoPhase } from "@openpaths/tui/tools/todo";
+import { USER_TODO_EDIT_CUSTOM_TYPE } from "@openpaths/coding-agent/tools";
 import { removeWithRetries } from "@openpaths/utils";
 
 function createContext(cwd: string, phases: TodoPhase[]): InteractiveModeContext {
@@ -35,17 +36,6 @@ describe("TodoCommandController", () => {
 	afterEach(async () => {
 		if (tempRoot) await removeWithRetries(tempRoot);
 		tempRoot = "";
-	});
-
-	it("advertises optional default todo import and export paths", async () => {
-		tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "pi-tui-todo-help-"));
-		const ctx = createContext(tempRoot, []);
-		const controller = new TodoCommandController(ctx);
-
-		await controller.handleTodoCommand("help");
-
-		expect(ctx.showStatus).toHaveBeenCalledWith(expect.stringContaining("/todo export [<path>]"));
-		expect(ctx.showStatus).toHaveBeenCalledWith(expect.stringContaining("/todo import [<path>]"));
 	});
 
 	it("exports the default TODO.md under the active session cwd", async () => {

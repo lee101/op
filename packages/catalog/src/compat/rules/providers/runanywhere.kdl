@@ -1,0 +1,47 @@
+// Provider-wire compat for "runanywhere"; authored for the RunAnywhere Wally Cloud hosted inference API.
+
+provider "runanywhere" {
+	default-model "glm-5.3-flash"
+	env "RUNANYWHERE_API_KEY"
+
+	// Deliberately no `discovery` and no runtime model manager: Wally bills
+	// against prepaid credits but its `/v1/models` answer carries no rates, so a
+	// discovered row would be offered with a fake $0 cost. The two bundled seeds
+	// below are the whole catalogue until a new model ships with its rate.
+	//
+	// Generation runs without `RUNANYWHERE_API_KEY`, so a regen would otherwise
+	// leave the provider slice empty and the declared `default-model`
+	// unresolvable on a fresh install before any async discovery fires.
+	//
+	// Values are Wally Cloud's own published per-1M-token rates ("cost to
+	// send/answer ~750,000 words", which is the same 1M-token unit Wally bills
+	// on; 1M tokens ~= 750k words):
+	//   - glm-5.3-flash  $0.10 / $0.35 per 1M
+	//   - qwen3.8-27b    $0.20 / $2.50 per 1M
+	// Wally publishes no cache-read tariff and its `/v1/models` response
+	// reports `cached_tokens` without a discount, so cache-read stays 0.
+	//
+	// Effort ladders are the ones the service accepts: glm-5.3-flash and
+	// qwen3.8-27b both take low/medium/xhigh (xhigh is Wally's default) and 400
+	// on `max`/`minimal`, so those tiers are absent from the seed and never sent.
+	seed api="openai-completions" base-url="https://inference.runanywhere.ai/v1" bundle="always" {
+		model "glm-5.3-flash" name="GLM-5.3 Flash" {
+			reasoning #true
+			input "text" "image"
+			cost input=0.1 output=0.35 cache-read=0 cache-write=0
+			limits context=1048567 max-tokens=131072
+			thinking-mode "effort"
+			thinking-efforts "low" "medium" "xhigh"
+			thinking-default-level "xhigh"
+		}
+		model "qwen3.8-27b" name="Qwen 3.8 27B" {
+			reasoning #true
+			input "text" "image"
+			cost input=0.2 output=2.5 cache-read=0 cache-write=0
+			limits context=262137 max-tokens=40960
+			thinking-mode "effort"
+			thinking-efforts "low" "medium" "xhigh"
+			thinking-default-level "xhigh"
+		}
+	}
+}

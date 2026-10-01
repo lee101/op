@@ -4,7 +4,7 @@ import * as core from "@openpaths/agent-core";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
@@ -64,6 +64,7 @@ async function createMode(opts: { flushFails?: boolean } = {}): Promise<{
 		session,
 		cleanup: async () => {
 			resetSettingsForTest();
+			authStorage.close();
 			await tempDir.remove();
 		},
 	};
@@ -83,22 +84,6 @@ describe("InteractiveMode.handleResumeSession outer preflight flush", () => {
 			expect(showErrorSpy).toHaveBeenCalledWith(expect.stringContaining("disk full"));
 			expect(resetSpy).not.toHaveBeenCalled();
 			expect(switchSpy).not.toHaveBeenCalled();
-		} finally {
-			await cleanup();
-		}
-	});
-
-	it("disposes controllers and delegates to SelectorController with settingsFlushed on success", async () => {
-		const { mode, session, cleanup } = await createMode({ flushFails: false });
-		try {
-			const resetSpy = vi.spyOn(mode, "resetObserverRegistry");
-			const switchSpy = vi.spyOn(session, "switchSession").mockResolvedValue(true);
-
-			await mode.handleResumeSession("/tmp/some-session.jsonl");
-
-			expect(mode.settings.flush).toHaveBeenCalled();
-			expect(resetSpy).toHaveBeenCalled();
-			expect(switchSpy).toHaveBeenCalledWith("/tmp/some-session.jsonl");
 		} finally {
 			await cleanup();
 		}

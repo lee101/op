@@ -1,6 +1,6 @@
 /**
  * Regression test for issue #4499: closing a cmux-backend tab while a
- * `browser({ action: "run" })` call is in flight rejected an orphaned
+ * `tab.run(...)` helper call (internally a run action) is in flight rejected an orphaned
  * `Promise.withResolvers()` promise created in `runInTabWithSnapshot`. The
  * cmux branch originally awaited `runCmuxCode(...)` directly and never
  * awaited/`.catch`ed the local `promise`; only `pending.reject` was stashed
@@ -32,6 +32,7 @@ import { afterEach, describe, expect, it, spyOn, vi } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { CmuxKind } from "@openpaths/coding-agent/tools/browser/cmux/rpc";
 import { CmuxSocketClient } from "@openpaths/coding-agent/tools/browser/cmux/socket-client";
 import { acquireBrowser } from "@openpaths/coding-agent/tools/browser/registry";
@@ -47,23 +48,24 @@ import * as logger from "@openpaths/utils/logger";
 function makeKind(socketSuffix: string): CmuxKind {
 	return {
 		kind: "cmux",
-		socketPath: `/tmp/op-test-${socketSuffix}.sock`,
+		socketPath: `/tmp/omp-test-${socketSuffix}.sock`,
 		surface: `surface-${socketSuffix}`,
 	};
 }
 
 function makeSession(cwd: string, screenshotDir?: string): ToolSession {
-	// Minimal shape: `runInTab` reads `cwd`, `settings.get("browser.screenshotDir")`,
+	// Minimal shape: `runInTab` reads `cwd`, the `browser.screenshotDir` setting,
 	// and `getActiveModel?.()`. Everything else is untouched by this flow.
 	return {
 		cwd,
 		hasUI: false,
-		settings: { get: (key: string) => (key === "browser.screenshotDir" ? screenshotDir : undefined) },
+		settings: Settings.isolated({ "browser.screenshotDir": screenshotDir }),
 		getSessionFile: () => null,
 	} as unknown as ToolSession;
 }
 
 async function drainAllTabs(): Promise<void> {
+	// oxlint-disable-next-line unicorn/no-useless-spread -- releasing tabs mutates the map
 	for (const name of [...getTabsMapForTest().keys()]) {
 		await releaseTab(name, { kill: false }).catch(() => undefined);
 	}
@@ -524,7 +526,7 @@ describe("browser tab-supervisor — cmux tab close mid-run (#4499)", () => {
 			},
 		);
 
-		const screenshotDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-cmux-screenshot-"));
+		const screenshotDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-cmux-screenshot-"));
 		try {
 			const browser = await acquireBrowser(makeKind("screenshot-configured"), { cwd: "/tmp" });
 			await acquireTab("screenshot-configured", browser, {

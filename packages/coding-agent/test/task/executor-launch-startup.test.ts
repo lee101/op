@@ -62,6 +62,7 @@ it("overlaps registry refresh with session-file opening and session setup", asyn
 					isError: false,
 				} as AgentSessionEvent);
 			}
+			return true;
 		},
 		waitForIdle: async () => {},
 		getLastAssistantMessage: () => undefined,

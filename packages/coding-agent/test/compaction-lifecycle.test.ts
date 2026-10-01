@@ -1,9 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import { CompactionCancelledError, type CompactionResult } from "@openpaths/agent-core/compaction";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import { CommandController } from "@openpaths/coding-agent/modes/controllers/command-controller";
-import { getThemeByName, setThemeInstance, type Theme, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { getThemeByName, setThemeInstance, type Theme, theme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import { Container, Spacer } from "@openpaths/tui";
+import { KeybindingsManager } from "@openpaths/tui/app-keybindings";
 
 /**
  * Contract under test: `CommandController.executeCompaction` must not leak
@@ -48,9 +50,10 @@ function buildCtx(compact: InteractiveModeContext["session"]["compact"]) {
 		updateEditorTopBorder: vi.fn(),
 		showError,
 		flushCompactionQueue: vi.fn(async () => undefined),
+		keybindings: KeybindingsManager.inMemory(),
 		// executeCompaction consults display.collapseCompacted on the ok path to
 		// decide whether the rebuild replaces the terminal transcript.
-		settings: { get: vi.fn(() => true) },
+		settings: Settings.isolated({ "display.collapseCompacted": true }),
 	} as unknown as InteractiveModeContext;
 
 	return {
@@ -105,9 +108,11 @@ describe("executeCompaction UI lifecycle", () => {
 	});
 
 	it("drains the loader after a successful compaction resolves", async () => {
-		const compact = vi.fn(
-			async (): Promise<CompactionResult<unknown>> => ({ summary: "", firstKeptEntryId: "", tokensBefore: 0 }),
-		);
+		const compact = vi.fn(async (): Promise<CompactionResult<unknown>> => ({
+			summary: "",
+			firstKeptEntryId: "",
+			tokensBefore: 0,
+		}));
 		const { ctx, statusContainer, rebuildChatFromMessages, statusAtRebuild } = buildCtx(compact);
 
 		const controller = new CommandController(ctx);

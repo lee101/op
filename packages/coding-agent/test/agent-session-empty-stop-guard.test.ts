@@ -6,13 +6,14 @@ import { Agent, type AgentMessage, type AgentTool } from "@openpaths/agent-core"
 import type { ThinkingContent } from "@openpaths/ai";
 import { createMockModel, type MockModel, type MockResponse } from "@openpaths/ai/providers/mock";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
-import { type SettingPath, Settings } from "@openpaths/coding-agent/config/settings";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extensions/runner";
 import { AgentSession, type AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { convertToLlm } from "@openpaths/coding-agent/session/messages";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { TempDir, withTimeout } from "@openpaths/utils";
+import { mockSchedulerWaitWithClock } from "./helpers/mock-scheduler-clock";
 
 const recordToolSchema = type({ value: type("string") });
 
@@ -20,12 +21,12 @@ type Harness = {
 	session: AgentSession;
 	tempDir: TempDir;
 };
-type SettingsOverrides = Partial<Record<SettingPath, unknown>>;
+type SettingsOverrides = Record<string, unknown>;
 
 const activeHarnesses: Harness[] = [];
 const sharedDir = TempDir.createSync("@pi-empty-stop-guard-shared-");
 const sharedAuthStorage = await AuthStorage.create(path.join(sharedDir.path(), "auth.db"));
-sharedAuthStorage.setRuntimeApiKey("mock", "test-key");
+sharedAuthStorage.keys.setRuntime("mock", "test-key");
 const sharedModelRegistry = new ModelRegistry(sharedAuthStorage, path.join(sharedDir.path(), "models.yml"));
 
 afterAll(() => {
@@ -127,7 +128,7 @@ async function createHarness(
 	const authStorage = sharedAuthStorage;
 
 	const mock = createMockModel({ provider: options.provider, id: options.id, responses });
-	authStorage.setRuntimeApiKey(mock.provider, "test-key");
+	authStorage.keys.setRuntime(mock.provider, "test-key");
 	const modelRegistry = sharedModelRegistry;
 	const settings = Settings.isolated({
 		"compaction.enabled": false,
@@ -294,7 +295,7 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("caps provider-empty recovery without consuming generic retries and accepts the next prompt", async () => {
-		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		mockSchedulerWaitWithClock();
 		const { session, mock } = await createHarness(
 			[emptyProviderResponse(), emptyProviderResponse(), emptyProviderResponse(), emptyProviderResponse()],
 			{
@@ -414,7 +415,46 @@ describe("AgentSession empty stop guard", () => {
 		});
 	});
 
-	it("waits for capped empty-stop persistence before removing the active branch entry", async () => {
+	it("does not revive capped empty responses through pending todo reminders", async () => {
+		const { session, mock } = await createHarness(
+			[
+				emptyStop(),
+				emptyStop(),
+				emptyStop(),
+				emptyStop(),
+				{ content: ["Which task should I resume?"], stopReason: "stop" },
+			],
+			{
+				"todo.enabled": true,
+				"todo.reminders": true,
+				"todo.remindersMax": 3,
+				"retry.emptyStopMaxRetries": 3,
+				"retry.baseDelayMs": 1,
+			},
+		);
+		session.setTodoPhases([
+			{ name: "Work", tasks: [{ content: "Finish the pending change", status: "in_progress" }] },
+		]);
+		const retryEnds: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
+		const todoReminders: Array<Extract<AgentSessionEvent, { type: "todo_reminder" }>> = [];
+		session.subscribe(event => {
+			if (event.type === "auto_retry_end") retryEnds.push(event);
+			if (event.type === "todo_reminder") todoReminders.push(event);
+		});
+
+		await expectPromptCompletes(session.prompt("continue the pending task"));
+		await session.waitForIdle();
+
+		expect(mock.calls).toHaveLength(4);
+		expect(retryEnds).toEqual([expect.objectContaining({ success: false, attempt: 3 })]);
+		expect(todoReminders).toEqual([]);
+
+		await session.prompt("I am ready to resume");
+		await session.waitForIdle();
+		expect(mock.calls).toHaveLength(5);
+	});
+
+	it("discards the capped empty stop durably without waiting on a stalled message_end hook", async () => {
 		const releaseMessageEnd = Promise.withResolvers<void>();
 		const finalMessageEndEntered = Promise.withResolvers<void>();
 		let assistantMessageEnds = 0;
@@ -436,40 +476,37 @@ describe("AgentSession empty stop guard", () => {
 			{ extensionRunner },
 		);
 
-		let promptSettled = false;
-		const prompt = session.prompt("answer after delayed persistence");
-		void prompt.then(
-			() => {
-				promptSettled = true;
-			},
-			() => {
-				promptSettled = true;
-			},
-		);
+		// Persistence and the capped-stop cleanup run in emission order and must not
+		// be owned by extension listeners: a held message_end hook cannot stall the
+		// prompt, and the discard already waited for the final turn's persistence.
+		const prompt = session.prompt("answer while the final hook is held");
 		await finalMessageEndEntered.promise;
-		await scheduler.yield();
-		expect(promptSettled).toBe(false);
-
-		releaseMessageEnd.resolve();
-		await prompt;
-		await session.waitForIdle();
-
+		await withTimeout(prompt, 2_000, "Prompt stalled behind a held message_end hook");
 		const activeBranchMessages = session.sessionManager
 			.getBranch()
 			.filter(entry => entry.type === "message")
 			.map(entry => entry.message as AgentMessage);
 		expect(emptyAssistantStops(activeBranchMessages)).toHaveLength(0);
+		expect(session.sessionManager.getEntries().at(-1)).toMatchObject({
+			type: "branch_summary",
+			details: { kind: "discarded-entry-branch" },
+		});
+
+		releaseMessageEnd.resolve();
+		await session.waitForIdle();
+		const settledBranchMessages = session.sessionManager
+			.getBranch()
+			.filter(entry => entry.type === "message")
+			.map(entry => entry.message as AgentMessage);
+		expect(emptyAssistantStops(settledBranchMessages)).toHaveLength(0);
 	});
 
 	it("does not let a capped empty stop anchor the next context estimate", async () => {
-		const billedEmptyStops = Array.from(
-			{ length: 4 },
-			(): MockResponse => ({
-				content: [],
-				stopReason: "stop",
-				usage: { input: 172_000, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 172_001 },
-			}),
-		);
+		const billedEmptyStops = Array.from({ length: 4 }, (): MockResponse => ({
+			content: [],
+			stopReason: "stop",
+			usage: { input: 172_000, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 172_001 },
+		}));
 		const { session, mock } = await createHarness(billedEmptyStops, {
 			"retry.emptyStopMaxRetries": 3,
 			"retry.baseDelayMs": 1,
@@ -593,7 +630,7 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("ends auto-retry state when empty stop retries hit the cap", async () => {
-		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		mockSchedulerWaitWithClock();
 		const { session, mock } = await createHarness(
 			[{ throw: "503 service unavailable: overloaded_error" }, emptyStop(), emptyStop(), emptyStop(), emptyStop()],
 			{
@@ -663,7 +700,7 @@ describe("AgentSession empty stop guard", () => {
 	});
 
 	it("preserves auto-retry budget across empty stop continuations", async () => {
-		vi.spyOn(scheduler, "wait").mockResolvedValue(undefined);
+		mockSchedulerWaitWithClock();
 		const { session, mock } = await createHarness(
 			[
 				{ throw: "503 service unavailable: overloaded_error" },

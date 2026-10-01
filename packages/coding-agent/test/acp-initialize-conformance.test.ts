@@ -10,6 +10,7 @@ import * as path from "node:path";
 import { type } from "@openpaths/optype";
 import type { Model } from "@openpaths/ai";
 import { buildModel } from "@openpaths/catalog/build";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import { AcpAgent } from "@openpaths/coding-agent/modes/acp/acp-agent";
 import { ACP_TERMINAL_AUTH_FLAG, prepareAcpTerminalAuthArgs } from "@openpaths/coding-agent/modes/acp/terminal-auth";
 import type { AgentSession } from "@openpaths/coding-agent/session/agent-session";
@@ -53,7 +54,7 @@ class FakeAgentSession {
 	queuedMessageCount = 0;
 	systemPrompt = "system";
 	disposed = false;
-	settings = { get: (_path: string) => false };
+	settings = Settings.isolated();
 
 	constructor(cwd: string) {
 		this.sessionManager = SessionManager.create(cwd);
@@ -142,7 +143,7 @@ afterEach(async () => {
 });
 
 async function createAgent(): Promise<AcpAgent> {
-	const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "op-acp-init-"));
+	const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "omp-acp-init-"));
 	cleanupRoots.push(root);
 	const agentDir = path.join(root, "agent");
 	const cwd = path.join(root, "cwd");
@@ -158,7 +159,10 @@ async function createAgent(): Promise<AcpAgent> {
 	} as unknown as AgentSideConnection;
 
 	const initialSession = new FakeAgentSession(cwd);
-	const factory = async (next: string): Promise<AgentSession> => new FakeAgentSession(next) as unknown as AgentSession;
+	const factory = async (next: string) => ({
+		session: new FakeAgentSession(next) as unknown as AgentSession,
+		setToolUIContext: () => {},
+	});
 	return new AcpAgent(connection, factory, initialSession as unknown as AgentSession);
 }
 
@@ -228,8 +232,7 @@ describe("ACP initialize conformance", () => {
 		const pkg = (await Bun.file(pkgPath).json()) as { version: string };
 		expect(response.agentInfo).toEqual(
 			expect.objectContaining({
-				name: "openpaths",
-				title: "OpenPaths",
+				title: "op",
 				version: VERSION,
 			}),
 		);

@@ -11,7 +11,7 @@ import { upgradeJsonSchemaTo202012, validateJsonSchemaValue } from "@openpaths/a
 
 export * from "@openpaths/optype/typebox";
 
-const VALIDATION_FAILURE = Symbol("pi.typebox.validationFailure");
+const VALIDATION_FAILURE = Symbol("op.typebox.validationFailure");
 
 interface ValidationFailure {
 	message: string;

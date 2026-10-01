@@ -6,7 +6,7 @@ import { GrepOutputMode } from "@openpaths/natives";
 import { Args, Command, Flags } from "@openpaths/utils/cli";
 import { grepHelp as commandHelp } from "../cli/command-help";
 import { type GrepCommandArgs, runGrepCommand } from "../cli/grep-cli";
-import { initTheme } from "../modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 
 export default class Grep extends Command {
 	static description = commandHelp.description;

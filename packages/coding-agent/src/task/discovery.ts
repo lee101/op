@@ -26,7 +26,8 @@ import { findAllNearestProjectConfigDirs, getConfigDirs } from "../config";
 import { listClaudePluginRoots } from "../discovery/helpers";
 import { listOmpExtensionRoots } from "../discovery/op-extension-roots";
 import { loadBundledAgents, parseAgent } from "./agents";
-import type { AgentDefinition, AgentSource } from "./types";
+import type { AgentSource } from "@openpaths/tui/tools/task";
+import type { AgentDefinition } from "./types";
 
 const TASK_AGENT_CONFIG_SOURCE = ".op";
 
@@ -34,6 +35,8 @@ const TASK_AGENT_CONFIG_SOURCE = ".op";
 export interface DiscoveryResult {
 	agents: AgentDefinition[];
 	projectAgentsDir: string | null;
+	/** Agent directories searched, in precedence order (for "unknown agent" diagnostics). */
+	searchedDirs?: string[];
 }
 
 /**
@@ -134,7 +137,11 @@ export async function discoverAgents(cwd: string, home: string = os.homedir()): 
 
 	const projectAgentsDir = projectDirs.length > 0 ? projectDirs[0].path : null;
 
-	return { agents: [...loadedAgents, ...bundledAgents], projectAgentsDir };
+	return {
+		agents: [...loadedAgents, ...bundledAgents],
+		projectAgentsDir,
+		searchedDirs: orderedDirs.map(entry => entry.dir),
+	};
 }
 
 /**

@@ -5,14 +5,17 @@ import { Agent } from "@openpaths/agent-core";
 import { createMockModel } from "@openpaths/ai/providers/mock";
 import { getBundledModel } from "@openpaths/catalog/models";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
-import { Settings } from "@openpaths/coding-agent/config/settings";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import * as bashExecutor from "@openpaths/coding-agent/exec/bash-executor";
 import type { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extensions";
+import { createBashTool } from "@openpaths/coding-agent/extensibility/legacy-pi-coding-agent-shim";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { TempDir } from "@openpaths/utils";
 import { createAssistantMessage, createInMemoryAuthStorage } from "./helpers/agent-session-setup";
+
+import { cfgShellPath } from "@openpaths/coding-agent/exec/settings";
 
 const bashResult = {
 	output: "old-output",
@@ -31,10 +34,12 @@ describe("AgentSession bash session ownership", () => {
 	let session: AgentSession;
 	let additionalManagers: SessionManager[];
 
-	beforeEach(() => {
+	beforeEach(async () => {
+		resetSettingsForTest();
 		tempDir = TempDir.createSync("@pi-bash-session-owner-");
+		await Settings.init({ inMemory: true, cwd: tempDir.path() });
 		authStorage = createInMemoryAuthStorage();
-		authStorage.setRuntimeApiKey("anthropic", "test-key");
+		authStorage.keys.setRuntime("anthropic", "test-key");
 		additionalManagers = [];
 	});
 
@@ -44,6 +49,7 @@ describe("AgentSession bash session ownership", () => {
 		await Promise.all(additionalManagers.map(manager => manager.close()));
 		authStorage.close();
 		tempDir.removeSync();
+		resetSettingsForTest();
 	});
 
 	function createSession(
@@ -111,6 +117,149 @@ describe("AgentSession bash session ownership", () => {
 		await session.waitForIdle();
 
 		expect(session.messages.some(message => message.role === "bashExecution")).toBe(false);
+	});
+
+	it("applies the registered bash shell environment to user-shell commands", async () => {
+		// BashRunner delegates execution to the global Settings-backed executor, so
+		// keep this extension-env contract independent of the developer's shell rc.
+		const shell = process.platform === "win32" ? (Bun.env.ComSpec ?? "cmd.exe") : "/bin/sh";
+		cfgShellPath.set(Settings.instance, shell);
+		vi.spyOn(Settings.prototype, "getShellConfig").mockReturnValue({
+			shell,
+			args: process.platform === "win32" ? ["/c"] : ["-c"],
+			env: { PATH: Bun.env.PATH ?? "", HOME: tempDir.path(), SHELL: shell },
+			prefix: undefined,
+		});
+		const spawnHook = vi.fn(spawn => ({
+			...spawn,
+			env: { ...spawn.env, OP_USER_SHELL_ENV: "extension-value" },
+		}));
+		const definition = createBashTool(tempDir.path(), { spawnHook });
+		const extensionRunner = {
+			hasHandlers: vi.fn(() => false),
+			getRegisteredTool: vi.fn((name: string) => (name === "bash" ? { definition } : undefined)),
+			emit: vi.fn().mockResolvedValue(undefined),
+			emitBeforeAgentStart: vi.fn().mockResolvedValue(undefined),
+		} as unknown as ExtensionRunner;
+		createSession(undefined, extensionRunner);
+
+		const result = await session.executeBash('printf "%s" "$OP_USER_SHELL_ENV"', undefined, {
+			useUserShell: true,
+		});
+
+		expect(result.output).toBe("extension-value");
+		expect(spawnHook).toHaveBeenCalledWith(
+			expect.objectContaining({
+				command: 'printf "%s" "$OP_USER_SHELL_ENV"',
+				cwd: tempDir.path(),
+			}),
+		);
+	});
+
+	it("forwards a hook-injected variable even when process.env already mirrors its value", async () => {
+		// Regression: an extension may both mirror a variable into process.env (so
+		// MCP servers and workers inherit it) and inject it via its spawnHook. The
+		// hook adapter forwards only entries differing from the baseline it is
+		// handed; diffing against process.env made the mirrored value look
+		// unchanged and dropped it, while the child shell's real base env (the
+		// filtered spawn env) never contained it — so user shells lost the
+		// variable entirely (the secretsd session-token incident).
+		const shell = process.platform === "win32" ? (Bun.env.ComSpec ?? "cmd.exe") : "/bin/sh";
+		cfgShellPath.set(Settings.instance, shell);
+		vi.spyOn(Settings.prototype, "getShellConfig").mockReturnValue({
+			shell,
+			args: process.platform === "win32" ? ["/c"] : ["-c"],
+			env: { PATH: Bun.env.PATH ?? "", HOME: tempDir.path(), SHELL: shell },
+			prefix: undefined,
+		});
+		const previousMirror = process.env.OP_USER_SHELL_MIRROR;
+		process.env.OP_USER_SHELL_MIRROR = "mirrored-value";
+		try {
+			const spawnHook = vi.fn(spawn => ({
+				...spawn,
+				env: { ...spawn.env, OP_USER_SHELL_MIRROR: "mirrored-value" },
+			}));
+			const definition = createBashTool(tempDir.path(), { spawnHook });
+			const extensionRunner = {
+				hasHandlers: vi.fn(() => false),
+				getRegisteredTool: vi.fn((name: string) => (name === "bash" ? { definition } : undefined)),
+				emit: vi.fn().mockResolvedValue(undefined),
+				emitBeforeAgentStart: vi.fn().mockResolvedValue(undefined),
+			} as unknown as ExtensionRunner;
+			createSession(undefined, extensionRunner);
+
+			const result = await session.executeBash('printf "%s" "$OP_USER_SHELL_MIRROR"', undefined, {
+				useUserShell: true,
+			});
+
+			expect(result.output).toBe("mirrored-value");
+		} finally {
+			if (previousMirror === undefined) delete process.env.OP_USER_SHELL_MIRROR;
+			else process.env.OP_USER_SHELL_MIRROR = previousMirror;
+		}
+	});
+
+	it("does not poison the cached shell env when a hook mutates its context in place", async () => {
+		// Regression: `Settings#getShellConfig().env` is a cached, shared object
+		// (procmgr's module-level cache). A legacy hook that mutates its
+		// `context.env` in place — a supported pattern, see "forwards changes
+		// when the hook mutates its environment in place" below — must not be
+		// handed that shared object directly: doing so writes the injected
+		// variable straight into the cache, poisoning the diff baseline for
+		// every later command. On the next call the hook injects the same
+		// value again, it now looks unchanged against the poisoned baseline,
+		// and the adapter silently drops it from the forwarded env.
+		const shell = process.platform === "win32" ? (Bun.env.ComSpec ?? "cmd.exe") : "/bin/sh";
+		cfgShellPath.set(Settings.instance, shell);
+		const cachedShellConfig = {
+			shell,
+			args: process.platform === "win32" ? ["/c"] : ["-c"],
+			env: { PATH: Bun.env.PATH ?? "", HOME: tempDir.path(), SHELL: shell },
+			prefix: undefined,
+		};
+		vi.spyOn(Settings.prototype, "getShellConfig").mockReturnValue(cachedShellConfig);
+		const spawnHook = vi.fn(context => {
+			context.env.OP_INJECTED_TOKEN = "injected-value";
+			return context;
+		});
+		const definition = createBashTool(tempDir.path(), { spawnHook });
+		const extensionRunner = {
+			hasHandlers: vi.fn(() => false),
+			getRegisteredTool: vi.fn((name: string) => (name === "bash" ? { definition } : undefined)),
+			emit: vi.fn().mockResolvedValue(undefined),
+			emitBeforeAgentStart: vi.fn().mockResolvedValue(undefined),
+		} as unknown as ExtensionRunner;
+		createSession(undefined, extensionRunner);
+		const executeBashSpy = vi.spyOn(bashExecutor, "executeBash").mockResolvedValue(bashResult);
+
+		await session.executeBash("true", undefined, { useUserShell: true });
+		await session.executeBash("true", undefined, { useUserShell: true });
+
+		expect(executeBashSpy).toHaveBeenCalledTimes(2);
+		expect(executeBashSpy.mock.calls[0]?.[1]?.env).toEqual({ OP_INJECTED_TOKEN: "injected-value" });
+		expect(executeBashSpy.mock.calls[1]?.[1]?.env).toEqual({ OP_INJECTED_TOKEN: "injected-value" });
+		expect(cachedShellConfig.env).not.toHaveProperty("OP_INJECTED_TOKEN");
+	});
+
+	it("does not run the shell environment hook when a user_bash handler replaces the result", async () => {
+		const spawnHook = vi.fn(() => {
+			throw new Error("shell env hook must not run when user_bash supplies a replacement result");
+		});
+		const definition = createBashTool(tempDir.path(), { spawnHook });
+		const emitUserBash = vi.fn().mockResolvedValue({ result: bashResult });
+		const extensionRunner = {
+			hasHandlers: vi.fn((eventType: string) => eventType === "user_bash"),
+			emitUserBash,
+			getRegisteredTool: vi.fn((name: string) => (name === "bash" ? { definition } : undefined)),
+			emit: vi.fn().mockResolvedValue(undefined),
+			emitBeforeAgentStart: vi.fn().mockResolvedValue(undefined),
+		} as unknown as ExtensionRunner;
+		createSession(undefined, extensionRunner);
+
+		const result = await session.executeBash("replaced-command", undefined, { useUserShell: true });
+
+		expect(result).toEqual(bashResult);
+		expect(spawnHook).not.toHaveBeenCalled();
 	});
 
 	it("keeps a queued bash result on the branch discarded by an empty stop", async () => {
@@ -384,5 +533,34 @@ describe("AgentSession bash session ownership", () => {
 		expect(
 			session.messages.some(message => message.role === "bashExecution" && message.command === "old-branch-command"),
 		).toBe(false);
+	});
+});
+
+describe("legacy spawnHook shellEnv adapter", () => {
+	it("forwards only the hook's added or changed variables, not the spread baseline", () => {
+		const definition = createBashTool(process.cwd(), {
+			spawnHook: context => ({ ...context, env: { ...context.env, EXTRA: "1", CHANGED: "new" } }),
+		});
+		const result = definition.shellEnv?.({
+			command: "true",
+			cwd: process.cwd(),
+			env: { KEPT: "kept", CHANGED: "old" },
+		});
+		expect(result).toEqual({ EXTRA: "1", CHANGED: "new" });
+	});
+	it("forwards changes when the hook mutates its environment in place", () => {
+		const definition = createBashTool(process.cwd(), {
+			spawnHook: context => {
+				context.env.EXTRA = "1";
+				context.env.CHANGED = "new";
+				return context;
+			},
+		});
+		const result = definition.shellEnv?.({
+			command: "true",
+			cwd: process.cwd(),
+			env: { KEPT: "kept", CHANGED: "old" },
+		});
+		expect(result).toEqual({ EXTRA: "1", CHANGED: "new" });
 	});
 });

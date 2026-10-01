@@ -9,10 +9,10 @@
  */
 import { Text } from "@openpaths/tui";
 import type { SourceMeta } from "../../capability/types";
-import { shortenPath } from "../../tools/render-utils";
-import { DynamicBorder } from "../components/dynamic-border";
-import { TranscriptBlock } from "../components/transcript-container";
-import { parseCommandArgs } from "../shared";
+import { shortenPath } from "@openpaths/tui/render/render-utils";
+import { DynamicBorder } from "@openpaths/tui/chrome/dynamic-border";
+import { TranscriptBlock } from "@openpaths/tui/chrome/transcript-container";
+import { parseCommandArgs } from "../../utils/command-args";
 import type { InteractiveModeContext } from "../types";
 
 export type ScopeValue = "project" | "user";

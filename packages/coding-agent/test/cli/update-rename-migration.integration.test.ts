@@ -28,10 +28,10 @@ import {
 	type ReleaseInfo,
 	type RenameMigrationSteps,
 } from "../../src/cli/update-cli";
-import { initTheme } from "../../src/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 
-const OLD_PKG = "op-rename-fixture-old";
-const NEW_PKG = "op-rename-fixture-new";
+const OLD_PKG = "omp-rename-fixture-old";
+const NEW_PKG = "omp-rename-fixture-new";
 const OLD_VERSION = "1.0.0";
 const NEW_VERSION = "2.0.0";
 let fixtureDir: TempDir;
@@ -79,6 +79,7 @@ const RELEASE: ReleaseInfo = {
 	tag: `v${NEW_VERSION}`,
 	version: NEW_VERSION,
 	packages: { pkg: NEW_PKG, natives: "@openpaths/natives" },
+	registry: "https://registry.npmjs.org/",
 };
 
 describe.skipIf(process.platform === "win32" || !$which("npm"))("rename migration over real npm", () => {

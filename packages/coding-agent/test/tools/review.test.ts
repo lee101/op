@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { parseFindingDetails } from "@openpaths/coding-agent/tools/review";
+import { parseFindingDetails } from "@openpaths/tui/tools/task";
 
 describe("parseFindingDetails", () => {
 	it("returns undefined for malformed finding details", () => {

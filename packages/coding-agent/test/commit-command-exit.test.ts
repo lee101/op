@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
 import CommitCommand from "@openpaths/coding-agent/commands/commit";
 import * as commitModule from "@openpaths/coding-agent/commit";
-import * as themeModule from "@openpaths/coding-agent/modes/theme/theme";
+import * as themeModule from "@openpaths/tui/theme";
 import { postmortem } from "@openpaths/utils";
 
 describe("op commit command lifecycle (issue #1041)", () => {

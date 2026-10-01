@@ -2,8 +2,8 @@ import * as fs from "node:fs/promises";
 import { isEnoent } from "@openpaths/utils";
 import type { FileEntry, SessionMessageEntry } from "../../session/session-entries";
 import { parseSessionEntries } from "../../session/session-loader";
+import { type AgentProgress } from "@openpaths/tui/tools/task";
 import {
-	type AgentProgress,
 	type SubagentEventPayload,
 	type SubagentLifecyclePayload,
 	type SubagentProgressPayload,

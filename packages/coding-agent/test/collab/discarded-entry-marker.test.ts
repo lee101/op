@@ -3,13 +3,14 @@ import { importRoomKey } from "@openpaths/coding-agent/collab/crypto";
 import { CollabHost } from "@openpaths/coding-agent/collab/host";
 import { COLLAB_PROTO, type CollabFrame, parseCollabLink } from "@openpaths/coding-agent/collab/protocol";
 import { CollabSocket } from "@openpaths/coding-agent/collab/relay-client";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { installInMemoryRelay, uninstallInMemoryRelay } from "./helpers/in-memory-relay";
 
 function makeHostContext(manager: SessionManager): InteractiveModeContext {
 	return {
-		settings: { get: () => "" },
+		settings: Settings.isolated(),
 		sessionManager: manager,
 		session: {
 			isStreaming: false,

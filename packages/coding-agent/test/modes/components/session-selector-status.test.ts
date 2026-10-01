@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { SessionSelectorComponent } from "@openpaths/coding-agent/modes/components/session-selector";
-import { initTheme, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { SessionSelectorComponent } from "@openpaths/tui/overlays/session-selector";
+import { initTheme, theme } from "@openpaths/tui/theme";
 import type { SessionInfo, SessionStatus } from "@openpaths/coding-agent/session/session-listing";
 
 beforeAll(async () => {

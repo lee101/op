@@ -2,6 +2,7 @@
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { type GeneratedProvider, getBundledModel } from "@openpaths/catalog/models";
 /**
  * Harbor benchmark runner for the local `op` build.
  *
@@ -28,10 +29,15 @@ const PKG_DIR = path.resolve(import.meta.dir, "..");
 const AGENT_DIR = path.join(PKG_DIR, "agent");
 const CODING_AGENT_DIR = path.join(REPO_ROOT, "packages", "coding-agent");
 const AGENT_IMPORT_PATH = "op_local:OpLocal";
+const PI_UPSTREAM_IMPORT_PATH = "pi_upstream:PiUpstream";
+/** Upstream `@earendil-works/pi-coding-agent` version pinned for `--agent pi`. */
+const PI_UPSTREAM_VERSION = "0.86.1";
+/** Agents this runner installs itself (config + secrets travel via `OP_BENCH_*`). */
+const MANAGED_AGENTS: Record<string, true> = { op: true, pi: true };
 
 /** Container-side mount points for `--install source` (must match op_local.py defaults). */
-const SOURCE_SRC_MOUNT = "/opt/op/src";
-const SOURCE_BIN_MOUNT = "/opt/op/bin";
+const SOURCE_SRC_MOUNT = "/opt/omp/src";
+const SOURCE_BIN_MOUNT = "/opt/omp/bin";
 
 /** Host address containers see on Apple Container's vmnet (bridge) network. */
 const VMNET_HOST_IP = "192.168.64.1";
@@ -55,6 +61,10 @@ export interface Config {
 	thinking: string | null;
 	/** Extra args forwarded verbatim to the in-container op CLI invocation (repeatable). */
 	agentArgs: string[];
+	/** op tool allowlist (`--tools`); `null` keeps op's default tool set. */
+	tools: string[] | null;
+	/** Extra op settings written into the container config (dotted key → JSON value). */
+	settings: Record<string, unknown>;
 
 	agent: string;
 	install: "source" | "local" | "published";
@@ -98,6 +108,8 @@ function defaultConfig(): Config {
 		exclude: [],
 		thinking: null,
 		agentArgs: [],
+		tools: null,
+		settings: {},
 
 		agent: "op",
 		install: "source",
@@ -147,6 +159,8 @@ Model / agent:
       --tarball <path>           Reuse a prebuilt op tarball (implies --install local, --no-build)
       --no-build                 Skip packing; reuse newest tarball in bench dir (--install local)
       --agent-arg <arg>          Extra arg forwarded verbatim to the in-container op CLI (repeatable)
+      --tools <a,b,c>            op tool allowlist; enables the find tool when listed
+      --setting <key=value>      op setting for the container config, e.g. edit.mode=sloppy (repeatable; JSON values)
       --env <KEY[=VALUE]>        Forward env into op container (repeatable).
                                  KEY alone forwards host value; host PI_* auto-forwarded.
 
@@ -249,6 +263,27 @@ export function parseArgs(argv: string[]): Config {
 				break;
 			case "--agent-arg":
 				cfg.agentArgs.push(take(arg));
+				break;
+			case "--setting": {
+				const spec = take(arg);
+				const eq = spec.indexOf("=");
+				if (eq <= 0) throw new Error("--setting expects key=value");
+				const raw = spec.slice(eq + 1);
+				let value: unknown = raw;
+				try {
+					value = JSON.parse(raw);
+				} catch {
+					// bare strings stay strings
+				}
+				cfg.settings[spec.slice(0, eq)] = value;
+				break;
+			}
+			case "--tools":
+				cfg.tools = take(arg)
+					.split(",")
+					.map(tool => tool.trim())
+					.filter(tool => tool.length > 0);
+				if (cfg.tools.length === 0) throw new Error("--tools must name at least one tool");
 				break;
 			case "-l":
 			case "--tasks":
@@ -572,7 +607,7 @@ function probeLine(line: string, probe: CostProbe): void {
 
 /**
  * Realtime usage for a still-running trial, read incrementally from its
- * `agent/op.txt` JSONL. Only bytes appended since the previous call are read
+ * `agent/omp.txt` JSONL. Only bytes appended since the previous call are read
  * and parsed — both this runner's render loop and the manager's 2s sync tick
  * call this for every live trial, and a full-file reread used to block the
  * event loop for seconds (and OOM outright on runaway multi-GB transcripts).
@@ -1035,7 +1070,7 @@ function repoBunVersion(): string {
 		const pm = (raw as Record<string, unknown>).packageManager;
 		if (typeof pm === "string" && pm.startsWith("bun@")) return pm.slice("bun@".length);
 	}
-	return "1.3.14";
+	return "1.4.0";
 }
 
 /** Native arch of the docker daemon (what non-emulated task containers run as). */
@@ -1192,7 +1227,7 @@ function writeComposeOverlay(benchDir: string, cfg: Config, source: SourceMount 
 		lines.push(`      - ${path.join(source.depsDir, "bin")}:${SOURCE_BIN_MOUNT}:ro`);
 	}
 	if (lines.length === 0) return null;
-	const file = path.join(benchDir, "op-compose-overlay.yaml");
+	const file = path.join(benchDir, "omp-compose-overlay.yaml");
 	fs.writeFileSync(file, `${["services:", "  main:", ...lines].join("\n")}\n`);
 	return file;
 }
@@ -1217,6 +1252,33 @@ function buildMountsJson(source: SourceMount | null): string | null {
 	}
 	mounts.push({ type: "bind", source: path.join(source.depsDir, "bin"), target: SOURCE_BIN_MOUNT, read_only: true });
 	return JSON.stringify(mounts);
+}
+
+/** Neutralized upstream system prompt template uploaded into `pi` trials (see pi_upstream.py). */
+const PI_UPSTREAM_SYSTEM_PROMPT = path.join(AGENT_DIR, "pi-upstream-system.md");
+
+/**
+ * Catalog facts for each `provider/model` the upstream agent needs in its
+ * `models.json`: wire api, limits, modalities and cost, so its usage accounting
+ * matches op's for the same model.
+ */
+function upstreamModelSpecs(cfg: Config): Array<Record<string, unknown>> {
+	return cfg.models.map(spec => {
+		const slash = spec.indexOf("/");
+		const provider = spec.slice(0, slash) as GeneratedProvider;
+		const id = spec.slice(slash + 1);
+		const model = getBundledModel(provider, id);
+		return {
+			provider,
+			id,
+			api: model.api,
+			reasoning: model.reasoning,
+			input: model.input,
+			contextWindow: model.contextWindow,
+			maxTokens: model.maxTokens,
+			cost: model.cost,
+		};
+	});
 }
 
 function deriveProviders(cfg: Config): string[] {
@@ -1312,7 +1374,8 @@ function buildHarborArgs(
 	composeOverlayPath: string | null,
 	mountsJson: string | null,
 ): string[] {
-	const a: string[] = ["run", "-d", cfg.dataset, "-o", cfg.jobsDir, "--job-name", jobName];
+	const datasetFlag = fs.existsSync(cfg.dataset) ? "-p" : "-d";
+	const a: string[] = ["run", datasetFlag, cfg.dataset, "-o", cfg.jobsDir, "--job-name", jobName];
 	a.push("-n", String(cfg.concurrency), "-k", String(cfg.attempts), "-l", String(cfg.tasks));
 	for (const m of cfg.models) a.push("-m", m);
 	for (const inc of cfg.include) a.push("-i", inc);
@@ -1326,9 +1389,9 @@ function buildHarborArgs(
 	if (cfg.envType !== "docker") a.push("-e", cfg.envType);
 	if (mountsJson) a.push("--mounts", mountsJson);
 
-	if (cfg.agent === "op") {
+	if (MANAGED_AGENTS[cfg.agent]) {
 		// Config + secrets travel via env (OP_BENCH_*); the agent reads os.environ.
-		a.push("--agent-import-path", AGENT_IMPORT_PATH);
+		a.push("--agent-import-path", cfg.agent === "pi" ? PI_UPSTREAM_IMPORT_PATH : AGENT_IMPORT_PATH);
 		void modelsYaml;
 		void tarball;
 	} else {
@@ -1391,11 +1454,16 @@ export function buildHarborEnv(
 	// Drop any stale OP_BENCH_FORWARD_ENV inherited from the caller's shell before
 	// the agent-type early return, so it never leaks (incl. into the dry-run dump).
 	delete env.OP_BENCH_FORWARD_ENV;
-	if (cfg.agent !== "op") return env;
+	if (!MANAGED_AGENTS[cfg.agent]) return env;
 	const prepend = (k: string, v: string): void => {
 		env[k] = env[k] ? `${v}:${env[k]}` : v;
 	};
 	prepend("PYTHONPATH", AGENT_DIR);
+	if (cfg.agent === "pi") {
+		env.OP_BENCH_PI_VERSION = cfg.version ?? PI_UPSTREAM_VERSION;
+		env.OP_BENCH_PI_MODELS = JSON.stringify(upstreamModelSpecs(cfg));
+		env.OP_BENCH_PI_SYSTEM_PROMPT = PI_UPSTREAM_SYSTEM_PROMPT;
+	}
 	env.OP_BENCH_INSTALL = cfg.install;
 	env.OP_BENCH_VERSION = cfg.version ?? version;
 	if (tarball) env.OP_BENCH_TARBALL = tarball;
@@ -1408,6 +1476,8 @@ export function buildHarborEnv(
 	if (cfg.binaryX64) env.OP_BENCH_BINARY_X64 = cfg.binaryX64;
 	if (cfg.thinking) env.OP_BENCH_THINKING = cfg.thinking;
 	if (cfg.agentArgs.length > 0) env.OP_BENCH_AGENT_ARGS = JSON.stringify(cfg.agentArgs);
+	if (cfg.tools) env.OP_BENCH_TOOLS = cfg.tools.join(",");
+	if (Object.keys(cfg.settings).length > 0) env.OP_BENCH_SETTINGS = JSON.stringify(cfg.settings);
 	if (cfg.webSearch) env.OP_BENCH_WEB_SEARCH = "1";
 	env.OP_BENCH_GATEWAY = cfg.gateway ? "1" : "0";
 	if (cfg.gateway) {

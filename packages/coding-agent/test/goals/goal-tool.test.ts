@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "bun:test";
 import { completionBudgetReport, GoalRuntime } from "@openpaths/coding-agent/goals/runtime";
-import type { Goal, GoalModeState, GoalTokenUsage } from "@openpaths/coding-agent/goals/state";
+import type { Goal } from "@openpaths/tui/tools/goal";
+import type { GoalModeState, GoalTokenUsage } from "@openpaths/coding-agent/goals/state";
 import { GoalTool } from "@openpaths/coding-agent/goals/tools/goal-tool";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 

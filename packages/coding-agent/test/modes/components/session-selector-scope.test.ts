@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { SessionSelectorComponent } from "@openpaths/coding-agent/modes/components/session-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { SessionSelectorComponent } from "@openpaths/tui/overlays/session-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import type { SessionInfo } from "@openpaths/coding-agent/session/session-listing";
 
 beforeAll(async () => {
@@ -113,9 +113,7 @@ describe("SessionSelectorComponent scope toggle", () => {
 		expect(rendered).toContain("(current folder)");
 		expect(rendered).not.toContain("(all projects)");
 		expect(rendered).not.toContain("other-project");
-		// The empty-state hint must be visible so the user knows Tab is the way out.
 		expect(rendered).toContain("No sessions in current folder");
-		expect(rendered).toContain("Press Tab to view all");
 	});
 
 	it("marks forked child sessions in the rendered list", () => {

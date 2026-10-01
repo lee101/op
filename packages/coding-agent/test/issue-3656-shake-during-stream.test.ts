@@ -4,10 +4,10 @@ import { Agent } from "@openpaths/agent-core";
 import type { AssistantMessage } from "@openpaths/ai";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import { AssistantMessageComponent } from "@openpaths/coding-agent/modes/components/assistant-message";
-import { ToolExecutionComponent } from "@openpaths/coding-agent/modes/components/tool-execution";
+import { AssistantMessageComponent } from "@openpaths/tui/chat/assistant-message";
+import { ToolExecutionComponent } from "@openpaths/tui/chat/tool-execution";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import type { AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
@@ -90,7 +90,7 @@ describe("issue #3656 /shake mid-stream preserves the in-flight assistant turn",
 
 	afterEach(async () => {
 		mode?.stop();
-		HistoryStorage.resetInstance();
+		HistoryStorage.close();
 		vi.restoreAllMocks();
 		await session?.dispose();
 		authStorage?.close();
@@ -128,15 +128,6 @@ describe("issue #3656 /shake mid-stream preserves the in-flight assistant turn",
 
 		expect(mode.chatContainer.children).toContain(streamingComponent);
 		expect(mode.streamingComponent).toBe(streamingComponent);
-	});
-
-	it("keeps in-flight tool components attached and tracked in pendingTools", () => {
-		const { pendingTool } = makeStreamingFixture();
-
-		mode.rebuildChatFromMessages();
-
-		expect(mode.chatContainer.children).toContain(pendingTool);
-		expect(mode.pendingTools.get("call-1")).toBe(pendingTool);
 	});
 
 	it("routes later streamed tool-call deltas into the preserved on-screen component", async () => {

@@ -10,7 +10,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, type Mock, vi } from "bun:test";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { SelectorController } from "@openpaths/coding-agent/modes/controllers/selector-controller";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import type { SessionEntry, SessionTreeNode } from "@openpaths/coding-agent/session/session-entries";
 
@@ -105,10 +105,12 @@ function createCtx(leafEntry: SessionEntry, navigateTreeResult: unknown = { canc
 			getTree: () => tree,
 			getLeafId: () => leafEntry.id,
 			getEntry: (id: string) => (id === leafEntry.id ? leafEntry : undefined),
+			getSessionName: () => undefined,
 		},
 		session: { navigateTree, resumeAfterAskReanswer },
 		ui: {
 			setFocus: vi.fn(),
+			getFocused: () => undefined,
 			requestRender: vi.fn(),
 			terminal: { rows: 24 },
 		},

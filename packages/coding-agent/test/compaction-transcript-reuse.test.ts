@@ -1,8 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "bun:test";
 import type { AgentMessage } from "@openpaths/agent-core";
-import type { Message } from "@openpaths/ai";
-import { TranscriptContainer } from "@openpaths/coding-agent/modes/components/transcript-container";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { TranscriptContainer } from "@openpaths/tui/chrome/transcript-container";
+import { initTheme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import { UiHelpers } from "@openpaths/coding-agent/modes/utils/ui-helpers";
 
@@ -11,8 +10,6 @@ function buildContext(): InteractiveModeContext {
 	return {
 		chatContainer,
 		transcriptMessageComponents: new WeakMap(),
-		getUserMessageText: (message: Message) =>
-			message.role === "user" && typeof message.content === "string" ? message.content : "",
 		viewSession: {
 			extensionRunner: undefined,
 			sessionManager: { putBlobSync: () => "unused" },

@@ -15,7 +15,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { $which } from "@openpaths/utils";
-import { theme } from "../modes/theme/theme";
+import { theme } from "@openpaths/tui/theme";
 import type { GallerySection } from "./gallery-cli";
 
 /** Nerd Font family so the gallery's icon glyphs (PUA) render instead of tofu. */
@@ -77,7 +77,7 @@ export async function captureGalleryScreenshots(
 
 	const baseDir = options.out
 		? path.dirname(path.resolve(options.out))
-		: fs.mkdtempSync(path.join(os.tmpdir(), "op-gallery-"));
+		: fs.mkdtempSync(path.join(os.tmpdir(), "omp-gallery-"));
 	await fs.promises.mkdir(baseDir, { recursive: true });
 
 	const outPaths: string[] = [];
@@ -194,7 +194,7 @@ function buildVhsTheme(): string {
 	const foreground = theme.isLight ? "#1a1a1a" : "#d4d4d4";
 	const selection = theme.isLight ? "#c8d6ff" : "#404862";
 	return JSON.stringify({
-		name: "op-gallery",
+		name: "omp-gallery",
 		background,
 		foreground,
 		cursor: foreground,

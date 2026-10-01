@@ -5,7 +5,7 @@ description: Use when creating a new op marketplace. Covers marketplace.json sch
 
 # Authoring Marketplaces
 
-A marketplace is a Git repository (or local directory) that contains a catalog file at either `.op-plugin/marketplace.json` (preferred for op-specific catalogs) or `.claude-plugin/marketplace.json` (Claude Code-compatible; used as the fallback). Anyone can author one. Users add it with `/marketplace add owner/repo` and then install individual plugins from it.
+A marketplace is a Git repository (or local directory) that contains a catalog file at either `.op-plugin/marketplace.json` (preferred for omp-specific catalogs) or `.claude-plugin/marketplace.json` (Claude Code-compatible; used as the fallback). Anyone can author one. Users add it with `/marketplace add owner/repo` and then install individual plugins from it.
 
 ## Minimum viable marketplace
 
@@ -49,7 +49,7 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
 
 | Field | Required | Description |
 |---|---|---|
-| `name` | yes | Marketplace name. Lowercase alphanumeric, hyphens, dots. Must start and end with alphanumeric. Max 64 chars. |
+| `name` | yes | Marketplace name. ASCII alphanumeric, hyphens, dots. Must start and end with alphanumeric. Max 64 chars. Case-equivalent marketplace names cannot coexist. |
 | `owner` | yes | Object with at minimum `owner.name` (string) |
 | `owner.name` | yes | Marketplace owner name |
 | `owner.email` | no | Owner contact email |
@@ -63,10 +63,10 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
 
 | Field | Required | Description |
 |---|---|---|
-| `name` | yes | Plugin name (same naming rules as marketplace name) |
+| `name` | yes | Plugin name (same naming rules as marketplace name); case-equivalent duplicates in a catalog are skipped |
 | `source` | yes | Where to find the plugin — string or object (see source types below) |
 | `description` | no | Short plugin description |
-| `version` | no | Version string; falls back to `.claude-plugin/plugin.json`, `package.json`, source SHA, then `0.0.0` |
+| `version` | no | Version string; falls back to `.claude-plugin/plugin.json`, root `plugin.json`, `package.json`, the source's explicit SHA (first 7 characters), then `0.0.0` |
 | `author` | no | `{ name, email? }` |
 | `homepage` | no | URL |
 | `category` | no | e.g. `development`, `productivity`, `security` |
@@ -75,6 +75,7 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
 | `license` | no | License string |
 | `strict` | no | Boolean metadata flag; preserved but not used by install/runtime logic |
 | `commands`, `agents`, `hooks`, `mcpServers` | no | Catalog metadata preserved by the parser; runtime discovery comes from the installed plugin tree and manifests |
+| `skills` | no | Extra catalog field used for skill-path selection when the plugin source is exactly `"./"`; otherwise runtime skill discovery uses the plugin tree/manifests |
 | `lspServers` | no | Inline server map or path inside the plugin; installation writes `.lsp.json` |
 | `dapAdapters` | no | Inline adapter map or JSON/YAML path inside the plugin; installation writes `.dap.json`, `.dap.yaml`, or `.dap.yml` |
 
@@ -89,7 +90,7 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
     "email": "plugins@acme.example"
   },
   "metadata": {
-    "description": "Official Acme plugins for openpaths"
+    "description": "Official Acme plugins for op"
   },
   "plugins": [
     {
@@ -104,7 +105,7 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
       "category": "devops",
       "source": {
         "source": "github",
-        "repo": "acme-corp/op-deploy-plugin",
+        "repo": "acme-corp/omp-deploy-plugin",
         "ref": "main"
       }
     }
@@ -185,7 +186,7 @@ Declares the plugin as an npm package. `version` is optional:
 ```json
 "source": {
   "source": "npm",
-  "package": "@acme/op-plugin",
+  "package": "@acme/omp-plugin",
   "version": "1.2.0"
 }
 ```
@@ -209,7 +210,7 @@ my-plugin/
   README.md                      ← recommended: description + usage
 ```
 
-> Note: MCP servers may instead be declared by the manifest's `mcpServers` field — either an inline server map or a path to a config file inside the plugin root (`{ "mcpServers": "./mcp-op.json" }`). op reads `.op-plugin/plugin.json` first, then `.claude-plugin/plugin.json`; a manifest declaration replaces the default `.mcp.json` rather than merging with it, so one published tree can carry a per-harness MCP config.
+> Note: MCP servers may instead be declared by the manifest's `mcpServers` field — either an inline server map or a path to a config file inside the plugin root (`{ "mcpServers": "./mcp-omp.json" }`). op reads `.op-plugin/plugin.json` first, then `.claude-plugin/plugin.json`; a manifest declaration replaces the default `.mcp.json` rather than merging with it, so one published tree can carry a per-harness MCP config.
 
 > Note: extension modules declared via `package.json` `op.extensions` **are** loaded from marketplace installs — installation symlinks the cached plugin into the scope's `node_modules` and records it in `op-plugins.lock.json`, the same runtime surfaces used by npm-installed and `op plugin link`ed plugins.
 
@@ -230,7 +231,7 @@ op plugin install name@marketplace-name
 
 Scope behavior:
 
-- **user** (default) — installed in the user plugins data root's `installed_plugins.json` (`~/.op/plugins/installed_plugins.json` by default), available in all projects. On Linux and macOS, `op config init-xdg` creates (but does not migrate data into) the XDG roots; once the relevant roots exist and the XDG variables are set, new user state uses `$XDG_DATA_HOME/op/plugins/installed_plugins.json`.
+- **user** (default) — installed in the user plugins data root's `installed_plugins.json` (`~/.op/plugins/installed_plugins.json` by default), available in all projects. On Linux and macOS, `op config init-xdg` initializes (but does not migrate data into) the XDG roots; with the XDG variables set, initialized roots store new user state in `$XDG_DATA_HOME/op/plugins/installed_plugins.json`.
 - **project** — installed in `<project>/.op/plugins/installed_plugins.json`, available only in that project
 
 An enabled project-scoped install shadows an enabled user-scoped install of the same `name@marketplace` ID. A disabled project copy leaves the user copy active.
@@ -240,23 +241,26 @@ Install and discovery details:
 - Invalid plugin entries are logged and skipped; invalid JSON or required top-level fields reject the catalog.
 - `skills/` and `commands/` may be remapped with `.claude-plugin/plugin.json`. Declared skill paths normally add to the default; for a plugin whose catalog source is exactly `"./"`, they replace it. Declared `commands` (preferred) or `slash-commands` replace the default unless `./commands` is included explicitly. Paths outside the plugin root are ignored with a warning.
 - Catalog `lspServers` and `dapAdapters` values are materialized during install. Catalog `commands`, `agents`, `hooks`, and `mcpServers` are otherwise metadata; they do not remap runtime discovery.
+- Portable Agent Plugins packages with a standard root `plugin.json` use fixed `skills/<name>/SKILL.md` and `mcp.json` locations instead of legacy skill/MCP manifests. Their skill frontmatter is strictly validated, and every skill/MCP resource must resolve inside the package root. Other OMP-specific components remain available for valid portable packages; a fatally invalid standard manifest rejects the package.
 
 ## Naming rules
 
 Marketplace names and plugin names must:
 
-- Contain only lowercase letters, digits, hyphens (`-`), and dots (`.`)
-- Start and end with a lowercase letter or digit
+- Contain only ASCII letters (either case), digits, hyphens (`-`), and dots (`.`)
+- Start and end with an ASCII letter or digit
 - Be at most 64 characters
 
 Plugin IDs (`name@marketplace`) must be at most 128 characters total.
 
-Valid: `my-plugin`, `code-review`, `acme.tools`, `ai-v2`
-Invalid: `-bad-start`, `bad-end-`, `.dot-start`, `Under_score`, `HAS_CAPS`
+Valid: `my-plugin`, `code-review`, `acme.tools`, `ai-v2`, `HAS-CAPS`
+Invalid: `-bad-start`, `bad-end-`, `.dot-start`, `Under_score`
+
+Names retain their spelling, but collision checks are case-insensitive: `My-Plugin` and `my-plugin` cannot be distinct entries in the same catalog. Prefer lowercase for predictable IDs.
 
 ## Publishing workflow
 
-1. Create `marketplace.json` at `.op-plugin/marketplace.json` (op-only) or `.claude-plugin/marketplace.json` (shared with Claude Code) in a new Git repo.
+1. Create `marketplace.json` at `.op-plugin/marketplace.json` (omp-only) or `.claude-plugin/marketplace.json` (shared with Claude Code) in a new Git repo.
 2. Add plugin entries pointing to subdirectories (or external sources).
 3. Push to GitHub.
 4. Share the `owner/repo` string. Users add it with `/marketplace add owner/repo`.

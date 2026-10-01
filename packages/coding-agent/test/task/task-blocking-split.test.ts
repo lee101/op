@@ -25,7 +25,8 @@ import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
 import { TaskTool } from "@openpaths/coding-agent/task";
 import * as discoveryModule from "@openpaths/coding-agent/task/discovery";
 import * as executorModule from "@openpaths/coding-agent/task/executor";
-import type { AgentDefinition, SingleResult, TaskParams, TaskToolDetails } from "@openpaths/coding-agent/task/types";
+import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
+import type { SingleResult, TaskParams, TaskToolDetails } from "@openpaths/tui/tools/task";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 
 const taskAgent: AgentDefinition = {

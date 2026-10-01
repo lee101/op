@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { stripVTControlCharacters } from "node:util";
 import type { AssistantMessage } from "@openpaths/ai";
-import { renderSegment } from "@openpaths/coding-agent/modes/components/status-line/segments";
-import type { SegmentContext } from "@openpaths/coding-agent/modes/components/status-line/types";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { renderSegment } from "@openpaths/tui/status-line/segments";
+import type { SegmentContext } from "@openpaths/tui/status-line/types";
+import { initTheme } from "@openpaths/tui/theme";
 import { calculateTokensPerSecond } from "@openpaths/coding-agent/utils/token-rate";
 
 beforeAll(async () => {

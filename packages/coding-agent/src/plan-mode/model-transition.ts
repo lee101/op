@@ -15,7 +15,7 @@
 import type { Model } from "@openpaths/ai";
 import { modelsAreEqual } from "@openpaths/catalog/models";
 import type { ResolvedModelRoleValue } from "../config/model-resolver";
-import type { ConfiguredThinkingLevel } from "../thinking";
+import type { ConfiguredThinkingLevel } from "@openpaths/tui/thinking";
 
 /** The action implied by resolving the `plan` role against the active model. */
 export type PlanModelTransition =

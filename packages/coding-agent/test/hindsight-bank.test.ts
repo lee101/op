@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, type 
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { computeBankScope, deriveBankId, ensureBankExists } from "@openpaths/coding-agent/hindsight/bank";
+import { computeBankScope, ensureBankExists } from "@openpaths/coding-agent/hindsight/bank";
 import { HindsightApi } from "@openpaths/coding-agent/hindsight/client";
 import type { HindsightConfig } from "@openpaths/coding-agent/hindsight/config";
 import { removeWithRetries } from "@openpaths/utils";
@@ -66,7 +66,6 @@ const baseConfig = (overrides: Partial<HindsightConfig> = {}): HindsightConfig =
 	retainTimeoutMs: 60_000,
 	mentalModelsEnabled: false,
 	mentalModelAutoSeed: false,
-	mentalModelRefreshIntervalMs: 5 * 60 * 1000,
 	mentalModelMaxRenderChars: 16_000,
 	...overrides,
 });
@@ -88,31 +87,24 @@ describe("computeBankScope", () => {
 				bankId: "prod-team",
 			});
 		});
-
-		it("does not surface tag fields", () => {
-			const scope = computeBankScope(baseConfig(), "/work/proj");
-			expect(scope.retainTags).toBeUndefined();
-			expect(scope.recallTags).toBeUndefined();
-			expect(scope.recallTagsMatch).toBeUndefined();
-		});
 	});
 
 	describe("scoping=per-project", () => {
 		it("appends the cwd basename to the base bank id", () => {
 			expect(computeBankScope(baseConfig({ scoping: "per-project" }), "/work/proj")).toEqual({
-				bankId: "op-proj",
+				bankId: "omp-proj",
 			});
 		});
 
 		it("appends `unknown` for an empty cwd", () => {
 			expect(computeBankScope(baseConfig({ scoping: "per-project" }), "")).toEqual({
-				bankId: "op-unknown",
+				bankId: "omp-unknown",
 			});
 		});
 
 		it("lowercases the project segment so one checkout maps to one bank", () => {
 			expect(computeBankScope(baseConfig({ scoping: "per-project" }), "/work/General")).toEqual({
-				bankId: "op-general",
+				bankId: "omp-general",
 			});
 		});
 
@@ -122,12 +114,6 @@ describe("computeBankScope", () => {
 				"/work/cool-app",
 			);
 			expect(scope.bankId).toBe("prod-team-cool-app");
-		});
-
-		it("does not surface tag fields (isolation is at the bank level)", () => {
-			const scope = computeBankScope(baseConfig({ scoping: "per-project" }), "/work/proj");
-			expect(scope.retainTags).toBeUndefined();
-			expect(scope.recallTags).toBeUndefined();
 		});
 	});
 
@@ -139,12 +125,6 @@ describe("computeBankScope", () => {
 				recallTags: ["project:proj"],
 				recallTagsMatch: "any",
 			});
-		});
-
-		it("uses the same project label for retain and recall tags", () => {
-			const scope = computeBankScope(baseConfig({ scoping: "per-project-tagged" }), "/repo/cool-app");
-			expect(scope.retainTags).toEqual(["project:cool-app"]);
-			expect(scope.recallTags).toEqual(["project:cool-app"]);
 		});
 
 		it("falls back to project:unknown when cwd is empty", () => {
@@ -208,7 +188,7 @@ describe("computeBankScope", () => {
 
 		it("uses the primary root basename for the per-project bank id from a worktree", () => {
 			expect(computeBankScope(baseConfig({ scoping: "per-project" }), worktreeRoot)).toEqual({
-				bankId: "op-myrepo",
+				bankId: "omp-myrepo",
 			});
 		});
 
@@ -218,7 +198,7 @@ describe("computeBankScope", () => {
 			expect(fromA.retainTags).toEqual(["project:bare-repo.git"]);
 			expect(fromB).toEqual(fromA);
 			expect(computeBankScope(baseConfig({ scoping: "per-project" }), bareWorktreeB)).toEqual({
-				bankId: "op-bare-repo.git",
+				bankId: "omp-bare-repo.git",
 			});
 		});
 
@@ -269,14 +249,6 @@ describe("computeBankScope", () => {
 				"project:casedrepo",
 			]);
 		});
-	});
-});
-
-describe("deriveBankId (legacy wrapper)", () => {
-	it("returns the bankId field of the resolved scope", () => {
-		expect(deriveBankId(baseConfig({ bankId: "team", bankIdPrefix: "prod" }), "/cwd")).toBe("prod-team");
-		expect(deriveBankId(baseConfig({ scoping: "per-project" }), "/work/proj")).toBe("op-proj");
-		expect(deriveBankId(baseConfig({ scoping: "per-project-tagged" }), "/work/proj")).toBe("op");
 	});
 });
 

@@ -14,9 +14,10 @@ import { Settings } from "@openpaths/coding-agent/config/settings";
 import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
 import type { ExecutorOptions } from "@openpaths/coding-agent/task/executor";
 import * as executorModule from "@openpaths/coding-agent/task/executor";
-import type { SingleResult } from "@openpaths/coding-agent/task/types";
+import type { SingleResult } from "@openpaths/tui/tools/task";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
-import { type VibeCli, VibeSessionRegistry } from "@openpaths/coding-agent/vibe/runtime";
+import type { VibeCli } from "@openpaths/tui/tools/vibe";
+import { VibeSessionRegistry } from "@openpaths/coding-agent/vibe/runtime";
 
 function makeParentSession(settings: Settings): ToolSession {
 	return {

@@ -8,7 +8,7 @@ import * as path from "node:path";
 import { getAgentDir, getProjectDir, isEnoent } from "@openpaths/utils";
 import chalk from "@openpaths/utils/chalk";
 import { YAML } from "bun";
-import { theme } from "../modes/theme/theme";
+import { theme } from "@openpaths/tui/theme";
 import { loadBundledAgents } from "../task/agents";
 import type { AgentDefinition } from "../task/types";
 

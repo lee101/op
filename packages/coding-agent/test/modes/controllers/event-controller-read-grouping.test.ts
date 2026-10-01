@@ -15,13 +15,16 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "bun:test";
 import type { AssistantMessage, ImageContent } from "@openpaths/ai";
 import { resetSettingsForTest, Settings, settings } from "@openpaths/coding-agent/config/settings";
-import { AssistantMessageComponent } from "@openpaths/coding-agent/modes/components/assistant-message";
-import { ReadToolGroupComponent } from "@openpaths/coding-agent/modes/components/read-tool-group";
+import { AssistantMessageComponent } from "@openpaths/tui/chat/assistant-message";
+import { ReadToolGroupComponent } from "@openpaths/tui/chat/read-tool-group";
+import { TranscriptContainer } from "@openpaths/tui/chrome/transcript-container";
 import { EventController } from "@openpaths/coding-agent/modes/controllers/event-controller";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
-import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
+import { initTheme } from "@openpaths/tui/theme";
 import type { AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
-import { type Component, Container, Image, ImageProtocol, setTerminalImageProtocol, TERMINAL } from "@openpaths/tui";
+import { type Component, Image, ImageProtocol, setTerminalImageProtocol, TERMINAL } from "@openpaths/tui";
+import { createInteractiveModeContext } from "../../helpers/interactive-mode-context";
+
+import { cfgDisplayShowTokenUsage, cfgTerminalShowImages } from "@openpaths/coding-agent/modes/settings";
 
 beforeAll(async () => {
 	await initTheme(false, undefined, undefined, "dark", "light");
@@ -75,28 +78,8 @@ function assistantMessage(content: Block[]): AssistantMessage {
 }
 
 function createFixture() {
-	const chatContainer = new Container();
-	const sessionMock = { getToolByName: () => undefined, hasBuiltInTool: () => true, extensionRunner: undefined };
-	const ctx = {
-		isInitialized: true,
-		init: vi.fn(async () => {}),
-		statusLine: { invalidate: vi.fn() },
-		updateEditorTopBorder: vi.fn(),
-		ui: { requestRender: vi.fn(), imageBudget: undefined },
-		chatContainer,
-		transcriptMessageComponents: new WeakMap(),
-		pendingTools: new Map(),
-		noteDisplayableThinkingContent: vi.fn(() => false),
-		settings: { get: () => false },
-		toolOutputExpanded: false,
-		hideThinkingBlock: false,
-		setWorkingMessage: vi.fn(),
-		clearTransientSessionUi: () => {},
-		session: sessionMock,
-		sessionManager: { getCwd: () => process.cwd() },
-		viewSession: sessionMock,
-	} as unknown as InteractiveModeContext;
-	return { controller: new EventController(ctx), chatContainer };
+	const ctx = createInteractiveModeContext();
+	return { controller: new EventController(ctx), chatContainer: ctx.chatContainer };
 }
 
 /** Drive one assistant completion: message_start then a single full message_update. */
@@ -106,7 +89,7 @@ async function streamCompletion(controller: EventController, content: Block[]): 
 	await controller.handleEvent({ type: "message_update", message } as AgentSessionEvent);
 }
 
-function readGroups(chatContainer: Container): ReadToolGroupComponent[] {
+function readGroups(chatContainer: TranscriptContainer): ReadToolGroupComponent[] {
 	return chatContainer.children.filter((c): c is ReadToolGroupComponent => c instanceof ReadToolGroupComponent);
 }
 
@@ -138,7 +121,7 @@ describe("EventController read-group accretion", () => {
 	});
 
 	it("nests a read-only completion's usage inside the active group", async () => {
-		settings.set("display.showTokenUsage", true);
+		cfgDisplayShowTokenUsage.set(settings, true);
 		const { controller, chatContainer } = createFixture();
 		const message = assistantMessage([thinking("Reviewing the target"), read("usage.ts:1-50")]);
 		message.usage = {
@@ -164,7 +147,7 @@ describe("EventController read-group accretion", () => {
 	});
 
 	it("keeps usage standalone when visible content follows a read", async () => {
-		settings.set("display.showTokenUsage", true);
+		cfgDisplayShowTokenUsage.set(settings, true);
 		const { controller, chatContainer } = createFixture();
 		const message = assistantMessage([read("usage.ts:1-50"), thinking("Read complete")]);
 		message.usage = {
@@ -191,7 +174,7 @@ describe("EventController read-group accretion", () => {
 	});
 
 	it("starts a fresh group after standalone usage for a mixed-tool turn ending in read", async () => {
-		settings.set("display.showTokenUsage", true);
+		cfgDisplayShowTokenUsage.set(settings, true);
 		const { controller, chatContainer } = createFixture();
 		const message = assistantMessage([toolCall("bash", "bash-mixed", { command: "true" }), read("first.ts:1-50")]);
 		message.usage = {
@@ -256,7 +239,7 @@ describe("EventController read-group accretion", () => {
 	});
 
 	it("retains live read images while hidden so the visibility toggle can reveal them", async () => {
-		Settings.instance.override("terminal.showImages", false);
+		cfgTerminalShowImages.override(Settings.instance, false);
 		setTerminalImageProtocol(ImageProtocol.Sixel);
 		const { controller, chatContainer } = createFixture();
 		const toolCall = read("hidden.png");

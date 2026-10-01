@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import type { AgentMessage } from "@openpaths/agent-core";
-import { TreeSelectorComponent } from "@openpaths/coding-agent/modes/components/tree-selector";
-import * as themeModule from "@openpaths/coding-agent/modes/theme/theme";
+import { TreeSelectorComponent } from "@openpaths/tui/overlays/tree-selector";
+import * as themeModule from "@openpaths/tui/theme";
 import type { SessionEntry, SessionTreeNode } from "@openpaths/coding-agent/session/session-entries";
 
 let counter = 0;
@@ -34,7 +34,7 @@ function renderStripped(tree: SessionTreeNode[], leafId: string, width = 120): s
 		() => {},
 		() => {},
 	);
-	return selector.render(width).map(line => Bun.stripANSI(line));
+	return selector.renderContent(width).map(line => Bun.stripANSI(line));
 }
 
 describe("issue #7332: linear branch continuations stay compact", () => {

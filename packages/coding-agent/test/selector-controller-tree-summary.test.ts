@@ -2,11 +2,13 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, type Mock, vi }
 import type { AgentMessage } from "@openpaths/agent-core";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { SelectorController } from "@openpaths/coding-agent/modes/controllers/selector-controller";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import type { SessionTreeNode } from "@openpaths/coding-agent/session/session-entries";
 import { setKittyProtocolActive } from "@openpaths/tui/keys";
 import { beginSettingsTest, restoreSettingsTestState, type SettingsTestState } from "./helpers/settings-test-state";
+
+import { cfgBranchSummaryEnabled } from "@openpaths/coding-agent/session/context-settings";
 
 const SHIFT_ENTER = "\x1b[13;2u";
 
@@ -70,6 +72,7 @@ function createHarness(summaryChoice = "No summary"): TreeSummaryHarness {
 			getTree: () => [root],
 			getLeafId: () => null,
 			appendLabelChange: vi.fn(),
+			getSessionName: () => undefined,
 		},
 		ui: {
 			terminal: { rows: 40 },
@@ -89,6 +92,7 @@ function createHarness(summaryChoice = "No summary"): TreeSummaryHarness {
 		showStatus: vi.fn(),
 		showError: vi.fn(),
 		showHookSelector,
+		keybindings: { getKeys: () => ["escape"] },
 		showHookEditor: vi.fn(),
 		chatContainer: { addChild: vi.fn() },
 		statusContainer: {
@@ -151,7 +155,7 @@ describe("SelectorController tree branch summaries", () => {
 	});
 
 	it("skips the summary prompt on shift+enter even when branchSummary.enabled is on", async () => {
-		Settings.instance.set("branchSummary.enabled", true);
+		cfgBranchSummaryEnabled.set(Settings.instance, true);
 		const harness = createHarness();
 
 		harness.controller.showTreeSelector();
@@ -167,7 +171,7 @@ describe("SelectorController tree branch summaries", () => {
 	});
 
 	it("still offers the summary prompt on plain enter when branchSummary.enabled is on", async () => {
-		Settings.instance.set("branchSummary.enabled", true);
+		cfgBranchSummaryEnabled.set(Settings.instance, true);
 		const harness = createHarness("Summarize");
 
 		harness.controller.showTreeSelector();

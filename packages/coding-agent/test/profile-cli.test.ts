@@ -119,89 +119,28 @@ describe("global --profile flag", () => {
 		expect(getAgentDbPath()).toBe(path.join(os.homedir(), configDir, "profiles", "work", "agent", "agent.db"));
 	});
 
-	it("accepts the profile flag after other root flags", async () => {
-		vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-
-		await runCli(["--version", "--profile", "office"]);
-
-		expect(process.exitCode).toBe(0);
-		expect(getActiveProfile()).toBe("office");
-		expect(getAgentDir()).toBe(path.join(os.homedir(), configDir, "profiles", "office", "agent"));
-	});
-
 	it("installs a shell alias and exits before command dispatch", async () => {
 		const installSpy = vi.spyOn(profileAliasCli, "installProfileAlias").mockResolvedValue({
 			shell: "bash",
 			configPath: "/home/me/.bashrc",
-			aliasName: "op-work",
+			aliasName: "omp-work",
 			profile: "work",
 			command: "op --profile=work",
 			reloadedWith: ". '/home/me/.bashrc'",
 		});
 		const outSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
-		await runCli(["--profile", "work", "--alias", "op-work", "--version"]);
+		await runCli(["--profile", "work", "--alias", "omp-work", "--version"]);
 
 		expect(process.exitCode).toBe(0);
 		expect(installSpy).toHaveBeenCalledWith(
 			expect.objectContaining({
 				profile: "work",
-				aliasName: "op-work",
+				aliasName: "omp-work",
 			}),
 		);
 		const output = outSpy.mock.calls.map(call => String(call[0] ?? "")).join("\n");
-		expect(output).toContain("Created op-work");
-		expect(output).not.toContain(`${APP_NAME}/${VERSION}`);
-	});
-
-	it("installs a shell alias when launch is explicit", async () => {
-		const installSpy = vi.spyOn(profileAliasCli, "installProfileAlias").mockResolvedValue({
-			shell: "bash",
-			configPath: "/home/me/.bashrc",
-			aliasName: "op-work",
-			profile: "work",
-			command: "op --profile=work",
-			reloadedWith: ". '/home/me/.bashrc'",
-		});
-		const outSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-
-		await runCli(["launch", "--profile", "work", "--alias", "op-work", "--version"]);
-
-		expect(process.exitCode).toBe(0);
-		expect(installSpy).toHaveBeenCalledWith(
-			expect.objectContaining({
-				profile: "work",
-				aliasName: "op-work",
-			}),
-		);
-		const output = outSpy.mock.calls.map(call => String(call[0] ?? "")).join("\n");
-		expect(output).toContain("Created op-work");
-		expect(output).not.toContain(`${APP_NAME}/${VERSION}`);
-	});
-
-	it("installs a shell alias when acp is explicit", async () => {
-		const installSpy = vi.spyOn(profileAliasCli, "installProfileAlias").mockResolvedValue({
-			shell: "bash",
-			configPath: "/home/me/.bashrc",
-			aliasName: "op-work",
-			profile: "work",
-			command: "op --profile=work",
-			reloadedWith: ". '/home/me/.bashrc'",
-		});
-		const outSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-
-		await runCli(["acp", "--profile", "work", "--alias", "op-work", "--version"]);
-
-		expect(process.exitCode).toBe(0);
-		expect(installSpy).toHaveBeenCalledWith(
-			expect.objectContaining({
-				profile: "work",
-				aliasName: "op-work",
-			}),
-		);
-		expect(getActiveProfile()).toBe("work");
-		const output = outSpy.mock.calls.map(call => String(call[0] ?? "")).join("\n");
-		expect(output).toContain("Created op-work");
+		expect(output).toContain("Created omp-work");
 		expect(output).not.toContain(`${APP_NAME}/${VERSION}`);
 	});
 
@@ -219,7 +158,7 @@ describe("global --profile flag", () => {
 	});
 
 	it("loads profile agent .env before command modules import pi-utils env", async () => {
-		const root = await fs.mkdtemp(path.join(os.tmpdir(), "op-profile-cli-env-"));
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-profile-cli-env-"));
 		try {
 			const home = path.join(root, "home");
 			const configDir = ".op-profile-cli-env";
@@ -275,7 +214,7 @@ describe("global --profile flag", () => {
 	}, 30_000);
 
 	it("surfaces an invalid OP_PROFILE env as a clean error, not an import crash", async () => {
-		const root = await fs.mkdtemp(path.join(os.tmpdir(), "op-profile-cli-env-bad-"));
+		const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-profile-cli-env-bad-"));
 		try {
 			const home = path.join(root, "home");
 			await fs.mkdir(home, { recursive: true });

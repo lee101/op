@@ -1,9 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import { resetSettingsForTest, Settings, settings } from "@openpaths/coding-agent/config/settings";
-import { ReadToolGroupComponent } from "@openpaths/coding-agent/modes/components/read-tool-group";
-import { TranscriptContainer } from "@openpaths/coding-agent/modes/components/transcript-container";
-import * as themeModule from "@openpaths/coding-agent/modes/theme/theme";
+import { ReadToolGroupComponent } from "@openpaths/tui/chat/read-tool-group";
+import { TranscriptContainer } from "@openpaths/tui/chrome/transcript-container";
+import * as themeModule from "@openpaths/tui/theme";
 import type { Component } from "@openpaths/tui";
+
+import { cfgTuiHyperlinks } from "@openpaths/coding-agent/modes/settings";
 
 /** Minimal transcript block whose finalized state is fixed at construction. */
 class StubBlock implements Component {
@@ -28,7 +30,7 @@ describe("ReadToolGroupComponent transcript freezing", () => {
 	});
 
 	afterEach(() => {
-		settings.clearOverride("tui.hyperlinks");
+		cfgTuiHyperlinks.clearOverride(settings);
 		vi.restoreAllMocks();
 	});
 

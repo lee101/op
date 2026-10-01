@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { LogoutAccountSelectorComponent } from "@openpaths/coding-agent/modes/components/logout-account-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { LogoutAccountSelectorComponent } from "@openpaths/tui/overlays/logout-account-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import type { StoredAuthCredential } from "@openpaths/coding-agent/session/auth-storage";
 import { toLogoutAccounts } from "@openpaths/coding-agent/slash-commands/helpers/logout";
 

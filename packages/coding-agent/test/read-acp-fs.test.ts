@@ -6,7 +6,7 @@ import type { AgentToolResult } from "@openpaths/agent-core";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { ClientBridge } from "@openpaths/coding-agent/session/client-bridge";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
-import type { ReadToolDetails } from "@openpaths/coding-agent/tools/read";
+import type { ReadToolDetails } from "@openpaths/tui/tools/read";
 import { ReadTool } from "@openpaths/coding-agent/tools/read";
 import { removeWithRetries } from "@openpaths/utils";
 

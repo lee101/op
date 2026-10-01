@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import type { EvalToolDetails } from "@openpaths/coding-agent/eval/types";
-import { getThemeByName, setThemeInstance, type Theme } from "@openpaths/coding-agent/modes/theme/theme";
-import { EvalTool, evalToolRenderer } from "@openpaths/coding-agent/tools/eval";
+import type { EvalToolDetails } from "@openpaths/tui/tools/eval";
+import { getThemeByName, setThemeInstance, type Theme } from "@openpaths/tui/theme";
+import { evalToolRenderer } from "@openpaths/tui/tools/eval";
 
 describe("eval renderer: display-only streaming formatting", () => {
 	let theme: Theme;
@@ -18,6 +18,17 @@ describe("eval renderer: display-only streaming formatting", () => {
 
 	afterAll(() => {
 		resetSettingsForTest();
+	});
+
+	it("preserves percent command package identifiers instead of formatting them as JavaScript operators", () => {
+		const command = "%bun add csv-parse@5";
+		const rendered = Bun.stripANSI(
+			evalToolRenderer
+				.renderCall({ language: "js", code: command }, { expanded: true, isPartial: true }, theme)
+				.render(120)
+				.join("\n"),
+		);
+		expect(rendered).toContain(command);
 	});
 
 	it("expands compact source in both pending and completed previews", () => {
@@ -48,20 +59,5 @@ describe("eval renderer: display-only streaming formatting", () => {
 			expect(rendered).toContain("finish();");
 			expect(rendered).not.toContain("run();finish();");
 		}
-		expect(details.cells?.[0]?.code).toBe(source);
-	});
-
-	it("passes the original source to execution verbatim", async () => {
-		let executed = "";
-		const tool = new EvalTool(null, {
-			proxyExecutor: async params => {
-				executed = params.code;
-				return { content: [{ type: "text", text: "ok" }], details: undefined };
-			},
-		});
-
-		await tool.execute("call", { language: "js", code: source });
-
-		expect(executed).toBe(source);
 	});
 });

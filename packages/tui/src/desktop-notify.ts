@@ -26,7 +26,7 @@ import { $which } from "@openpaths/utils";
 import type { TerminalId, TerminalNotification } from "./terminal-capabilities";
 
 /** Application name surfaced as the notification source. */
-const APP_NAME = "OpenPaths";
+const APP_NAME = "op";
 
 /** Resolved notifier binary used to fan a notification out to D-Bus. */
 export type DesktopNotifierKind = "notify-send" | "gdbus";

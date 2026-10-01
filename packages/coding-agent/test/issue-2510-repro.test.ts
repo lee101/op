@@ -4,7 +4,7 @@ import { Agent } from "@openpaths/agent-core";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { HistoryStorage } from "@openpaths/coding-agent/session/history-storage";
@@ -57,7 +57,7 @@ describe("issue #2510 — /plan toggles plan → plan_paused → none", () => {
 	afterEach(async () => {
 		vi.restoreAllMocks();
 		mode?.stop();
-		HistoryStorage.resetInstance();
+		HistoryStorage.close();
 		await session?.dispose();
 		authStorage?.close();
 		tempDir?.removeSync();

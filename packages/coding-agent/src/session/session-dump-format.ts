@@ -11,7 +11,7 @@ import type { AssistantMessage, Model, ToolExample, TSchema } from "@openpaths/a
 import { renderDelimitedThinking, renderToolInventory } from "@openpaths/ai/dialect";
 import { INTENT_FIELD } from "@openpaths/wire";
 import { YAML } from "bun";
-import { canonicalizeMessage } from "../utils/thinking-display";
+import { canonicalizeMessage } from "@openpaths/tui/chat/thinking-display";
 import {
 	type BashExecutionMessage,
 	type BranchSummaryMessage,

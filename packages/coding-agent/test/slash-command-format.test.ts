@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
 import * as settingsModule from "@openpaths/coding-agent/config/settings";
-import type { Theme } from "@openpaths/coding-agent/modes/theme/theme";
-import { renderAsciiBar } from "@openpaths/coding-agent/slash-commands/helpers/format";
+import type { Theme } from "@openpaths/tui/theme";
+import { renderAsciiBar } from "@openpaths/tui/chrome/format";
 
 const testTheme = {
 	fg(color: Parameters<Theme["fg"]>[0], text: string): string {

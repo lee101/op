@@ -2,7 +2,7 @@ import type { AgentTool, AgentToolResult, AgentToolUpdateCallback, ToolLoadMode 
 import type { Static, TSchema } from "@openpaths/ai";
 import { Snowflake } from "@openpaths/utils";
 import { applyToolProxy } from "../../extensibility/tool-proxy";
-import type { Theme } from "../../modes/theme/theme";
+import type { Theme } from "@openpaths/tui/theme";
 import { defaultLoadModeForToolName } from "../../tools/essential-tools";
 import type {
 	RpcHostToolCallRequest,

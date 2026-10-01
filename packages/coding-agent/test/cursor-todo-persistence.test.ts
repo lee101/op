@@ -3,13 +3,9 @@ import type { AgentEvent } from "@openpaths/agent-core";
 import type { AssistantMessage } from "@openpaths/ai";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { CursorExecHandlers } from "@openpaths/coding-agent/cursor";
-import { initTheme, theme } from "@openpaths/coding-agent/modes/theme/theme";
-import {
-	getLatestTodoPhasesFromEntries,
-	type TodoPhase,
-	todoToolRenderer,
-	USER_TODO_EDIT_CUSTOM_TYPE,
-} from "@openpaths/coding-agent/tools/todo";
+import { initTheme, theme } from "@openpaths/tui/theme";
+import { getLatestTodoPhasesFromEntries, USER_TODO_EDIT_CUSTOM_TYPE } from "@openpaths/coding-agent/tools/todo";
+import { type TodoPhase, todoToolRenderer } from "@openpaths/tui/tools/todo";
 import { buildSessionContext } from "../src/session/session-context";
 import type { SessionEntry } from "../src/session/session-entries";
 
@@ -223,6 +219,41 @@ describe("cursor todo persistence", () => {
 
 		expect(h.uiTodos()).toEqual(h.current());
 		expect(h.reload()).toEqual(h.current());
+	});
+
+	it("keeps an unchanged read snapshot from replacing dismissed HUD state", () => {
+		const h = newHarness([{ name: "Auth", tasks: [{ content: "oauth", status: "completed" }] }]);
+		const before = h.current();
+
+		const result = h.handlers.todoSync(
+			{ merged: false, todos: [{ content: "oauth", status: "completed" }] },
+			"read-call",
+			null,
+			"read",
+		);
+
+		expect(h.current()).toBe(before);
+		expect(h.entries).toEqual([]);
+		expect(h.uiTodos()).toBeNull();
+		expect(result.details).toBeUndefined();
+	});
+
+	it("still replaces and persists a changed read snapshot", () => {
+		const h = newHarness([{ name: "Auth", tasks: [{ content: "oauth", status: "pending" }] }]);
+		const before = h.current();
+
+		const result = h.handlers.todoSync(
+			{ merged: false, todos: [{ content: "oauth", status: "completed" }] },
+			"read-call",
+			null,
+			"read",
+		);
+
+		expect(h.current()).not.toBe(before);
+		expect(h.entries).toHaveLength(1);
+		expect(h.reload()).toEqual(h.current());
+		expect(h.uiTodos()).toEqual(h.current());
+		expect(result.details).toEqual({ phases: h.current(), storage: "session" });
 	});
 
 	it("settles the call without phases when the session exposes no todo state", () => {

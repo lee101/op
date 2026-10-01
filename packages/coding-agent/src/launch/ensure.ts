@@ -7,7 +7,7 @@
 import { logger } from "@openpaths/utils";
 import { throwIfAborted } from "../tools/tool-errors";
 import type { DaemonBrokerClient } from "./client";
-import type { DaemonSnapshot } from "./protocol";
+import type { DaemonSnapshot } from "@openpaths/tui/tools/daemon";
 
 const DEFAULT_READY_TIMEOUT_MS = 30_000;
 const STOP_TIMEOUT_MS = 5_000;

@@ -23,7 +23,7 @@ import * as path from "node:path";
 import { Args, Command, Flags } from "@openpaths/utils/cli";
 import { installHelp as commandHelp } from "../cli/command-help";
 import { type PluginAction, type PluginCommandArgs, runPluginCommand } from "../cli/plugin-cli";
-import { initTheme } from "../modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 
 /**
  * Heuristic used to decide whether `op install <target>` should `link` a

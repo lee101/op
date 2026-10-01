@@ -1,5 +1,5 @@
 import { $which } from "@openpaths/utils";
-import { theme } from "../../modes/theme/theme";
+import { theme } from "@openpaths/tui/theme";
 import type { DoctorCheck } from "./types";
 
 export async function runDoctorChecks(): Promise<DoctorCheck[]> {

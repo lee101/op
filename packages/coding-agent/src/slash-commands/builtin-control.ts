@@ -1,4 +1,5 @@
-import { runPauseScreen } from "../modes/components/pause-screen";
+import { runPauseScreen } from "@openpaths/tui/overlays/pause-screen";
+import { clearSubmittedText } from "./helpers/draft";
 import { shutdownHandlerTui } from "./builtin-lifecycle";
 import { commandConsumed, errorMessage, usage } from "./helpers/parse";
 import type { SlashCommandSpec } from "./types";
@@ -34,7 +35,7 @@ export const BUILTIN_CONTROL_SLASH_COMMANDS: ReadonlyArray<SlashCommandSpec> = [
 
 			if (!toolName) {
 				runtime.ctx.showError("Usage: /force:<tool-name> [prompt]");
-				runtime.ctx.editor.setText("");
+				clearSubmittedText(runtime);
 				return;
 			}
 
@@ -43,11 +44,11 @@ export const BUILTIN_CONTROL_SLASH_COMMANDS: ReadonlyArray<SlashCommandSpec> = [
 				runtime.ctx.showStatus(`Next turn forced to use ${toolName}.`);
 			} catch (error) {
 				runtime.ctx.showError(errorMessage(error));
-				runtime.ctx.editor.setText("");
+				clearSubmittedText(runtime);
 				return;
 			}
 
-			runtime.ctx.editor.setText("");
+			clearSubmittedText(runtime);
 
 			// If a prompt was provided, pass it through as input
 			if (prompt) return { prompt };
@@ -57,15 +58,24 @@ export const BUILTIN_CONTROL_SLASH_COMMANDS: ReadonlyArray<SlashCommandSpec> = [
 		name: "live",
 		description: "Start Codex-backed realtime voice mode",
 		handleTui: async (_command, runtime) => {
-			runtime.ctx.editor.setText("");
+			clearSubmittedText(runtime);
 			await runtime.ctx.handleLiveCommand();
+		},
+	},
+	{
+		name: "record",
+		icon: "export",
+		description: "Start or stop recording this screen to a replayable file (op play)",
+		handleTui: async (_command, runtime) => {
+			clearSubmittedText(runtime);
+			await runtime.ctx.toggleRecording();
 		},
 	},
 	{
 		name: "pause",
 		description: "Freeze all agents (main, subagents, advisor) until resumed",
 		handleTui: async (_command, runtime) => {
-			runtime.ctx.editor.setText("");
+			clearSubmittedText(runtime);
 			await runPauseScreen(runtime.ctx);
 		},
 	},

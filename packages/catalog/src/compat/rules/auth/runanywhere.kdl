@@ -1,0 +1,9 @@
+auth "runanywhere" {
+	name "RunAnywhere (Wally Cloud)"
+	login "api-key" {
+		auth-url "https://console.runanywhere.ai"
+		instructions "Create a Cloud key on the RunAnywhere console's Cloud keys page"
+		prompt "Paste your RunAnywhere Cloud key" placeholder="sk-runa-..."
+		validate "models-endpoint" url="https://inference.runanywhere.ai/v1/models"
+	}
+}

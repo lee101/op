@@ -1,11 +1,12 @@
+import { createModelBrowserSource } from "../src/modes/model-browser-source";
 import { afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import { getBundledModel } from "@openpaths/catalog/models";
-import { KeybindingsManager } from "@openpaths/coding-agent/config/keybindings";
+import { KeybindingsManager } from "@openpaths/tui/app-keybindings";
 import type { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
-import { ModelHubComponent } from "@openpaths/coding-agent/modes/components/model-hub";
-import { SessionSelectorComponent } from "@openpaths/coding-agent/modes/components/session-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { ModelHubComponent } from "@openpaths/tui/overlays/model-hub";
+import { SessionSelectorComponent } from "@openpaths/tui/overlays/session-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import type { SessionInfo } from "@openpaths/coding-agent/session/session-listing";
 import { setKeybindings, type TUI } from "@openpaths/tui";
 
@@ -83,7 +84,7 @@ describe("component escape bindings", () => {
 			getProviderDiscoveryState: () => undefined,
 			refresh: async () => {},
 			refreshProvider: async () => {},
-			authStorage: { hasAuth: () => false },
+			authStorage: { keys: { source: () => undefined } },
 		} as unknown as ModelRegistry;
 		const ui = {
 			requestRender: vi.fn(),
@@ -91,11 +92,17 @@ describe("component escape bindings", () => {
 		} as unknown as TUI;
 		const onCancel = vi.fn();
 
-		const hub = new ModelHubComponent(ui, settings, modelRegistry, [{ model, thinkingLevel: "off" }], {
-			onAssign: () => {},
-			onUnassign: () => {},
-			onCancel,
-		});
+		const hub = new ModelHubComponent(
+			ui,
+			createModelBrowserSource(settings),
+			modelRegistry,
+			[{ model, thinkingLevel: "off" }],
+			{
+				onAssign: () => {},
+				onUnassign: () => {},
+				onCancel,
+			},
+		);
 
 		hub.handleInput("\x1b");
 		expect(onCancel).not.toHaveBeenCalled();

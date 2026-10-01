@@ -2,10 +2,10 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { Agent } from "@openpaths/agent-core";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import { ReadToolGroupComponent } from "@openpaths/coding-agent/modes/components/read-tool-group";
-import { ToolExecutionComponent } from "@openpaths/coding-agent/modes/components/tool-execution";
+import { ReadToolGroupComponent } from "@openpaths/tui/chat/read-tool-group";
+import { ToolExecutionComponent } from "@openpaths/tui/chat/tool-execution";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { buildSessionContext } from "@openpaths/coding-agent/session/session-context";

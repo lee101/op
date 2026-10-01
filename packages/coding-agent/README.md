@@ -1,6 +1,6 @@
 # @openpaths/coding-agent
 
-Core implementation package for the `op` coding agent in the `openpaths` monorepo.
+Core implementation package for the `op` coding agent in the `op` monorepo.
 
 For installation, setup, provider configuration, model roles, slash commands, and full CLI reference, see:
 - [Monorepo README (local)](../../README.md)

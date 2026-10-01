@@ -7,11 +7,11 @@
  */
 import type { Component } from "@openpaths/tui";
 import { Text } from "@openpaths/tui";
+import { formatJavaScriptForDisplay } from "@openpaths/tui/tools/eval-format/javascript";
 import type { RenderResultOptions } from "../../extensibility/custom-tools/types";
 import type { Theme } from "../../modes/theme/theme";
 import { Hasher, isFramedBlockComponent, markFramedBlockComponent, renderCodeCell, renderStatusLine } from "../../tui";
 import type { BrowserToolDetails } from "../browser";
-import { formatJavaScriptForDisplay } from "../eval-format/javascript";
 import { formatStyledTruncationWarning, stripOutputNotice } from "../output-meta";
 import { replaceTabs, shortenPath } from "../render-utils";
 

@@ -1,3 +1,4 @@
+import { agentTranscriptSource } from "@openpaths/coding-agent/modes/agent-hub-runtime";
 /**
  * Regression: the agent-hub chat transcript must not render SILENT_ABORT_MARKER verbatim.
  *
@@ -13,9 +14,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as AIError from "@openpaths/ai/error";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import { AgentTranscriptViewer } from "@openpaths/coding-agent/modes/components/agent-transcript-viewer";
-import type { ObservableSession } from "@openpaths/coding-agent/modes/session-observer-registry";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { AgentTranscriptViewer } from "@openpaths/tui/overlays/agent-transcript-viewer";
+import type { ObservableSession } from "@openpaths/tui/overlays/session-observer-registry";
+import { initTheme } from "@openpaths/tui/theme";
 import { AgentRegistry } from "@openpaths/coding-agent/registry/agent-registry";
 import { SILENT_ABORT_MARKER } from "@openpaths/coding-agent/session/messages";
 import type { TUI } from "@openpaths/tui";
@@ -37,7 +38,7 @@ function makeSubagentRegistry(sessions: ObservableSession[]) {
 		onChange: () => () => {},
 		setMainSession: () => {},
 		getActiveSubagentCount: () => sessions.filter(s => s.status === "active").length,
-	} as unknown as import("@openpaths/coding-agent/modes/session-observer-registry").SessionObserverRegistry;
+	} as unknown as import("@openpaths/tui/overlays/session-observer-registry").SessionObserverRegistry;
 }
 
 function makeViewer(sessionFile: string, observed: ObservableSession[]): AgentTranscriptViewer {
@@ -53,6 +54,7 @@ function makeViewer(sessionFile: string, observed: ObservableSession[]): AgentTr
 	});
 	const ui = { requestRender: () => {}, requestComponentRender: () => {} } as unknown as TUI;
 	return new AgentTranscriptViewer({
+		transcript: agentTranscriptSource,
 		agentId: SESSION_ID,
 		registry: agents,
 		observers: makeSubagentRegistry(observed),
@@ -76,7 +78,7 @@ describe("Agent hub silent-abort regression", () => {
 	beforeEach(async () => {
 		resetSettingsForTest();
 		await Settings.init({ inMemory: true });
-		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "op-overlay-test-"));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "omp-overlay-test-"));
 	});
 
 	afterEach(() => {

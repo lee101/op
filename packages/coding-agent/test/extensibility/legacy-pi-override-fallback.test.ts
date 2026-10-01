@@ -16,19 +16,10 @@ import {
 //
 // Follow-up (issue #3423): on Bun 1.3.14 the compiled binary's
 // `/$bunfs/...` paths are unreachable via every filesystem API, so
-// compiled-binary mode now routes through `op-legacy-pi-bundled:` virtual
+// compiled-binary mode now routes through `omp-legacy-pi-bundled:` virtual
 // specifiers instead. Those entries must always pass validation because
 // the bundled registry — not the filesystem — is the source of truth.
 describe("legacy pi compat package-root override validation (issue #2168)", () => {
-	it("keeps overrides whose filesystem targets exist", () => {
-		const candidates = {
-			"@openpaths/ai": "/tmp/exists-ai.js",
-			"@openpaths/utils": "/tmp/exists-utils.js",
-		};
-		const result = __validateLegacyPiPackageRootOverrides(candidates, () => true);
-		expect(result).toEqual(candidates);
-	});
-
 	it("drops overrides whose filesystem targets are missing on disk", () => {
 		const candidates = {
 			"@openpaths/ai": "/tmp/exists-ai.js",
@@ -50,28 +41,19 @@ describe("legacy pi compat package-root override validation (issue #2168)", () =
 		expect(result).not.toHaveProperty("@openpaths/tui");
 	});
 
-	it("drops every override when none of the filesystem targets exist", () => {
-		const candidates = {
-			"@openpaths/utils": "/$bunfs/root/packages/utils/src/index.js",
-			"@openpaths/tui": "/$bunfs/root/packages/tui/src/index.js",
-		};
-		const result = __validateLegacyPiPackageRootOverrides(candidates, () => false);
-		expect(result).toEqual({});
-	});
-
-	it("keeps virtual op-legacy-pi-bundled: entries without touching the filesystem (issue #3423)", () => {
+	it("keeps virtual omp-legacy-pi-bundled: entries without touching the filesystem (issue #3423)", () => {
 		// Bun 1.3.14 `fs.existsSync` returns false for every bunfs path, so the
 		// pre-#3423 fix dropped every override in compiled mode. The new
 		// virtual scheme is the source of truth in compiled-binary mode; the
 		// validator MUST short-circuit before any filesystem probe.
 		let probed = false;
 		const candidates = {
-			"@openpaths/ai": "op-legacy-pi-bundled:@openpaths/ai",
-			"@openpaths/coding-agent": "op-legacy-pi-bundled:@openpaths/coding-agent",
-			"@openpaths/agent-core": "op-legacy-pi-bundled:@openpaths/agent-core",
-			"@openpaths/natives": "op-legacy-pi-bundled:@openpaths/natives",
-			"@openpaths/tui": "op-legacy-pi-bundled:@openpaths/tui",
-			"@openpaths/utils": "op-legacy-pi-bundled:@openpaths/utils",
+			"@openpaths/ai": "omp-legacy-pi-bundled:@openpaths/ai",
+			"@openpaths/coding-agent": "omp-legacy-pi-bundled:@openpaths/coding-agent",
+			"@openpaths/agent-core": "omp-legacy-pi-bundled:@openpaths/agent-core",
+			"@openpaths/natives": "omp-legacy-pi-bundled:@openpaths/natives",
+			"@openpaths/tui": "omp-legacy-pi-bundled:@openpaths/tui",
+			"@openpaths/utils": "omp-legacy-pi-bundled:@openpaths/utils",
 		};
 		const result = __validateLegacyPiPackageRootOverrides(candidates, () => {
 			probed = true;
@@ -83,14 +65,14 @@ describe("legacy pi compat package-root override validation (issue #2168)", () =
 
 	it("mixes virtual and filesystem entries: virtuals always pass, filesystems gated", () => {
 		const candidates = {
-			"@openpaths/ai": "op-legacy-pi-bundled:@openpaths/ai",
+			"@openpaths/ai": "omp-legacy-pi-bundled:@openpaths/ai",
 			"@openpaths/coding-agent": "/dev/source/legacy-pi-coding-agent-shim.ts",
 			"@openpaths/tui": "/missing/path.ts",
 		};
 		const missing = new Set(["/missing/path.ts"]);
 		const result = __validateLegacyPiPackageRootOverrides(candidates, p => !missing.has(p));
 		expect(result).toEqual({
-			"@openpaths/ai": "op-legacy-pi-bundled:@openpaths/ai",
+			"@openpaths/ai": "omp-legacy-pi-bundled:@openpaths/ai",
 			"@openpaths/coding-agent": "/dev/source/legacy-pi-coding-agent-shim.ts",
 		});
 	});
@@ -109,7 +91,7 @@ describe("legacy pi compat typebox shim path resolution (issues #3414, #3423)", 
 			probed = true;
 			return false;
 		});
-		expect(result).toBe("op-legacy-pi-bundled:typebox");
+		expect(result).toBe("omp-legacy-pi-bundled:typebox");
 		expect(probed).toBe(false);
 	});
 

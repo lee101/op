@@ -5,6 +5,8 @@ import type {
 	SessionStorageWriter,
 	WriteTextAtomicOptions,
 } from "./session-storage";
+import { isAssistantMessageLine } from "./session-entries";
+import { enoent } from "./session-storage-errors";
 import {
 	overlayTitleSlotContent,
 	overlayTitleSlotPrefix,
@@ -48,15 +50,6 @@ interface EnqueueOptions {
 }
 
 const RESOLVED = Promise.resolve();
-
-function enoent(p: string): NodeJS.ErrnoException {
-	const err = new Error(`ENOENT: no such file, '${p}'`) as NodeJS.ErrnoException;
-	err.code = "ENOENT";
-	err.errno = -2;
-	err.path = p;
-	err.syscall = "open";
-	return err;
-}
 
 function matchesGlob(name: string, pattern: string): boolean {
 	if (pattern === "*") return true;
@@ -228,6 +221,13 @@ export class IndexedSessionStorage implements SessionStorage {
 		return [title ? overlayTitleSlotPrefix(prefix, prefixLimit, title) : prefix, suffix];
 	}
 
+	async hasAssistantTurn(path: string): Promise<boolean> {
+		for (const line of (await this.readText(path)).split("\n")) {
+			if (isAssistantMessageLine(line)) return true;
+		}
+		return false;
+	}
+
 	async writeText(path: string, content: string): Promise<void> {
 		await this.#awaitPath(path);
 		const previous = this.#index.get(path);
@@ -292,6 +292,10 @@ export class IndexedSessionStorage implements SessionStorage {
 		await this.#awaitPath(dst);
 		const entry = this.#index.get(src);
 		if (!entry) throw enoent(src);
+		if (src === dst) {
+			await this.#enqueuePath(src, () => this.#backend.move(src, dst, entry.mtimeMs), { trackDrain: false });
+			return;
+		}
 		const dstPrevious = this.#index.get(dst);
 		this.#index.delete(src);
 		this.#index.set(dst, { ...entry });

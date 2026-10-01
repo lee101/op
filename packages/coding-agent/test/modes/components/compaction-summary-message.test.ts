@@ -3,8 +3,8 @@ import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/s
 import {
 	createHandoffSummaryMessageComponent,
 	HandoffSummaryMessageComponent,
-} from "@openpaths/coding-agent/modes/components/compaction-summary-message";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+} from "@openpaths/tui/chat/compaction-summary-message";
+import { initTheme } from "@openpaths/tui/theme";
 import type { CustomMessage } from "@openpaths/coding-agent/session/messages";
 
 beforeAll(async () => {
@@ -39,8 +39,7 @@ describe("handoff summary divider", () => {
 
 		expect(component).toBeInstanceOf(HandoffSummaryMessageComponent);
 		const collapsed = Bun.stripANSI(component!.render(80).join("\n"));
-		expect(collapsed).toContain("handoff");
-		expect(collapsed).toContain("ctrl+o");
+		expect(collapsed).toContain("handed-off");
 		expect(collapsed).not.toContain("[handoff]");
 		expect(collapsed).not.toContain("Continue the resize fix");
 	});

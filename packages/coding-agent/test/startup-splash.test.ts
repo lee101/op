@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { runStartupSplash } from "@openpaths/coding-agent/modes/setup-wizard/startup-splash";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { runStartupSplash } from "@openpaths/tui/setup/startup-splash";
+import { initTheme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import { shouldShowStartupSplash } from "@openpaths/coding-agent/startup-splash";
 import type { Component } from "@openpaths/tui";

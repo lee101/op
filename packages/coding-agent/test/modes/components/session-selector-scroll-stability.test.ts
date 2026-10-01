@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { SessionSelectorComponent } from "@openpaths/coding-agent/modes/components/session-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { SessionSelectorComponent } from "@openpaths/tui/overlays/session-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import type { SessionInfo } from "@openpaths/coding-agent/session/session-listing";
 import { TUI } from "@openpaths/tui";
 import { StressRenderScheduler } from "../../../../tui/test/render-stress-scheduler";

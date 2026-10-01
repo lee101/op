@@ -1,10 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import { StatusLineComponent } from "@openpaths/coding-agent/modes/components/status-line";
-import { initTheme, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { StatusLineComponent } from "@openpaths/tui/status-line";
+import { statusLineHost } from "@openpaths/coding-agent/modes/status-line-host";
+import { initTheme, theme } from "@openpaths/tui/theme";
 import { getProjectDir, setProjectDir } from "@openpaths/utils";
+import { StatusLineTestComponents } from "./helpers/status-line";
 
 const originalProjectDir = getProjectDir();
+const statusLines = new StatusLineTestComponents();
 
 beforeAll(async () => {
 	resetSettingsForTest();
@@ -13,6 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
+	statusLines.dispose();
 	resetSettingsForTest();
 	setProjectDir(originalProjectDir);
 });
@@ -52,7 +56,7 @@ function makeSession() {
 }
 
 function buildComponent(transparent: boolean) {
-	const component = new StatusLineComponent(makeSession());
+	const component = statusLines.track(new StatusLineComponent(makeSession(), statusLineHost));
 	component.updateSettings({
 		preset: "custom",
 		leftSegments: ["pi"],

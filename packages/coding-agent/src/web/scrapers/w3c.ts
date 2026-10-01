@@ -1,7 +1,6 @@
-import { tryParseJson } from "@openpaths/utils";
+import { asRecord, tryParseJson } from "@openpaths/utils";
 import type { RenderResult, SpecialHandler } from "./types";
 import { buildResult, htmlToBasicMarkdown, loadPage } from "./types";
-import { asRecord } from "./utils";
 
 type JsonRecord = Record<string, unknown>;
 

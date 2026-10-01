@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
-import * as themeModule from "@openpaths/coding-agent/modes/theme/theme";
+import * as themeModule from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 import { UiHelpers } from "@openpaths/coding-agent/modes/utils/ui-helpers";
 import type { Component } from "@openpaths/tui";

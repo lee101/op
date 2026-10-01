@@ -196,6 +196,6 @@ export async function linkPlugin(localPath: string): Promise<void> {
 		if (!isEnoent(err)) throw err;
 	}
 
-	// Create symlink using fs instead of shell command
-	await fs.symlink(absolutePath, linkPath);
+	// Junction on Windows: a plain directory symlink EPERMs outside developer mode.
+	await fs.symlink(absolutePath, linkPath, process.platform === "win32" ? "junction" : "dir");
 }

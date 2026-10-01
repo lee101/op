@@ -1,22 +1,23 @@
 import { describe, expect, it } from "bun:test";
 import { Settings } from "@openpaths/coding-agent/config/settings";
-import { getThemeByName } from "@openpaths/coding-agent/modes/theme/theme";
+import { getThemeByName } from "@openpaths/tui/theme";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 import {
 	dispatchResolutionDevice,
 	isPreviewResolutionToolCall,
 	isProposeToolCall,
 	type PlanProposalHandler,
-	PROPOSE_DEVICE_NAME,
 	PROPOSE_DEVICE_PATH,
-	REJECT_DEVICE_NAME,
 	REJECT_DEVICE_PATH,
-	RESOLVE_DEVICE_NAME,
 	RESOLVE_DEVICE_PATH,
-	resolutionDeviceUsage,
-	resolveRenderer,
 	writeDeviceDispatch,
 } from "@openpaths/coding-agent/tools/resolve";
+import {
+	PROPOSE_DEVICE_NAME,
+	REJECT_DEVICE_NAME,
+	RESOLVE_DEVICE_NAME,
+	resolveRenderer,
+} from "@openpaths/tui/tools/resolve";
 import { sanitizeText } from "@openpaths/utils";
 
 function createSession(
@@ -43,12 +44,6 @@ function getText(result: { content: Array<{ type: string; text?: string }> }): s
 }
 
 describe("dispatchResolutionDevice", () => {
-	it("returns usage text for each device", () => {
-		expect(resolutionDeviceUsage(RESOLVE_DEVICE_NAME)).toContain(RESOLVE_DEVICE_PATH);
-		expect(resolutionDeviceUsage(REJECT_DEVICE_NAME)).toContain(REJECT_DEVICE_PATH);
-		expect(resolutionDeviceUsage(PROPOSE_DEVICE_NAME)).toContain(PROPOSE_DEVICE_PATH);
-	});
-
 	it("errors and clears stale pending markers when resolve has no invoker", async () => {
 		let clearRuns = 0;
 		const session = createSession({

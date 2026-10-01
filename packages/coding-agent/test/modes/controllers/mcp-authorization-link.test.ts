@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { stripVTControlCharacters } from "node:util";
 import { resetSettingsForTest, Settings, settings } from "@openpaths/coding-agent/config/settings";
 import { MCPAuthorizationLinkPrompt } from "@openpaths/coding-agent/modes/controllers/mcp-command-controller";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import { visibleWidth } from "@openpaths/tui";
+
+import { cfgTuiHyperlinks } from "@openpaths/coding-agent/modes/settings";
 
 const OSC = "\x1b]";
 const BEL = "\x07";
@@ -57,7 +59,7 @@ describe("MCPAuthorizationLinkPrompt", () => {
 	});
 
 	afterEach(() => {
-		settings.clearOverride("tui.hyperlinks");
+		cfgTuiHyperlinks.clearOverride(settings);
 		resetSettingsForTest();
 	});
 

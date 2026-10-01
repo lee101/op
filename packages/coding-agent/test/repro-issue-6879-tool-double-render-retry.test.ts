@@ -4,7 +4,7 @@ import type { AssistantMessage, ToolCall } from "@openpaths/ai";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import type { AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";

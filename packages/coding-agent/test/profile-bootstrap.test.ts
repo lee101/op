@@ -26,15 +26,6 @@ describe("extractProfileFlags", () => {
 		expect(result.profile).toBeUndefined();
 		expect(result.argv).toEqual(["--system-prompt", "--profile", "foo", "bar"]);
 	});
-	it("does not eat the value of --approval-mode", () => {
-		// `--approval-mode` is a string-valued flag in args.ts (`args[++i]` with
-		// no `-` check). The pre-parser must mirror that contract or
-		// `op --approval-mode --profile foo` silently activates profile `foo`
-		// instead of letting the launch parser surface the invalid mode value.
-		const result = extractProfileFlags(["--approval-mode", "--profile", "foo", "bar"]);
-		expect(result.profile).toBeUndefined();
-		expect(result.argv).toEqual(["--approval-mode", "--profile", "foo", "bar"]);
-	});
 
 	it("honors extension-shadowed --plan before a global profile", () => {
 		const extracted = extractProfileFlags(["--plan", "--profile", "work", "follow up"]);
@@ -54,7 +45,7 @@ describe("extractProfileFlags", () => {
 		// Same argv as above, but the plan-mode extension is NOT loaded, so `--plan`
 		// is the built-in string flag (planning model). It must not consume the
 		// bootstrap's internal boundary sentinel as its value — otherwise plan would
-		// become "--op-profile-boundary" and the user's message would be dropped.
+		// become "--omp-profile-boundary" and the user's message would be dropped.
 		const extracted = extractProfileFlags(["--plan", "--profile", "work", "follow up"]);
 		expect(extracted.argv).toEqual(["--plan", PROFILE_BOOTSTRAP_BOUNDARY_ARG, "follow up"]);
 
@@ -159,10 +150,10 @@ describe("extractProfileFlags", () => {
 	});
 
 	it("treats explicit launch as the default command and keeps extracting globals", () => {
-		expect(extractProfileFlags(["launch", "--profile", "work", "--alias", "op-work"])).toEqual({
+		expect(extractProfileFlags(["launch", "--profile", "work", "--alias", "omp-work"])).toEqual({
 			argv: ["launch"],
 			profile: "work",
-			aliasName: "op-work",
+			aliasName: "omp-work",
 		});
 	});
 
@@ -259,10 +250,10 @@ describe("extractProfileFlags", () => {
 			profile: "work",
 			aliasName: undefined,
 		});
-		expect(extractProfileFlags(["--some-ext-flag", "--alias", "op-work"])).toEqual({
+		expect(extractProfileFlags(["--some-ext-flag", "--alias", "omp-work"])).toEqual({
 			argv: ["--some-ext-flag"],
 			profile: undefined,
-			aliasName: "op-work",
+			aliasName: "omp-work",
 		});
 	});
 

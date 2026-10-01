@@ -1,3 +1,4 @@
+import { afterEach, beforeEach } from "bun:test";
 import * as os from "node:os";
 import * as path from "node:path";
 import type { Model } from "@openpaths/ai/types";
@@ -82,7 +83,7 @@ export interface AuthGatewayE2EStatus {
 
 export const AUTH_GATEWAY_E2E_URL = Bun.env.OP_E2E_GATEWAY_URL ?? "http://127.0.0.1:4000";
 
-const AUTH_GATEWAY_TOKEN_PATH = path.join(os.homedir(), ".op", "auth-gateway.token");
+const AUTH_GATEWAY_TOKEN_PATH = path.join(os.homedir(), ".omp", "auth-gateway.token");
 const AUTH_GATEWAY_HEALTH_TIMEOUT_MS = 500;
 
 let authGatewayE2EStatus: Promise<AuthGatewayE2EStatus> | undefined;
@@ -113,4 +114,30 @@ async function readAuthGatewayE2EStatus(): Promise<AuthGatewayE2EStatus> {
 		return { ok: false, reason: `healthz unreachable: ${msg}` };
 	}
 	return { ok: true, token };
+}
+
+/**
+ * Neutralize `ANTHROPIC_BASE_URL` for the calling test file.
+ *
+ * The variable reroutes the effective Anthropic endpoint, and every
+ * "official endpoint" behavior — eager tool-input streaming, long cache
+ * retention, the Cowork TLS profile, the Claude Code session header — switches
+ * off once it points elsewhere. A contributor running a gateway, or running the
+ * suite from inside another agent, otherwise sees these tests fail on a clean
+ * checkout. Tests that exercise gateway routing set the variable explicitly
+ * with `withEnv` inside the test body, which still wins over this reset.
+ */
+export function withOfficialAnthropicEndpoint(): void {
+	let previous: string | undefined;
+	beforeEach(() => {
+		previous = Bun.env.ANTHROPIC_BASE_URL;
+		delete Bun.env.ANTHROPIC_BASE_URL;
+	});
+	afterEach(() => {
+		if (previous === undefined) {
+			delete Bun.env.ANTHROPIC_BASE_URL;
+		} else {
+			Bun.env.ANTHROPIC_BASE_URL = previous;
+		}
+	});
 }

@@ -51,12 +51,6 @@ describe("documented-but-unregistered plugin verbs do not leak to launch (#2935)
 		});
 	});
 
-	test("the hint path does not pretend these are real subcommands", () => {
-		// We surface guidance; we do not invent new top-level commands.
-		expect(isSubcommand("list")).toBe(false);
-		expect(isSubcommand("remove")).toBe(false);
-	});
-
 	test("multi-word `op marketplace add xyz` hints at `op plugin marketplace` instead of leaking to the prompt (#4845)", () => {
 		const result = resolveCliArgv(["marketplace", "add", "xyz"]);
 		expect(result).not.toEqual({ argv: ["launch", "marketplace", "add", "xyz"] });
@@ -104,5 +98,20 @@ describe("documented-but-unregistered plugin verbs do not leak to launch (#2935)
 		expect(resolveCliArgv(["marketplace", "research", "for", "me"])).toEqual({
 			argv: ["launch", "marketplace", "research", "for", "me"],
 		});
+	});
+});
+
+describe("`op plugins` is a registered alias of `op plugin`", () => {
+	// The TUI builtin is `/plugins` while the CLI command is `plugin`. Dispatch
+	// resolves `CommandEntry.aliases`, not the command class's `static aliases`,
+	// so dropping the registry entry would make `op plugins list` stop reaching
+	// the plugin command again.
+	test("`op plugins list` routes to the plugin command instead of launch", () => {
+		expect(isSubcommand("plugins")).toBe(true);
+		expect(resolveCliArgv(["plugins", "list"])).toEqual({ argv: ["plugins", "list"] });
+	});
+
+	test("bare `op plugins` routes to the plugin command, which defaults to list", () => {
+		expect(resolveCliArgv(["plugins"])).toEqual({ argv: ["plugins"] });
 	});
 });

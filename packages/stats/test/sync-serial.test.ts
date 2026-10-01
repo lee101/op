@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { syncAllSessions } from "@openpaths/stats/aggregator";
-import { getOverallStats } from "@openpaths/stats/db";
+import { getOverallStats } from "@openpaths/stats/rollup";
 import { getSessionsDir } from "@openpaths/utils";
 import { installStatsTestIsolation } from "./helpers/temp-agent";
 

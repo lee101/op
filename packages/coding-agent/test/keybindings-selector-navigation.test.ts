@@ -1,17 +1,18 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "bun:test";
 import type { AgentMessage } from "@openpaths/agent-core";
-import { KeybindingsManager } from "@openpaths/coding-agent/config/keybindings";
-import { ExtensionList } from "@openpaths/coding-agent/modes/components/extensions/extension-list";
-import type { Extension } from "@openpaths/coding-agent/modes/components/extensions/types";
-import { HistorySearchComponent } from "@openpaths/coding-agent/modes/components/history-search";
-import { SessionSelectorComponent } from "@openpaths/coding-agent/modes/components/session-selector";
-import { TreeSelectorComponent } from "@openpaths/coding-agent/modes/components/tree-selector";
-import { UserMessageSelectorComponent } from "@openpaths/coding-agent/modes/components/user-message-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { KeybindingsManager } from "@openpaths/tui/app-keybindings";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
+import { ExtensionList } from "@openpaths/tui/overlays/extensions/extension-list";
+import type { Extension } from "@openpaths/tui/overlays/extensions/types";
+import { HistorySearchComponent } from "@openpaths/tui/overlays/history-search";
+import { RewindSelectorComponent } from "@openpaths/tui/overlays/rewind-selector";
+import { SessionSelectorComponent } from "@openpaths/tui/overlays/session-selector";
+import { TreeSelectorComponent } from "@openpaths/tui/overlays/tree-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import { HistoryStorage } from "@openpaths/coding-agent/session/history-storage";
-import type { SessionTreeNode } from "@openpaths/coding-agent/session/session-entries";
+import type { SessionMessageEntry, SessionTreeNode } from "@openpaths/coding-agent/session/session-entries";
 import type { SessionInfo } from "@openpaths/coding-agent/session/session-listing";
-import { setKeybindings } from "@openpaths/tui";
+import { setKeybindings, type TUI } from "@openpaths/tui";
 import { TempDir } from "@openpaths/utils";
 
 const CTRL_N = "\x0e";
@@ -29,7 +30,7 @@ beforeAll(() => {
 
 afterEach(async () => {
 	setKeybindings(KeybindingsManager.inMemory());
-	HistoryStorage.resetInstance();
+	HistoryStorage.close();
 	await Bun.sleep(0);
 	await Promise.all(tempDirs.splice(0).map(tempDir => tempDir.remove().catch(() => {})));
 });
@@ -96,7 +97,7 @@ function createExtension(id: string, displayName: string): Extension {
 async function createHistoryStorage(prompts: string[]): Promise<HistoryStorage> {
 	const dir = TempDir.createSync("@op-history-nav-");
 	tempDirs.push(dir);
-	HistoryStorage.resetInstance();
+	HistoryStorage.close();
 	const storage = HistoryStorage.open(dir.join("history.db"));
 	// add() batches writes behind a 100ms AsyncDrain timer. Drive that timer with
 	// fake timers so the flush is instant instead of waiting real wall-clock time.
@@ -305,23 +306,34 @@ describe("selector navigation keybindings", () => {
 		expect(selected).toEqual(["node-20", "node-0"]);
 	});
 
-	it("uses tui.select.up in the user message selector", () => {
-		setKeybindings(TEST_KEYBINDINGS);
-		const selected: string[] = [];
-		const selector = new UserMessageSelectorComponent(
-			[
-				{ id: "first", text: "First" },
-				{ id: "second", text: "Second" },
-				{ id: "third", text: "Third" },
-			],
-			id => selected.push(id),
-			() => {},
-		);
+	it("uses tui.select.up in the esc-esc rewind selector", async () => {
+		await Settings.init({ inMemory: true, cwd: process.cwd() });
+		try {
+			setKeybindings(TEST_KEYBINDINGS);
+			const selected: string[] = [];
+			const ids = ["first", "second", "third"];
+			const entries: SessionMessageEntry[] = ids.map((id, index) => ({
+				type: "message",
+				id,
+				parentId: index === 0 ? null : ids[index - 1]!,
+				timestamp: "2024-01-01T00:00:00Z",
+				message: { role: "user", content: `${id} prompt`, timestamp: 1 },
+			}));
+			const selector = new RewindSelectorComponent(entries, {
+				ui: { requestRender: () => {}, requestComponentRender: () => {} } as unknown as TUI,
+				cwd: "/tmp",
+				requestRender: () => {},
+				onSelect: id => selected.push(id),
+				onCancel: () => {},
+			});
 
-		selector.getMessageList().handleInput(CTRL_P);
-		selector.getMessageList().handleInput("\n");
+			selector.handleInput(CTRL_P);
+			selector.handleInput("\n");
 
-		expect(selected).toEqual(["second"]);
+			expect(selected).toEqual(["second"]);
+		} finally {
+			resetSettingsForTest();
+		}
 	});
 
 	it("uses tui.select.down in the extension list", () => {
@@ -331,6 +343,19 @@ describe("selector navigation keybindings", () => {
 		list.handleInput(CTRL_N);
 
 		expect(list.getSelectedExtension()?.id).toBe("tool-a");
+	});
+
+	it("appends bare j/k to the extension search filter instead of navigating", () => {
+		setKeybindings(TEST_KEYBINDINGS);
+		const list = new ExtensionList([
+			createExtension("jira", "Jira"),
+			createExtension("json", "JSON"),
+			createExtension("apple", "Apple"),
+		]);
+
+		for (const ch of "jira") list.handleInput(ch);
+
+		expect(list.getSearchQuery()).toBe("jira");
 	});
 
 	it("uses tui.select.down in history search", async () => {

@@ -25,9 +25,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 import type { ImageContent } from "@openpaths/ai";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import { CustomEditor } from "@openpaths/coding-agent/modes/components/custom-editor";
+import { CustomEditor } from "@openpaths/tui/prompt/custom-editor";
 import { InputController } from "@openpaths/coding-agent/modes/controllers/input-controller";
-import { getEditorTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { getEditorTheme } from "@openpaths/tui/theme";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 
 const BRACKETED_PASTE_START = "\x1b[200~";

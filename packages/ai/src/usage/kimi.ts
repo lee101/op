@@ -10,6 +10,7 @@ import type {
 	UsageProvider,
 	UsageReport,
 	UsageWindow,
+	UsageUnit,
 } from "../usage";
 import { isRecord } from "../utils";
 import { parseIsoTimestamp, usageStatus } from "./shared";
@@ -21,11 +22,13 @@ const USAGE_PATH = "usages";
 
 interface KimiUsagePayload {
 	usage?: unknown;
+	usages?: unknown;
 	limits?: unknown;
 }
 
 type KimiUsageRow = {
 	label: string;
+	unit: UsageUnit;
 	used?: number;
 	limit?: number;
 	remaining?: number;
@@ -136,6 +139,7 @@ function buildUsageRow(data: Record<string, unknown>, defaultLabel: string, nowM
 				: typeof data.title === "string" && data.title
 					? data.title
 					: defaultLabel,
+		unit: "unknown",
 		used,
 		limit,
 		remaining,
@@ -143,8 +147,26 @@ function buildUsageRow(data: Record<string, unknown>, defaultLabel: string, nowM
 	};
 }
 
+function buildAggregateUsageRow(key: string, data: Record<string, unknown>, nowMs: number): KimiUsageRow | null {
+	const usedRatio = toNumber(data.used_ratio);
+	if (usedRatio === undefined) return null;
+
+	const usedFraction = Math.min(Math.max(usedRatio, 0), 1);
+	const label = key === "limit_month_total" ? "Monthly total" : key === "limit_month_code" ? "Monthly code" : key;
+	const resetsAt = parseResetTime(data, nowMs);
+	return {
+		label,
+		unit: "percent",
+		used: usedFraction * 100,
+		limit: 100,
+		remaining: (1 - usedFraction) * 100,
+		resetsAt,
+		window: { id: key, label, resetsAt },
+	};
+}
+
 function buildUsageAmount(row: KimiUsageRow): UsageAmount {
-	const amount: UsageAmount = { unit: "unknown" };
+	const amount: UsageAmount = { unit: row.unit };
 	if (row.limit !== undefined) amount.limit = row.limit;
 	if (row.used !== undefined) amount.used = row.used;
 	if (row.remaining !== undefined) amount.remaining = row.remaining;
@@ -224,6 +246,15 @@ function parseUsagePayload(payload: unknown, nowMs: number): { rows: KimiUsageRo
 				rows.push(row);
 			}
 		});
+	}
+
+	if (isRecord(data.usages)) {
+		for (const key in data.usages) {
+			const aggregate = data.usages[key];
+			if (key === "limit_5h" || !isRecord(aggregate)) continue;
+			const row = buildAggregateUsageRow(key, aggregate, nowMs);
+			if (row) rows.push(row);
+		}
 	}
 
 	return { rows, raw: data };

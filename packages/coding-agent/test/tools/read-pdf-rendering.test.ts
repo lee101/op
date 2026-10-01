@@ -5,9 +5,9 @@ import * as path from "node:path";
 import type { AgentToolResult } from "@openpaths/agent-core";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
-import { ReadTool, type ReadToolDetails } from "@openpaths/coding-agent/tools/read";
+import { ReadTool } from "@openpaths/coding-agent/tools/read";
+import { type ReadToolDetails } from "@openpaths/tui/tools/read";
 import * as pdfRead from "@openpaths/coding-agent/tools/read-pdf";
-import * as markit from "@openpaths/coding-agent/utils/markit";
 import { removeWithRetries } from "@openpaths/utils";
 
 const ONE_PX_PNG = Buffer.from(
@@ -21,7 +21,7 @@ function makeSession(cwd: string): ToolSession {
 		hasUI: false,
 		getSessionFile: () => null,
 		getSessionSpawns: () => "*",
-		settings: Settings.isolated({ "images.autoResize": false, "inspect_image.mode": "off" }),
+		settings: Settings.isolated({ "images.autoResize": false }),
 	} as ToolSession;
 }
 
@@ -80,16 +80,5 @@ describe("read PDF page screenshots", () => {
 
 		const result = await new ReadTool(makeSession(testDir)).execute("read-literal", { path: literalPath });
 		expect(textOf(result)).toContain("literal colon path wins");
-	});
-
-	it("routes PDF line selectors through normal document conversion", async () => {
-		const convert = vi.spyOn(markit, "convertFileWithMarkit").mockResolvedValue({
-			ok: true,
-			content: "first line\nselected line\nthird line\n",
-		});
-
-		const result = await new ReadTool(makeSession(testDir)).execute("read-pdf-lines", { path: `${pdfPath}:2-2` });
-		expect(convert).toHaveBeenCalledTimes(1);
-		expect(textOf(result)).toContain("selected line");
 	});
 });

@@ -3,7 +3,7 @@ import type { Api, Model } from "@openpaths/ai";
 import * as ai from "@openpaths/ai";
 import { getBundledModel } from "@openpaths/catalog/models";
 import { isSubcommand } from "@openpaths/coding-agent/cli-commands";
-import { getDefault, getEnumValues, getUi } from "@openpaths/coding-agent/config/settings-schema";
+import { lookup } from "@openpaths/coding-agent/config/registry";
 import { TinyTitleDownloadProgressComponent } from "@openpaths/coding-agent/modes/components/tiny-title-download-progress";
 import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
 import type { RefCountedWorkerHandle } from "@openpaths/coding-agent/subprocess/worker-client";
@@ -31,6 +31,11 @@ import type { TinyTitleWorkerInbound, TinyTitleWorkerOutbound } from "@openpaths
 import { generateSessionTitle } from "@openpaths/coding-agent/utils/title-generator";
 import type { Subprocess } from "bun";
 
+const setting = (id: string) => {
+	const found = lookup(id);
+	if (!found) throw new Error(`Unknown setting "${id}"`);
+	return found;
+};
 function getModelOrThrow(id: string): Model<Api> {
 	const model = getBundledModel("anthropic", id);
 	if (!model) throw new Error(`Expected model ${id}`);
@@ -308,23 +313,26 @@ describe("tiny title subprocess", () => {
 
 describe("providers.tinyModel schema", () => {
 	it("keeps enum values and UI options in sync with the tiny model registry", () => {
-		expect(getEnumValues("providers.tinyModel")).toEqual([...TINY_TITLE_MODEL_VALUES]);
-		expect(getUi("providers.tinyModel")?.options).toEqual(TINY_TITLE_MODEL_OPTIONS);
-		expect(getDefault("providers.tinyModel")).toBe(ONLINE_TINY_TITLE_MODEL_KEY);
+		const tinyModel = setting("providers.tinyModel");
+		expect(tinyModel.enumValues).toEqual([...TINY_TITLE_MODEL_VALUES]);
+		expect(tinyModel.ui?.options).toEqual(TINY_TITLE_MODEL_OPTIONS);
+		expect(tinyModel.default).toBe(ONLINE_TINY_TITLE_MODEL_KEY);
 	});
 });
 
 describe("tiny model acceleration schema", () => {
 	it("keeps the device setting in sync with the device module constants", () => {
-		expect(getEnumValues("providers.tinyModelDevice")).toEqual([...TINY_MODEL_DEVICE_SETTING_VALUES]);
-		expect(getUi("providers.tinyModelDevice")?.options).toEqual(TINY_MODEL_DEVICE_SETTING_OPTIONS);
-		expect(getDefault("providers.tinyModelDevice")).toBe(TINY_MODEL_DEVICE_DEFAULT);
+		const device = setting("providers.tinyModelDevice");
+		expect(device.enumValues).toEqual([...TINY_MODEL_DEVICE_SETTING_VALUES]);
+		expect(device.ui?.options).toEqual(TINY_MODEL_DEVICE_SETTING_OPTIONS);
+		expect(device.default).toBe(TINY_MODEL_DEVICE_DEFAULT);
 	});
 
 	it("keeps the precision setting in sync with the dtype module constants", () => {
-		expect(getEnumValues("providers.tinyModelDtype")).toEqual([...TINY_MODEL_DTYPE_SETTING_VALUES]);
-		expect(getUi("providers.tinyModelDtype")?.options).toEqual(TINY_MODEL_DTYPE_SETTING_OPTIONS);
-		expect(getDefault("providers.tinyModelDtype")).toBe(TINY_MODEL_DTYPE_DEFAULT);
+		const dtype = setting("providers.tinyModelDtype");
+		expect(dtype.enumValues).toEqual([...TINY_MODEL_DTYPE_SETTING_VALUES]);
+		expect(dtype.ui?.options).toEqual(TINY_MODEL_DTYPE_SETTING_OPTIONS);
+		expect(dtype.default).toBe(TINY_MODEL_DTYPE_DEFAULT);
 	});
 });
 

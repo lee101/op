@@ -5,7 +5,7 @@ import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 import { submitInteractiveInput } from "@openpaths/coding-agent/main";
 import { InteractiveMode } from "@openpaths/coding-agent/modes/interactive-mode";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { HistoryStorage } from "@openpaths/coding-agent/session/history-storage";
@@ -53,7 +53,7 @@ describe("issue #927 optimistic pending spinner", () => {
 
 	afterEach(async () => {
 		mode?.stop();
-		HistoryStorage.resetInstance();
+		HistoryStorage.close();
 		vi.restoreAllMocks();
 		await session?.dispose();
 		authStorage?.close();

@@ -45,6 +45,7 @@
 import { registerCustomApi } from "../api-registry";
 import * as AIError from "../error";
 import type {
+	AnthropicFallbackCreditHandle,
 	Api,
 	AssistantMessage,
 	Context,
@@ -85,6 +86,8 @@ export interface MockResponse {
 	stopReason?: StopReason;
 	/** Structured terminal stop classification, e.g. Anthropic refusal metadata. */
 	stopDetails?: StopDetails | null;
+	/** In-memory fallback credit handle attached when a refusal response carries a fallback credit token. */
+	fallbackCreditHandle?: AnthropicFallbackCreditHandle;
 	/** Error text paired with an explicit `"error"` stop reason. */
 	errorMessage?: string;
 	/** Usage stats. Missing fields default to 0; missing `cost.total` is recomputed from components. */
@@ -397,6 +400,7 @@ async function runMock(
 
 	partial.stopReason = reason;
 	partial.stopDetails = response.stopDetails;
+	partial.fallbackCreditHandle = response.fallbackCreditHandle;
 	partial.errorMessage = response.errorMessage;
 	partial.usage = mergeUsage(response.usage);
 	partial.duration = performance.now() - perfStart;

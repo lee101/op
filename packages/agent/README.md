@@ -1,17 +1,17 @@
-# @openpaths/agent
+# @openpaths/agent-core
 
 Stateful agent with tool execution and event streaming. Built on `@openpaths/ai`.
 
 ## Installation
 
 ```bash
-npm install @openpaths/agent
+npm install @openpaths/agent-core
 ```
 
 ## Quick Start
 
 ```typescript
-import { Agent } from "@openpaths/agent";
+import { Agent } from "@openpaths/agent-core";
 import { getModel } from "@openpaths/ai";
 
 const agent = new Agent({
@@ -154,8 +154,9 @@ const agent = new Agent({
   // Dynamic model-scoped API key resolution (for expiring OAuth tokens)
   getApiKey: async (model) => tokenForModel(model),
 
-  // Tool execution context (late-bound UI/session access)
-  getToolContext: () => ({ /* app-defined */ }),
+  // Tool execution context (late-bound UI/session access). Surface the loop's
+  // passive-context sink so tools can call ctx.addAdditionalContext(...).
+  getToolContext: toolCall => ({ addAdditionalContext: toolCall?.addAdditionalContext /* app-defined */ }),
 });
 ```
 
@@ -250,12 +251,16 @@ agent.followUp({
 Steering messages are checked after each tool call by default. Set `interruptMode` to `"wait"` to defer
 steering until the current turn completes.
 
+Hosts can use `setQueuedMessageGrouping((previous, next) => boolean)` to keep adjacent companion
+records and their prompt together in `one-at-a-time` mode. Without a grouping predicate, records
+remain separate. `replaceQueue("steering" | "followUp", messages)` replaces only the selected queue.
+
 ## Custom Message Types
 
 Extend `AgentMessage` via declaration merging:
 
 ```typescript
-declare module "@openpaths/agent" {
+declare module "@openpaths/agent-core" {
 	interface CustomAgentMessages {
 		notification: { role: "notification"; text: string; timestamp: number };
 	}
@@ -328,7 +333,7 @@ Thrown errors are caught by the agent and reported to the LLM as tool errors wit
 For browser apps that proxy through a backend:
 
 ```typescript
-import { Agent, streamProxy } from "@openpaths/agent";
+import { Agent, streamProxy } from "@openpaths/agent-core";
 
 const agent = new Agent({
 	streamFn: (model, context, options) =>
@@ -345,7 +350,7 @@ const agent = new Agent({
 For direct control without the Agent class:
 
 ```typescript
-import { agentLoop, agentLoopContinue } from "@openpaths/agent";
+import { agentLoop, agentLoopContinue } from "@openpaths/agent-core";
 
 const context: AgentContext = {
 	systemPrompt: ["You are helpful."],
@@ -445,7 +450,7 @@ fold N summaries with `aggregateAgentRunSummaries` / `aggregateAgentRunCoverage`
 import {
 	aggregateAgentRunSummaries,
 	aggregateAgentRunCoverage,
-} from "@openpaths/agent";
+} from "@openpaths/agent-core";
 
 const summaries: AgentRunSummary[] = [];
 const coverages: AgentRunCoverage[] = [];
@@ -461,7 +466,7 @@ const runCoverage = aggregateAgentRunCoverage(coverages);
 
 ### Tool status reporting
 
-`execute_tool` spans carry `pi.gen_ai.tool.status` ∈
+`execute_tool` spans carry `op.gen_ai.tool.status` ∈
 `"ok" | "error" | "skipped" | "blocked" | "timeout" | "aborted"`.
 `beforeToolCall` blocks throw a distinguishable `ToolCallBlockedError`
 internally; the catch path reports `status: "blocked"` instead of conflating

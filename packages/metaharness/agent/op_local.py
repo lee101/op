@@ -1,4 +1,4 @@
-"""Harbor agent that runs the LOCAL openpaths (`op`) build inside task containers.
+"""Harbor agent that runs the LOCAL `op` build inside task containers.
 
 Unlike Harbor's built-in `pi` agent (which `npm i -g @mariozechner/pi-coding-agent`),
 this runs the working tree at `/work/pi`. Install modes (`OP_BENCH_INSTALL`):
@@ -117,9 +117,9 @@ _patch_harbor_cleanup_cancellation()
 _patch_apple_container_dns()
 
 # Container-side staging paths (absolute; never depend on $HOME at write time).
-_TARBALL_DST = "/tmp/op-local.tgz"
-_MODELS_DST = "/tmp/op-models.yml"
-_CONFIG_DST = "/tmp/op-config.yml"
+_TARBALL_DST = "/tmp/omp-local.tgz"
+_MODELS_DST = "/tmp/omp-models.yml"
+_CONFIG_DST = "/tmp/omp-config.yml"
 _OUTPUT_FILENAME = "op.txt"
 
 # Provider → host env vars used in --no-gateway (direct-auth) mode only.
@@ -152,6 +152,22 @@ def _env(name: str, default: str = "") -> str:
 
 def _truthy(value: str) -> bool:
     return value.strip().lower() in ("1", "true", "yes", "on")
+
+
+def _yaml(tree: dict, indent: int = 0) -> str:
+    """Render a nested dict of scalars/lists as YAML (config.yml subset; no anchors or multiline strings)."""
+    pad = "  " * indent
+    out: list[str] = []
+    for key, value in tree.items():
+        if isinstance(value, dict):
+            out.append(f"{pad}{key}:")
+            out.append(_yaml(value, indent + 1))
+        elif isinstance(value, list):
+            out.append(f"{pad}{key}:")
+            out.extend(f"{pad}  - {json.dumps(item)}" for item in value)
+        else:
+            out.append(f"{pad}{key}: {json.dumps(value)}")
+    return "\n".join(out)
 
 
 def _loads(line: str) -> dict | None:
@@ -219,18 +235,23 @@ class OpLocal(BaseInstalledAgent):
         # JSON-array-encoded by the runner (OP_BENCH_AGENT_ARGS) so multi-word
         # values survive without a second layer of shell quoting.
         self._agent_args = self._parse_agent_args()
-        self._bun_version = _env("OP_BENCH_BUN_VERSION", "1.3.14")
+        self._bun_version = _env("OP_BENCH_BUN_VERSION", "1.4.0")
         self._gateway_on = _env("OP_BENCH_GATEWAY", "1") != "0"
 
         # web_search auth can't route through the gateway (dedicated provider creds);
         # off by default so search-using tasks don't false-negative on 401s.
         self._web_search = _truthy(_env("OP_BENCH_WEB_SEARCH", "0"))
+        # op tool allowlist (`--tools`); empty keeps op's default tool set.
+        self._tools = [t for t in _env("OP_BENCH_TOOLS", "").split(",") if t]
+        # Extra settings for the container config.yml: {"edit.mode": "sloppy", ...}.
+        raw_settings = _env("OP_BENCH_SETTINGS")
+        self._settings: dict[str, object] = json.loads(raw_settings) if raw_settings else {}
         # Extra env (PI_* dialect knobs, explicit --env) the runner forwards into
         # the in-container op run, JSON-encoded in OP_BENCH_FORWARD_ENV.
         self._forward_env = self._parse_forward_env()
         # Source-mount paths (defaults must match the runner's compose overlay).
-        self._source_dir = _env("OP_BENCH_SOURCE_DIR", "/opt/op/src")
-        self._source_bun = _env("OP_BENCH_SOURCE_BUN", "/opt/op/bin/bun")
+        self._source_dir = _env("OP_BENCH_SOURCE_DIR", "/opt/omp/src")
+        self._source_bun = _env("OP_BENCH_SOURCE_BUN", "/opt/omp/bin/bun")
         self._source_arch = _env("OP_BENCH_SOURCE_ARCH")
         # Resolved during install(); reused by version + run commands.
         self._home = "/root"
@@ -358,7 +379,7 @@ class OpLocal(BaseInstalledAgent):
                 "set -e; "
                 f"test -x {q(self._source_bun)} || {{ echo 'op source mode: bun mount missing' >&2; exit 5; }}; "
                 f"test -f {q(cli)} || {{ echo 'op source mode: repo mount missing' >&2; exit 5; }}; "
-                f"test -d {q(self._source_dir + '/node_modules/@openpaths')} || "
+                f"test -d {q(self._source_dir + '/node_modules/@oh-my-pi')} || "
                 "{ echo 'op source mode: linux deps mount missing' >&2; exit 5; }; "
                 f"{q(self._source_bun)} --version"
             ),
@@ -411,8 +432,8 @@ class OpLocal(BaseInstalledAgent):
                 f"binary mode: no op binary provided for container arch {arch}"
             )
         app_dir = f"{self._home}/.op-bench"
-        dst = f"{app_dir}/op"
-        staging = "/tmp/op-bin"
+        dst = f"{app_dir}/omp"
+        staging = "/tmp/omp-bin"
         await self.exec_as_agent(
             environment, command=f"mkdir -p {shlex.quote(app_dir)}"
         )
@@ -474,16 +495,25 @@ class OpLocal(BaseInstalledAgent):
         return "\n".join(lines)
 
     async def _write_config(self, environment: BaseEnvironment) -> None:
-        """Write $HOME/.op/agent/config.yml: the web_search toggle.
+        """Write $HOME/.op/agent/config.yml: the web_search and find toggles.
 
         web_search can't authenticate through the gateway, so it's off by default.
+        find is off by default in op; it is enabled only when the tool allowlist
+        names it (the judge role then needs credentials forwarded via --env).
         """
-        lines = [
-            "# Generated by metaharness runner.",
-            "web_search:",
-            f"  enabled: {'true' if self._web_search else 'false'}",
-        ]
-        content = "\n".join(lines)
+        tree: dict = {
+            "web_search": {"enabled": self._web_search},
+            "find": {"enabled": "find" in self._tools},
+        }
+        for dotted, value in self._settings.items():
+            node = tree
+            parts = dotted.split(".")
+            for part in parts[:-1]:
+                node = node.setdefault(part, {})
+                if not isinstance(node, dict):
+                    raise ValueError(f"setting {dotted!r} conflicts with a scalar parent")
+            node[parts[-1]] = value
+        content = "# Generated by metaharness runner.\n" + _yaml(tree)
         heredoc = f"cat > {_CONFIG_DST} <<'OP_CONFIG_EOF'\n{content}\nOMP_CONFIG_EOF"
         await self.exec_as_agent(environment, command=heredoc)
         await self.exec_as_agent(
@@ -562,15 +592,18 @@ class OpLocal(BaseInstalledAgent):
             parts.append("--auto-approve")
         if self._thinking:
             parts.append(f"--thinking {shlex.quote(self._thinking)}")
+        if self._tools:
+            parts.append(f"--tools {shlex.quote(','.join(self._tools))}")
         parts.extend(shlex.quote(arg) for arg in self._agent_args)
         # POSIX positional separator: some task prompts start with "-" (e.g. a
         # markdown bullet, as in pytorch-model-recovery). Without this, op parses
         # the prompt as an unknown flag and exits 2. `--` forces positional mode.
         parts.append("--")
         parts.append(shlex.quote(instruction))
-        # No pipes/stdbuf (absent in minimal images): redirect raw JSONL to the
-        # mounted agent log dir; populate_context_post_run parses it on the host.
-        run = " ".join(parts) + f" > /logs/agent/{_OUTPUT_FILENAME} 2>&1"
+        # No pipes/stdbuf (absent in minimal images): stdin is unused because the
+        # prompt is positional, so close it explicitly; redirect raw JSONL to the
+        # mounted agent log dir for populate_context_post_run to parse on the host.
+        run = " ".join(parts) + f" < /dev/null > /logs/agent/{_OUTPUT_FILENAME} 2>&1"
         # Exec env for the op run. Direct-auth (no-gateway) mode contributes the
         # selected providers' keys (via exec env, never argv); forwarded PI_* /
         # --env knobs apply last so an explicit --env always wins.

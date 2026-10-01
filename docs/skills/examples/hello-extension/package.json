@@ -1,7 +1,7 @@
 {
   "name": "hello-extension",
   "version": "1.0.0",
-  "description": "Minimal openpaths extension example",
+  "description": "Minimal op extension example",
   "homepage": "https://openpaths.io",
   "op": {
     "extensions": ["./index.ts"]

@@ -15,6 +15,7 @@ import {
 	unpackEnvelope,
 } from "@openpaths/coding-agent/collab/protocol";
 import { CollabSocket } from "@openpaths/coding-agent/collab/relay-client";
+import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { InteractiveModeContext } from "@openpaths/coding-agent/modes/types";
 
 interface RelayData {
@@ -24,7 +25,7 @@ interface RelayData {
 
 type RelaySocket = Bun.ServerWebSocket<RelayData>;
 
-/** Single-room relay mirroring the op-collab-relay forwarding contract. */
+/** Single-room relay mirroring the omp-collab-relay forwarding contract. */
 function startTestRelay(): { url: string; stop(): void } {
 	let host: RelaySocket | null = null;
 	const guests = new Map<number, RelaySocket>();
@@ -90,7 +91,7 @@ function makeStreamingHostContext(): StreamingHostHarness {
 	const prompts: CapturedPrompt[] = [];
 	const promptWaiters: ((prompt: CapturedPrompt) => void)[] = [];
 	const ctx = {
-		settings: { get: () => "" },
+		settings: Settings.isolated(),
 		sessionManager: {
 			getSessionId: () => "sess-1",
 			getCwd: () => "/tmp",

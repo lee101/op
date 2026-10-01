@@ -5,7 +5,7 @@
 import { Command, Flags } from "@openpaths/utils/cli";
 import { shellHelp as commandHelp } from "../cli/command-help";
 import { runShellCommand, type ShellCommandArgs } from "../cli/shell-cli";
-import { initTheme } from "../modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 
 export default class Shell extends Command {
 	static description = commandHelp.description;

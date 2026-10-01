@@ -5,7 +5,7 @@
 import { Args, Command, Flags } from "@openpaths/utils/cli";
 import { sshHelp as commandHelp } from "../cli/command-help";
 import { runSSHCommand, type SSHAction, type SSHCommandArgs } from "../cli/ssh-cli";
-import { initTheme } from "../modes/theme/theme";
+import { initTheme } from "@openpaths/tui/theme";
 
 const ACTIONS: SSHAction[] = ["add", "remove", "list"];
 

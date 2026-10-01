@@ -4,7 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import type { Model } from "@openpaths/ai";
 import { buildModel } from "@openpaths/catalog/build";
-import { RawSseDebugBuffer } from "@openpaths/coding-agent/debug/raw-sse-buffer";
+import { RawSseDebugBuffer } from "@openpaths/tui/apps/debug/raw-sse-buffer";
 import { createReportBundle } from "@openpaths/coding-agent/debug/report-bundle";
 import { getConfigRootDir, removeWithRetries, setAgentDir } from "@openpaths/utils";
 
@@ -46,7 +46,7 @@ afterEach(async () => {
 
 describe("raw SSE report bundle", () => {
 	it("includes captured raw SSE text and dropped-record disclosure", async () => {
-		cleanupRoot = await fs.mkdtemp(path.join(os.tmpdir(), "op-raw-sse-report-"));
+		cleanupRoot = await fs.mkdtemp(path.join(os.tmpdir(), "omp-raw-sse-report-"));
 		const xdgStateHome = path.join(cleanupRoot, "state");
 		await fs.mkdir(path.join(xdgStateHome, "op"), { recursive: true });
 		process.env.XDG_STATE_HOME = xdgStateHome;
@@ -64,7 +64,7 @@ describe("raw SSE report bundle", () => {
 			);
 		}
 		const rawSseText = buffer.toRawText();
-		expect(rawSseText).toContain(": op-debug-dropped records=");
+		expect(rawSseText).toContain(": omp-debug-dropped records=");
 		expect(rawSseText).toContain("event: message_delta");
 
 		const result = await createReportBundle({ sessionFile: undefined, rawSseText });

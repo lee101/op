@@ -12,13 +12,15 @@ import * as sdkModule from "@openpaths/coding-agent/sdk";
 import type { AgentSession, AgentSessionEvent, PromptOptions } from "@openpaths/coding-agent/session/agent-session";
 import { TaskTool } from "@openpaths/coding-agent/task";
 import * as discoveryModule from "@openpaths/coding-agent/task/discovery";
-import type { AgentDefinition, TaskParams } from "@openpaths/coding-agent/task/types";
+import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
+import type { TaskParams } from "@openpaths/tui/tools/task";
 import type { IsolationHandle, WorktreeBaseline } from "@openpaths/coding-agent/task/worktree";
 import * as worktreeModule from "@openpaths/coding-agent/task/worktree";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 import { removeWithRetries } from "@openpaths/utils";
 import "@openpaths/coding-agent/tools/yield";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
+import { createSessionDefaults } from "../helpers/session-defaults";
 
 const TEST_TASK: TaskParams = { agent: "task", name: "CheckLsp", task: "Inspect LSP tools." };
 
@@ -51,6 +53,7 @@ function createYieldingSession(): AgentSession {
 	};
 
 	return {
+		...createSessionDefaults(),
 		state,
 		agent: { state: { systemPrompt: ["test"] } },
 		model: undefined,
@@ -60,7 +63,6 @@ function createYieldingSession(): AgentSession {
 		},
 		getActiveToolNames: () => ["yield"],
 		getEnabledToolNames: () => ["yield"],
-		setActiveToolsByName: async () => {},
 		subscribe: (listener: (event: AgentSessionEvent) => void) => {
 			listeners.push(listener);
 			return () => {
@@ -80,19 +82,15 @@ function createYieldingSession(): AgentSession {
 				},
 				isError: false,
 			});
+			return true;
 		},
-		waitForIdle: async () => {},
 		getLastAssistantMessage: () => state.messages[state.messages.length - 1],
-		abort: async () => {},
-		dispose: async () => {},
-		setIrcWakeTurnObserver: () => {},
-		subscribeRunState: () => () => {},
 	} as unknown as AgentSession;
 }
 
 function createSession(
 	options: {
-		isolationMode?: "none" | "auto";
+		isolationEnabled?: boolean;
 		parentEnableLsp?: boolean;
 		planMode?: PlanModeState;
 		sessionFile?: string | null;
@@ -112,7 +110,7 @@ function createSession(
 		enableLsp: options.parentEnableLsp,
 		settings: Settings.isolated({
 			"async.enabled": false,
-			"task.isolation.mode": options.isolationMode ?? "none",
+			"task.isolation.enabled": options.isolationEnabled ?? false,
 			...(options.taskEnableLsp !== undefined ? { "task.enableLsp": options.taskEnableLsp } : {}),
 		}),
 		getSessionFile: () => options.sessionFile ?? null,
@@ -157,7 +155,7 @@ function mockIsolation(): void {
 	};
 	const isolationHandle: IsolationHandle = {
 		mergedDir: "/tmp/isolated-subagent",
-		backend: worktreeModule.parseIsolationMode("rcopy")!,
+		backend: worktreeModule.parseIsolationBackend("rcopy")!,
 		fellBack: false,
 		fallbackReason: null,
 	};
@@ -234,7 +232,7 @@ describe("subagent LSP availability", () => {
 		mockIsolation();
 		const { getOptions } = mockCreateAgentSession();
 
-		const tool = await TaskTool.create(createSession({ isolationMode: "auto" }));
+		const tool = await TaskTool.create(createSession({ isolationEnabled: true }));
 		await tool.execute("tool-call", { ...TEST_TASK, isolated: true });
 
 		expect(getOptions()?.cwd).toBe("/tmp/isolated-subagent");
@@ -251,10 +249,10 @@ describe("subagent LSP availability", () => {
 		});
 		mockIsolation();
 		const { getOptions } = mockCreateAgentSession();
-		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-isolated-session-cwd-"));
+		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-isolated-session-cwd-"));
 		try {
 			const parentSessionFile = path.join(tempDir, "parent.jsonl");
-			const tool = await TaskTool.create(createSession({ isolationMode: "auto", sessionFile: parentSessionFile }));
+			const tool = await TaskTool.create(createSession({ isolationEnabled: true, sessionFile: parentSessionFile }));
 			await tool.execute("tool-call", { ...TEST_TASK, isolated: true });
 
 			const sessionManager = getOptions()?.sessionManager as { getCwd?: () => string } | undefined;
@@ -285,7 +283,6 @@ describe("subagent LSP availability", () => {
 		expect(options?.restrictToolNames).toBe(true);
 		expect(options?.toolNames).toEqual(["read", "grep", "glob", "web_search", "ast_grep"]);
 		expect(options?.toolNames).not.toContain("lsp");
-		expect(options?.toolNames).not.toContain("hub");
 		expect(options?.toolNames).not.toContain("bash");
 		expect(options?.toolNames).not.toContain("memory_edit");
 		expect(options?.toolNames).not.toContain("retain");

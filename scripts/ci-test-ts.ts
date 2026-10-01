@@ -86,8 +86,6 @@ const codingAgentBucketPlans: Record<CodingAgentBucket, { label: string; paralle
 // their short TS suites can run together. CI still downloads the Linux x64 native
 // addon before this bucket: shared utility barrels may load native-backed modules.
 const fastWorkspacePackages = [
-	"packages/hashline",
-	"packages/wire",
 	"packages/optype",
 	"packages/utils",
 	"packages/catalog",
@@ -371,7 +369,7 @@ async function commandsForMode(mode: Mode): Promise<TestCommand[]> {
 	}
 }
 
-// The op-kata runner pods may inject cloud credentials (`AWS_*`) pod-wide via
+// The omp-kata runner pods may inject cloud credentials (`AWS_*`) pod-wide via
 // `envFrom`, GitHub Actions injects `GITHUB_TOKEN`,
 // and a host may carry provider API keys. Any of these make env-sensitive code
 // non-deterministic in tests — e.g. leaked AWS creds make `amazon-bedrock` look
@@ -918,6 +916,27 @@ export async function runTestCommandsInParallel(commands: TestCommand[], concurr
 	}
 }
 
+// `OP_TEST_SHARD=i/n` splits a mode's chunk commands across n CI jobs; job i
+// runs every chunk whose index ≡ i-1 (mod n). Round-robin rather than
+// contiguous ranges because the chunk list follows sorted file order, so slow
+// neighbouring suites spread evenly instead of piling into one shard. Every
+// chunk lands in exactly one shard; unset/empty runs everything.
+export function selectShard<T>(commands: T[], spec: string | undefined): T[] {
+	const trimmed = spec?.trim();
+	if (!trimmed) return commands;
+	const match = /^(\d+)\/(\d+)$/.exec(trimmed);
+	const index = match ? Number(match[1]) : 0;
+	const count = match ? Number(match[2]) : 0;
+	if (!match || count < 1 || index < 1 || index > count) {
+		throw new Error(`Invalid OP_TEST_SHARD=${JSON.stringify(trimmed)}; expected i/n with 1 <= i <= n`);
+	}
+	const selected = commands.filter((_, i) => i % count === index - 1);
+	if (selected.length === 0) {
+		throw new Error(`OP_TEST_SHARD=${trimmed} selects no chunks (${commands.length} available)`);
+	}
+	return selected;
+}
+
 // Skipped when imported (e.g. by the runner's own unit tests), where
 // `process.argv` carries test-file paths rather than a mode/flags.
 if (import.meta.main) {
@@ -927,7 +946,7 @@ if (import.meta.main) {
 		);
 	}
 
-	const requestedCommands = await commandsForMode(requestedMode as Mode);
+	const requestedCommands = selectShard(await commandsForMode(requestedMode as Mode), Bun.env.OP_TEST_SHARD);
 	const explicitConcurrency = Boolean(Bun.env.OP_TEST_CONCURRENCY?.trim());
 	// CI defaults to one process at a time, but memory-sized workflow buckets
 	// explicitly opt into bounded process concurrency. Local runs fan out by

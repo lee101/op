@@ -1,5 +1,5 @@
 import { tryParseJson } from "@openpaths/utils";
-import { formatBytes } from "../../tools/render-utils";
+import { formatBytes } from "@openpaths/tui/render/render-utils";
 import type { RenderResult, SpecialHandler } from "./types";
 import { buildResult, formatIsoDate, formatNumber, loadPage } from "./types";
 

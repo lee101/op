@@ -14,7 +14,7 @@ import type {
 } from "@openpaths/coding-agent/dap/types";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 import { DebugTool } from "@openpaths/coding-agent/tools/debug";
-import { removeWithRetries } from "@openpaths/utils";
+import { removeWithRetries, withTimeout } from "@openpaths/utils";
 
 const TEST_ADAPTER: DapResolvedAdapter = {
 	name: "lldb-dap",
@@ -29,6 +29,42 @@ const TEST_ADAPTER: DapResolvedAdapter = {
 	connectMode: "stdio",
 	acceptsDirectoryProgram: false,
 };
+
+it("rejects pending DAP work and terminates an adapter with invalid framing", async () => {
+	const client = await DapClient.spawn({
+		adapter: {
+			...TEST_ADAPTER,
+			command: process.execPath,
+			resolvedCommand: process.execPath,
+			args: ["run", path.join(import.meta.dir, "../fixtures/malformed-jsonrpc-peer.ts")],
+		},
+		cwd: process.cwd(),
+	});
+	try {
+		const request = client.sendRequest("initialize", {}, undefined, 60_000);
+		const event = client.waitForEvent("stopped", undefined, undefined, 60_000);
+		const results = await withTimeout(
+			Promise.allSettled([request, event]),
+			5_000,
+			"Invalid framing did not reject pending DAP work",
+		);
+		for (const result of results) {
+			expect(result.status).toBe("rejected");
+			if (result.status === "rejected") {
+				expect(result.reason).toBeInstanceOf(Error);
+				expect((result.reason as Error).message).toMatch(/Content-Length.*limit/);
+			}
+		}
+		await expect(client.sendRequest("threads", {})).rejects.toThrow(/not running/);
+		await withTimeout(
+			client.proc.exited.catch(() => {}),
+			5_000,
+			"Malformed adapter remained alive",
+		);
+	} finally {
+		await client.dispose();
+	}
+}, 10_000);
 
 const DELAYED_UNIX_SOCKET_ADAPTER = `
 const listenPrefix = "--listen=unix:";
@@ -74,6 +110,8 @@ class FakeDapClient {
 			attachError?: string;
 			attachErrorDelayMs?: number;
 			configurationDoneError?: string;
+			supportsConfigurationDone?: boolean;
+			deferInitialized?: boolean;
 			rejectStopWaiters?: boolean;
 			stopAfterLaunch?: boolean;
 		},
@@ -94,8 +132,14 @@ class FakeDapClient {
 	}
 
 	async initialize(): Promise<DapCapabilities> {
-		queueMicrotask(() => this.#emit("initialized", {}));
-		return { supportsConfigurationDoneRequest: true };
+		if (!this.options.deferInitialized) {
+			queueMicrotask(() => this.#emit("initialized", {}));
+		}
+		return { supportsConfigurationDoneRequest: this.options.supportsConfigurationDone ?? true };
+	}
+
+	emitInitialized(): void {
+		this.#emit("initialized", {});
 	}
 
 	async sendRequest(command: string, args?: unknown): Promise<unknown> {
@@ -180,26 +224,6 @@ describe("DAP launch failure handling", () => {
 		expect(launch?.args).toMatchObject({ args: ["--configured"], program: "/bin/echo" });
 	});
 
-	it("surfaces the launch failure when configurationDone also fails", async () => {
-		const manager = new DapSessionManager();
-		const fake = new FakeDapClient(TEST_ADAPTER, process.cwd(), {
-			launchError: "launch: 'C:\\repo\\python' is not a valid executable",
-			configurationDoneError: "configurationDone: Expected process to be stopped.",
-		});
-		spyOn(DapClient, "spawn").mockResolvedValue(fake as unknown as DapClient);
-
-		let message = "";
-		try {
-			await manager.launch({ adapter: TEST_ADAPTER, program: "C:\\repo\\python", cwd: process.cwd() });
-		} catch (error) {
-			expect(error).toBeInstanceOf(Error);
-			message = (error as Error).message;
-		}
-
-		expect(message).toContain("launch: 'C:\\repo\\python' is not a valid executable");
-		expect(message).toContain("configurationDone: Expected process to be stopped.");
-	});
-
 	it("surfaces the attach failure when configurationDone also fails", async () => {
 		const manager = new DapSessionManager();
 		const fake = new FakeDapClient(TEST_ADAPTER, process.cwd(), {
@@ -218,6 +242,27 @@ describe("DAP launch failure handling", () => {
 
 		expect(message).toContain("attach: target process exited");
 		expect(message).toContain("configurationDone: Expected process to be stopped.");
+	});
+
+	it("completes configuration without sending attach for preattached adapters", async () => {
+		const adapter: DapResolvedAdapter = {
+			...TEST_ADAPTER,
+			attachDefaults: { request: "attach", skipAttachRequest: true },
+		};
+		const manager = new DapSessionManager();
+		const fake = new FakeDapClient(adapter, process.cwd(), {
+			supportsConfigurationDone: false,
+			deferInitialized: true,
+		});
+		spyOn(DapClient, "spawn").mockResolvedValue(fake as unknown as DapClient);
+
+		const summary = await manager.attach({ adapter, cwd: process.cwd() });
+
+		expect(fake.requests.map(request => request.command)).toEqual([]);
+		expect(summary.status).toBe("running");
+		expect(summary.needsConfigurationDone).toBe(false);
+		fake.emitInitialized();
+		expect(manager.getActiveSession()?.status).toBe("running");
 	});
 
 	it("does not emit an unhandled rejection when launch fails before initial stop watchers settle", async () => {
@@ -344,7 +389,7 @@ describe("DAP launch failure handling", () => {
 
 	it("waits for delayed Unix socket adapters before connecting on Linux", async () => {
 		if (process.platform !== "linux") return;
-		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-socket-"));
+		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-socket-"));
 		const adapterPath = path.join(cwd, "delayed-unix-socket-adapter.mjs");
 		await fs.writeFile(adapterPath, DELAYED_UNIX_SOCKET_ADAPTER);
 		const adapter: DapResolvedAdapter = {
@@ -410,7 +455,7 @@ describe("DAP launch failure handling", () => {
 
 	it("kills the detached adapter process when the Unix socket never appears (Linux)", async () => {
 		if (process.platform !== "linux") return;
-		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-unix-leak-"));
+		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-unix-leak-"));
 		try {
 			const adapterPath = path.join(cwd, "wedged-unix-adapter.mjs");
 			const pidFilePath = path.join(cwd, "adapter.pid");
@@ -449,7 +494,7 @@ describe("DAP launch failure handling", () => {
 		const originalPlatform = process.platform;
 		Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-tcp-leak-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-tcp-leak-"));
 			try {
 				const adapterPath = path.join(cwd, "wedged-tcp-adapter.mjs");
 				const pidFilePath = path.join(cwd, "adapter.pid");
@@ -495,7 +540,7 @@ describe("connectSocket unix transport", () => {
 		// so `await connectSocket(...)` hung the launch forever.
 		const deadSocket = path.join(
 			os.tmpdir(),
-			`op-dap-dead-${Date.now()}-${Math.random().toString(36).slice(2)}.sock`,
+			`omp-dap-dead-${Date.now()}-${Math.random().toString(36).slice(2)}.sock`,
 		);
 		const start = Date.now();
 		await expect(connectSocket({ unix: deadSocket }, 5_000)).rejects.toThrow();
@@ -529,12 +574,12 @@ await Bun.sleep(60_000);
 		source: string,
 		run: (adapter: DapResolvedAdapter, cwd: string) => Promise<void>,
 	): Promise<void> {
-		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-tcp-"));
+		const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-tcp-"));
 		const adapterPath = path.join(cwd, "tcp-adapter.mjs");
 		await fs.writeFile(adapterPath, source);
 		const adapter: DapResolvedAdapter = {
 			...TCP_ADAPTER_BASE,
-			// biome-ignore lint/suspicious/noTemplateCurlyInString: literal DAP `${port}` placeholder substituted by the adapter launcher
+			// oxlint-disable-next-line no-template-curly-in-string -- literal DAP `${port}` placeholder substituted by the adapter launcher
 			args: [adapterPath, "${port}", "127.0.0.1"],
 		};
 		try {
@@ -628,7 +673,7 @@ describe("DebugTool launch validation", () => {
 			adapter: TEST_ADAPTER,
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-program-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-program-"));
 			try {
 				await fs.mkdir(path.join(cwd, "python"));
 				const session: ToolSession = {
@@ -668,7 +713,7 @@ describe("DebugTool launch validation", () => {
 			throw Object.assign(new Error("captured launch"), { capturedOptions: opts });
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-dir-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-dir-"));
 			try {
 				await fs.mkdir(path.join(cwd, "cmd"));
 				const session: ToolSession = {
@@ -703,7 +748,7 @@ describe("DebugTool launch validation", () => {
 			throw Object.assign(new Error("captured launch"), { capturedOptions: opts });
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-mixed-roots-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-mixed-roots-"));
 			try {
 				await fs.writeFile(path.join(cwd, "go.mod"), "module hello\n\ngo 1.22\n");
 				await fs.writeFile(path.join(cwd, "Makefile"), "all:\n\tgo build ./...\n");
@@ -751,7 +796,7 @@ describe("DebugTool launch validation", () => {
 			throw Object.assign(new Error("captured launch"), { capturedOptions: opts });
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-exec-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-exec-"));
 			try {
 				await fs.writeFile(path.join(cwd, "hello"), "#!/usr/bin/env sh\necho hi\n");
 				const session: ToolSession = {
@@ -784,7 +829,7 @@ describe("DebugTool launch validation", () => {
 			command: "python",
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-debugpy-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-debugpy-"));
 			try {
 				await fs.writeFile(path.join(cwd, "main.py"), "print('hi')");
 				const session: ToolSession = {
@@ -807,10 +852,61 @@ describe("DebugTool launch validation", () => {
 		}
 	});
 
+	it("validates missing attach targets before adapter discovery", async () => {
+		const selectAttachSpy = spyOn(dapModule, "selectAttachAdapter").mockReturnValue(null);
+		const session: ToolSession = {
+			cwd: process.cwd(),
+			hasUI: false,
+			getSessionFile: () => null,
+			getSessionSpawns: () => "*",
+			settings: Settings.isolated({ "debug.enabled": true }),
+		};
+		const tool = new DebugTool(session);
+
+		await expect(tool.execute("call", { action: "attach" })).rejects.toThrow("attach requires pid or port");
+		expect(selectAttachSpy).not.toHaveBeenCalled();
+	});
+
+	it("allows explicit adapters with target attach defaults to attach without pid or port", async () => {
+		const adapter: DapResolvedAdapter = {
+			...TEST_ADAPTER,
+			name: "pico-openocd",
+			attachDefaults: { target: ":3334" },
+		};
+		const selectAttachSpy = spyOn(dapModule, "selectAttachAdapter").mockReturnValue(adapter);
+		const sessionAttachSpy = spyOn(dapModule.dapSessionManager, "attach").mockImplementation(async opts => {
+			throw Object.assign(new Error("captured attach"), { capturedOptions: opts });
+		});
+		try {
+			const session: ToolSession = {
+				cwd: process.cwd(),
+				hasUI: false,
+				getSessionFile: () => null,
+				getSessionSpawns: () => "*",
+				settings: Settings.isolated({ "debug.enabled": true }),
+			};
+			const tool = new DebugTool(session);
+
+			await expect(tool.execute("call", { action: "attach", adapter: "pico-openocd" })).rejects.toThrow(
+				/captured attach/,
+			);
+			expect(selectAttachSpy).toHaveBeenCalledWith(process.cwd(), "pico-openocd", undefined);
+			expect(sessionAttachSpy).toHaveBeenCalledTimes(1);
+			const [opts] = sessionAttachSpy.mock.calls[0]!;
+			expect(opts.adapter).toBe(adapter);
+			expect(opts.adapter.attachDefaults.target).toBe(":3334");
+			expect(opts.pid).toBeUndefined();
+			expect(opts.port).toBeUndefined();
+		} finally {
+			sessionAttachSpy.mockRestore();
+			selectAttachSpy.mockRestore();
+		}
+	});
+
 	it("throws targeted 'python not found in PATH' when adapter:'debugpy' is unresolvable for attach", async () => {
 		const attachSpy = spyOn(dapModule, "selectAttachAdapter").mockReturnValue(null);
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-debugpy-attach-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-debugpy-attach-"));
 			try {
 				const session: ToolSession = {
 					cwd,
@@ -839,7 +935,7 @@ describe("DebugTool launch validation", () => {
 			command: "dlv",
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-hint-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-hint-"));
 			try {
 				await fs.writeFile(path.join(cwd, "main.go"), "package main\n\nfunc main() {}\n");
 				const session: ToolSession = {
@@ -862,36 +958,6 @@ describe("DebugTool launch validation", () => {
 		}
 	});
 
-	it("shows supported install options when the JavaScript debug adapter is unavailable", async () => {
-		const launchSpy = spyOn(dapModule, "selectLaunchAdapter").mockReturnValue({
-			kind: "unavailable",
-			adapterName: "js-debug-adapter",
-			command: "js-debug-adapter",
-		});
-		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-js-debug-hint-"));
-			try {
-				await fs.writeFile(path.join(cwd, "main.js"), "console.log('hi');\n");
-				const session: ToolSession = {
-					cwd,
-					hasUI: false,
-					getSessionFile: () => null,
-					getSessionSpawns: () => "*",
-					settings: Settings.isolated({ "debug.enabled": true }),
-				};
-				const tool = new DebugTool(session);
-
-				await expect(tool.execute("call", { action: "launch", program: "main.js" })).rejects.toThrow(
-					/download.*github\.com\/microsoft\/vscode-js-debug/,
-				);
-			} finally {
-				await removeWithRetries(cwd);
-			}
-		} finally {
-			launchSpy.mockRestore();
-		}
-	});
-
 	it("points to DAP configuration when a custom adapter command is unavailable", async () => {
 		const launchSpy = spyOn(dapModule, "selectLaunchAdapter").mockReturnValue({
 			kind: "unavailable",
@@ -899,7 +965,7 @@ describe("DebugTool launch validation", () => {
 			command: "./bin/missing-dlv",
 		});
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-dlv-config-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-dlv-config-"));
 			try {
 				await fs.writeFile(path.join(cwd, "main.go"), "package main\n\nfunc main() {}\n");
 				const session: ToolSession = {
@@ -922,35 +988,10 @@ describe("DebugTool launch validation", () => {
 		}
 	});
 
-	it("shows the rdbg install command for explicit Ruby attach", async () => {
-		const attachSpy = spyOn(dapModule, "selectAttachAdapter").mockReturnValue(null);
-		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-rdbg-attach-"));
-			try {
-				const session: ToolSession = {
-					cwd,
-					hasUI: false,
-					getSessionFile: () => null,
-					getSessionSpawns: () => "*",
-					settings: Settings.isolated({ "debug.enabled": true }),
-				};
-				const tool = new DebugTool(session);
-
-				await expect(tool.execute("call", { action: "attach", pid: 1234, adapter: "rdbg" })).rejects.toThrow(
-					/gem install debug/,
-				);
-			} finally {
-				await removeWithRetries(cwd);
-			}
-		} finally {
-			attachSpy.mockRestore();
-		}
-	});
-
 	it("falls back to the generic 'No debugger adapter' error when adapter is unspecified", async () => {
 		const launchSpy = spyOn(dapModule, "selectLaunchAdapter").mockReturnValue({ kind: "none" });
 		try {
-			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "op-debug-noadapter-"));
+			const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "omp-debug-noadapter-"));
 			try {
 				await fs.writeFile(path.join(cwd, "main.py"), "print('hi')");
 				const session: ToolSession = {

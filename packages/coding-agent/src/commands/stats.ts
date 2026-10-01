@@ -6,7 +6,7 @@ import { Command, Flags } from "@openpaths/utils/cli";
 import { statsHelp as commandHelp } from "../cli/command-help";
 import type { StatsCommandArgs } from "../cli/stats-cli";
 import * as statsCli from "../cli/stats-cli";
-import * as theme from "../modes/theme/theme";
+import * as theme from "@openpaths/tui/theme";
 
 export default class Stats extends Command {
 	static description = commandHelp.description;

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { HistorySearchComponent } from "@openpaths/coding-agent/modes/components/history-search";
-import { initTheme, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { HistorySearchComponent } from "@openpaths/tui/overlays/history-search";
+import { initTheme, theme } from "@openpaths/tui/theme";
 import type { HistoryEntry, HistoryStorage } from "@openpaths/coding-agent/session/history-storage";
 
 beforeAll(async () => {
@@ -10,7 +10,7 @@ beforeAll(async () => {
 const NOW_SECONDS = Math.floor(Date.now() / 1000);
 
 function makeEntry(id: number, prompt: string, ageSeconds = 0): HistoryEntry {
-	return { id, prompt, created_at: NOW_SECONDS - ageSeconds };
+	return { id, prompt, created_at: NOW_SECONDS - ageSeconds, useCount: 1 };
 }
 
 /** Minimal in-memory stand-in matching the two methods the component touches. */

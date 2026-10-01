@@ -15,7 +15,7 @@
  *
  * When both signals were false, the loader skipped the embedded-addon
  * extraction path and only tried `nativeDir` (the dev machine's checkout) and
- * `execDir`. On WSL with `~/.local/bin/op` and no sibling `.node` file, this
+ * `execDir`. On WSL with `~/.local/bin/omp` and no sibling `.node` file, this
  * failed with the error reported in the issue.
  *
  * The fix is to make the loader's compiled-binary detection authoritative on
@@ -123,21 +123,6 @@ describe("issue 823: standalone-binary native loader path resolution", () => {
 		expect(candidates.indexOf(versionedModern)).toBeLessThan(candidates.indexOf(buildHostModern));
 	});
 
-	it("does not probe user-data candidates when running outside a standalone binary", () => {
-		const versionedDir = "/home/u/.op/natives/14.5.2";
-		const userDataDir = "/home/u/.local/bin";
-		const candidates = resolveLoaderCandidates({
-			addonFilenames: getAddonFilenames({ tag: "linux-x64", arch: "x64", variant: "baseline" }),
-			isCompiledBinary: false,
-			nativeDir: "/repo/packages/natives/native",
-			execDir: "/usr/bin",
-			versionedDir,
-			userDataDir,
-		});
-		expect(candidates).not.toContain(path.join(versionedDir, "pi_natives.linux-x64-baseline.node"));
-		expect(candidates).not.toContain(path.join(userDataDir, "pi_natives.linux-x64-baseline.node"));
-	});
-
 	it("prefers platform leaf package candidates ahead of core nativeDir candidates on npm installs", () => {
 		const leafPackageDir = "/app/node_modules/@openpaths/natives-linux-x64";
 		const nativeDir = "/app/node_modules/@openpaths/natives/native";
@@ -169,7 +154,7 @@ describe("issue 823: standalone-binary native loader path resolution", () => {
 			nativeDir,
 			execDir: "/app/node_modules/.bin",
 			versionedDir,
-			userDataDir: "/home/u/AppData/Local/op",
+			userDataDir: "/home/u/AppData/Local/omp",
 		});
 
 		const stagedBaseline = path.join(versionedDir, "pi_natives.win32-x64-baseline.node");

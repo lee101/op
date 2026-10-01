@@ -1,4 +1,3 @@
-// @ts-nocheck — example file; install @openpaths/coding-agent before running
 import type { ExtensionAPI } from "@openpaths/coding-agent";
 
 export default function helloExtension(pi: ExtensionAPI) {

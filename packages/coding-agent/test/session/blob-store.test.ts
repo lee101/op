@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import {
 	BlobStore,
-	blobExtensionForImageMimeType,
 	externalizeImageData,
 	parseBlobRef,
 	resolveImageData,
 } from "@openpaths/coding-agent/session/blob-store";
+import { blobExtensionForImageMimeType } from "@openpaths/tui/prompt/image-format";
 import { TempDir } from "@openpaths/utils";
 
 describe("BlobStore image display paths", () => {

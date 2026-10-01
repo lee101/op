@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "bun:test";
-import { SessionAccountSelectorComponent } from "@openpaths/coding-agent/modes/components/session-account-selector";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import { SessionAccountSelectorComponent } from "@openpaths/tui/overlays/session-account-selector";
+import { initTheme } from "@openpaths/tui/theme";
 import { toSessionPinAccounts } from "@openpaths/coding-agent/slash-commands/helpers/session-pin";
 
 beforeAll(async () => {

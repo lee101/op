@@ -4,12 +4,7 @@ import * as path from "node:path";
 
 import { type GitRepository, repo } from "./git";
 
-export interface ActiveRepoContext {
-	cwd: string;
-	repoRoot: string;
-	relativeRepoRoot: string;
-	source: "single-direct-child-repo";
-}
+import type { ActiveRepoContext } from "@openpaths/tui/status-line/host";
 
 function compareEntryNames(left: fs.Dirent, right: fs.Dirent): number {
 	if (left.name < right.name) return -1;

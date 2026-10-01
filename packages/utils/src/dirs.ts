@@ -14,10 +14,15 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { expandWindowsLongPath } from "@openpaths/natives/path";
 import { engines, version } from "../package.json" with { type: "json" };
+import { isEnoent, isEnotdir } from "./fs-error";
 
 /** App name (e.g. "op") */
 export const APP_NAME: string = "op";
+
+/** Public homepage that inference gateways (OpenRouter, Vercel AI Gateway) credit op traffic to. */
+export const APP_URL: string = "https://openpaths.io/";
 
 /** Config directory name (e.g. ".op") */
 export const CONFIG_DIR_NAME: string = ".op";
@@ -106,7 +111,8 @@ function readProfileFromEnvSafe(): string | undefined {
 	}
 }
 
-function getBaseConfigRoot(): string {
+/** Profile-independent config root (~/.op), shared by every op profile. */
+export function getBaseConfigRoot(): string {
 	return path.join(os.homedir(), getConfigDirName());
 }
 
@@ -149,6 +155,11 @@ function standardizeMacOSPath(p: string): string {
 	return p;
 }
 
+/** Keep the current directory's spelling while expanding Windows 8.3 aliases. */
+function standardizeProjectPath(p: string): string {
+	return process.platform === "win32" ? expandWindowsLongPath(p) : standardizeMacOSPath(p);
+}
+
 export function resolveEquivalentPath(inputPath: string): string {
 	const resolvedPath = path.resolve(inputPath);
 	try {
@@ -163,32 +174,81 @@ export function normalizePathForComparison(inputPath: string): string {
 	return process.platform === "win32" ? resolvedPath.toLowerCase() : resolvedPath;
 }
 
+/**
+ * Compare paths already normalized by {@link normalizePathForComparison}.
+ *
+ * Returns the relative path (an empty string when the paths are equal), or
+ * `null` when the candidate is outside the root. Callers classifying one
+ * candidate against several static roots can normalize each side once and
+ * reuse the public helpers' containment semantics without repeating realpath
+ * work.
+ */
+export function relativePathWithinNormalizedRoot(normalizedRoot: string, normalizedCandidate: string): string | null {
+	const relative = path.relative(normalizedRoot, normalizedCandidate);
+	if (relative !== "" && (relative.startsWith("..") || path.isAbsolute(relative))) return null;
+	return relative;
+}
+
 export function pathIsWithin(root: string, candidate: string): boolean {
 	const normalizedRoot = normalizePathForComparison(root);
 	const normalizedCandidate = normalizePathForComparison(candidate);
-	const relative = path.relative(normalizedRoot, normalizedCandidate);
-	return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+	return relativePathWithinNormalizedRoot(normalizedRoot, normalizedCandidate) !== null;
 }
 
 export function relativePathWithinRoot(root: string, candidate: string): string | null {
-	if (!pathIsWithin(root, candidate)) return null;
 	const normalizedRoot = normalizePathForComparison(root);
 	const normalizedCandidate = normalizePathForComparison(candidate);
-	const relative = path.relative(normalizedRoot, normalizedCandidate);
-	return relative || null;
+	return relativePathWithinNormalizedRoot(normalizedRoot, normalizedCandidate) || null;
 }
 
-let projectDir = standardizeMacOSPath(process.cwd());
+let projectDir: string | undefined;
 
 /** Get the project directory. */
 export function getProjectDir(): string {
+	if (projectDir === undefined) {
+		let cwd: string | undefined;
+		try {
+			cwd = process.cwd();
+		} catch {
+			const candidates = [process.env.PWD, os.homedir(), os.tmpdir()];
+			for (const candidate of candidates) {
+				if (!candidate || !path.isAbsolute(candidate)) continue;
+				try {
+					process.chdir(candidate);
+					cwd = candidate;
+					break;
+				} catch {}
+			}
+			if (cwd === undefined) {
+				throw new Error("Unable to determine an accessible working directory");
+			}
+		}
+		// Normalize outside the fallback: a native-addon failure is not an inaccessible cwd,
+		// and must surface as itself instead of relocating the process.
+		projectDir = standardizeProjectPath(cwd);
+	}
 	return projectDir;
 }
 
 /** Set the project directory. */
 export function setProjectDir(dir: string): void {
-	projectDir = standardizeMacOSPath(path.resolve(dir));
-	process.chdir(projectDir);
+	const resolved = standardizeProjectPath(path.resolve(dir));
+	process.chdir(resolved);
+	projectDir = resolved;
+}
+
+/** Reset the cached project directory (test seam). */
+export function __resetProjectDirCacheForTests(): void {
+	projectDir = undefined;
+}
+
+/** Whether a path is absent or not a directory. Other stat failures return false. */
+export async function directoryIsMissing(dir: string): Promise<boolean> {
+	try {
+		return !(await fs.promises.stat(dir)).isDirectory();
+	} catch (error) {
+		return isEnoent(error) || isEnotdir(error);
+	}
 }
 
 /**
@@ -203,6 +263,44 @@ export async function directoryExists(dir: string): Promise<boolean> {
 	} catch {
 		return false;
 	}
+}
+
+/**
+ * Whether `dir` both exists and can be entered. POSIX `stat` succeeds for a
+ * directory whose own search/execute permission is denied (it only needs
+ * +x on the parent chain), so existence alone does not imply `chdir` works.
+ * Callers that adopt a directory as a working directory must check this
+ * rather than {@link directoryExists} alone.
+ */
+export async function directoryIsEnterable(dir: string): Promise<boolean> {
+	try {
+		const [stats] = await Promise.all([fs.promises.stat(dir), fs.promises.access(dir, fs.constants.X_OK)]);
+		return stats.isDirectory();
+	} catch {
+		return false;
+	}
+}
+
+/** Whether `dir` is enterable, synchronous variant. See {@link directoryIsEnterable}. */
+export function directoryIsEnterableSync(dir: string): boolean {
+	try {
+		fs.accessSync(dir, fs.constants.X_OK);
+		return fs.statSync(dir).isDirectory();
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Project directory when it is enterable, otherwise a safe fallback.
+ * Used by spawns that must preserve project-relative behavior when healthy.
+ */
+export function getSafeProjectCwd(): string {
+	try {
+		const dir = getProjectDir();
+		if (directoryIsEnterableSync(dir)) return dir;
+	} catch {}
+	return os.homedir();
 }
 
 /** Get the config directory name relative to home (e.g. ".op" or PI_CONFIG_DIR override). */
@@ -516,9 +614,21 @@ export function getLogsDir(): string {
 	return dirs.rootSubdir("logs", "state");
 }
 
-/** Get this process's dated log path (~/.op/logs/op.YYYY-MM-DD.PID.log). */
+/**
+ * Local-timezone `YYYY-MM-DD` day key (zero-padded), formatted exactly like
+ * the rotating log sink's file naming: log files are named `op.<day>.<pid>.log`
+ * with the LOCAL day, not the UTC day `toISOString()` yields. Anything that
+ * computes "today's" log path or matches same-day log files by name must use
+ * this key, or between local midnight and UTC midnight it points at files that
+ * do not exist (e.g. 00:00–08:00 in UTC+8).
+ */
+export function localDay(date: Date): string {
+	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+/** Get this process's dated log path (~/.op/logs/op.YYYY-MM-DD.PID.log, local-day named like the rotating sink). */
 export function getLogPath(date = new Date(), pid = process.pid): string {
-	return path.join(getLogsDir(), `${APP_NAME}.${date.toISOString().slice(0, 10)}.${pid}.log`);
+	return path.join(getLogsDir(), `${APP_NAME}.${localDay(date)}.${pid}.log`);
 }
 
 /**
@@ -635,6 +745,11 @@ export function getBrowserRelayDir(): string {
 	return dirs.rootSubdir("browser-relay", "data");
 }
 
+/** Get the profile root for Chromium browsers the browser tool spawns via `app.path` (~/.op/browser-profiles). */
+export function getBrowserProfilesDir(): string {
+	return dirs.rootSubdir("browser-profiles", "state");
+}
+
 /** Get DOCS_RS cache directory () */
 export function getDocsRsCacheDir(): string {
 	return dirs.rootSubdir("webcache", "cache");
@@ -662,11 +777,6 @@ export function getWorktreeDir(segment: string): string {
 	return path.join(getWorktreesDir(), segment);
 }
 
-/** Get the GPU cache path (~/.op/gpu_cache.json). */
-export function getGpuCachePath(): string {
-	return dirs.rootSubdir("gpu_cache.json", "cache");
-}
-
 /**
  * Get the GitHub view cache database path (~/.op/cache/github-cache.db).
  * Honors the `OP_GITHUB_CACHE_DB` env var when set so tests can isolate the
@@ -676,6 +786,30 @@ export function getGithubCacheDbPath(): string {
 	const override = process.env.OP_GITHUB_CACHE_DB;
 	if (override) return override;
 	return dirs.rootSubdir(path.join("cache", "github-cache.db"), "cache");
+}
+/**
+ * Get the conventional commit inference cache database path (~/.op/cache/commit-inference.db).
+ * Honors `OP_COMMIT_CACHE_DB` so tests and operators can isolate the cache.
+ */
+export function getCommitCacheDbPath(): string {
+	const override = process.env.OP_COMMIT_CACHE_DB;
+	if (override) return override;
+	return dirs.rootSubdir(path.join("cache", "commit-inference.db"), "cache");
+}
+
+/**
+ * Get the judgment answer cache database path (~/.op/cache/judgment-cache.db).
+ * Honors `OP_JUDGMENT_CACHE_DB` so tests and operators can isolate the cache.
+ */
+export function getJudgmentCacheDbPath(): string {
+	const override = process.env.OP_JUDGMENT_CACHE_DB;
+	if (override) return override;
+	return dirs.rootSubdir(path.join("cache", "judgment-cache.db"), "cache");
+}
+
+/** Get the legacy Pi extension parse cache database path. */
+export function getLegacyPiExtensionCacheDbPath(): string {
+	return dirs.rootSubdir(path.join("cache", "legacy-pi-extension-cache.db"), "cache");
 }
 
 /**
@@ -687,6 +821,11 @@ export function getAuthBrokerSnapshotCachePath(): string {
 	const override = process.env.OP_AUTH_BROKER_SNAPSHOT_CACHE;
 	if (override) return override;
 	return dirs.rootSubdir(path.join("cache", "auth-broker-snapshot.enc"), "cache");
+}
+
+/** Get the commit-author avatar cache directory (~/.op/cache/avatars). */
+export function getAvatarCacheDir(): string {
+	return dirs.rootSubdir(path.join("cache", "avatars"), "cache");
 }
 
 /** Get the local FastEmbed model cache directory (~/.op/cache/fastembed). */
@@ -772,6 +911,10 @@ export function getTinyModelsCacheDir(agentDir?: string): string {
 export function getDocumentConversionCacheDir(agentDir?: string): string {
 	return dirs.agentSubdir(agentDir, path.join("cache", "document-conversions"), "cache");
 }
+/** Get the composer speculative cache database (~/.op/agent/cache/composer.db; XDG default: $XDG_CACHE_HOME/op/cache/composer.db). */
+export function getComposerCacheDbPath(agentDir?: string): string {
+	return dirs.agentSubdir(agentDir, path.join("cache", "composer.db"), "cache");
+}
 
 /** Get the sessions directory (~/.op/agent/sessions). */
 export function getSessionsDir(agentDir?: string): string {
@@ -818,6 +961,16 @@ export function getTerminalSessionsDir(agentDir?: string): string {
 	return dirs.agentSubdir(agentDir, "terminal-sessions", "state");
 }
 
+/**
+ * Get the persistent registry of custom session files
+ * (~/.op/agent/custom-session-files). Each `--session-dir`/`--session`
+ * transcript is recorded here as one marker file so storage GC can scan its
+ * exact path after its terminal breadcrumb is overwritten by a later session.
+ */
+export function getCustomSessionFilesDir(agentDir?: string): string {
+	return dirs.agentSubdir(agentDir, "custom-session-files", "state");
+}
+
 /** Get the crash log path (~/.op/agent/op-crash.log). */
 export function getCrashLogPath(agentDir?: string): string {
 	return dirs.agentSubdir(agentDir, "op-crash.log", "state");
@@ -854,10 +1007,25 @@ export function getSecretPlaceholderKeyPath(): string {
 	return keyPath;
 }
 
+/** Directory holding the per-model tiny-worker sockets and logs (~/.op/run/tiny; XDG default: $XDG_STATE_HOME/op/run/tiny). */
+export function getTinyWorkerRuntimeDir(): string {
+	return dirs.rootSubdir(path.join("run", "tiny"), "state");
+}
+
+/** Root directory containing every per-project daemon runtime scope (~/.op/run/daemons; XDG default: $XDG_STATE_HOME/op/run/daemons). */
+export function getDaemonRuntimeRoot(): string {
+	return dirs.rootSubdir(path.join("run", "daemons"), "state");
+}
+
 /** Get the daemon runtime directory for a project (~/.op/run/daemons/<hash>; XDG default: $XDG_STATE_HOME/op/run/daemons/<hash>). */
 export function getDaemonRuntimeDir(projectDir: string): string {
 	const key = Bun.hash.wyhash(path.resolve(projectDir)).toString(16).padStart(16, "0");
-	return dirs.rootSubdir(path.join("run", "daemons", key), "state");
+	return path.join(getDaemonRuntimeRoot(), key);
+}
+
+/** Root directory containing every machine-global daemon service scope. */
+export function getGlobalDaemonRuntimeRoot(): string {
+	return path.join(getBaseConfigRoot(), "run", "daemons", "global");
 }
 
 /** Get a profile-independent runtime directory for a machine-global daemon service. */
@@ -865,7 +1033,7 @@ export function getGlobalDaemonRuntimeDir(service: string): string {
 	if (!/^[a-z0-9][a-z0-9._-]*$/i.test(service)) {
 		throw new Error(`Invalid global daemon service name: ${JSON.stringify(service)}`);
 	}
-	return path.join(getBaseConfigRoot(), "run", "daemons", "global", service);
+	return path.join(getGlobalDaemonRuntimeRoot(), service);
 }
 
 /** Get the provider in-flight root directory (~/.op/run/provider-inflight; XDG default: $XDG_STATE_HOME/op/run/provider-inflight). */
@@ -926,6 +1094,17 @@ export function getSSHConfigPath(scope: "user" | "project", cwd: string = getPro
 let cachedInstallId: string | null = null;
 
 const INSTALL_ID_FILE = "install-id";
+/**
+ * Application label for usage attribution (`OP_APP_NAME`), defaulting to
+ * `op`. Embedders that drive op programmatically (robomp, CI bots, …) set
+ * the env var so broker-side per-client burn tracking can answer "what did
+ * app X use" instead of folding everything into one install-wide bucket.
+ */
+export function getAppName(): string {
+	const value = process.env.OP_APP_NAME?.trim();
+	return value ? value : "op";
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**

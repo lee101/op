@@ -17,7 +17,7 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import { stripVTControlCharacters } from "node:util";
 import type { UsageReport } from "@openpaths/ai";
 import { renderUsageReports } from "@openpaths/coding-agent/modes/controllers/command-controller";
-import { initTheme, theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { initTheme, theme } from "@openpaths/tui/theme";
 
 const HOUR = 3_600_000;
 

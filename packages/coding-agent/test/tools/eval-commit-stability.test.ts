@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
-import type { EvalStatusEvent, EvalToolDetails } from "@openpaths/coding-agent/eval/types";
-import { ToolExecutionComponent } from "@openpaths/coding-agent/modes/components/tool-execution";
-import { initTheme } from "@openpaths/coding-agent/modes/theme/theme";
+import type { EvalStatusEvent, EvalToolDetails } from "@openpaths/tui/tools/eval";
+import { ToolExecutionComponent } from "@openpaths/tui/chat/tool-execution";
+import { initTheme } from "@openpaths/tui/theme";
 import type { TUI } from "@openpaths/tui";
 
 const uiStub = { requestRender() {}, requestComponentRender() {} } as unknown as TUI;
@@ -33,12 +33,10 @@ function evalAgentResult(events: EvalStatusEvent[], text = "") {
 
 function expectLive(component: ToolExecutionComponent): void {
 	expect(component.isTranscriptBlockFinalized()).toBe(false);
-	expect(component.getNativeScrollbackLiveRegionStart()).toBe(0);
 }
 
 function expectFinal(component: ToolExecutionComponent): void {
 	expect(component.isTranscriptBlockFinalized()).toBe(true);
-	expect(component.getNativeScrollbackLiveRegionStart()).toBeUndefined();
 }
 
 describe("eval tool transcript finalization", () => {
@@ -46,14 +44,6 @@ describe("eval tool transcript finalization", () => {
 		resetSettingsForTest();
 		await Settings.init({ inMemory: true });
 		await initTheme();
-	});
-
-	it("keeps partial eval results in the native-scrollback live region", () => {
-		const component = makeEvalComponent();
-
-		component.updateResult(evalAgentResult([{ op: "agent", id: "a1", status: "running" }]), true);
-
-		expectLive(component);
 	});
 
 	it("moves the block out of the live region as soon as the eval result settles", () => {

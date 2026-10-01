@@ -1,5 +1,5 @@
 /**
- * Run OpenPaths as an ACP (Agent Client Protocol) server over stdio.
+ * Run op as an ACP (Agent Client Protocol) server over stdio.
  *
  * Thin wrapper around the launch flow that forces `mode: "acp"` unless the
  * ACP terminal-auth flag asks the same command to open the interactive TUI.

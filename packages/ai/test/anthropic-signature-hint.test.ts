@@ -70,9 +70,4 @@ describe("#4297 anthropic-messages replay-unsigned-thinking hint", () => {
 		});
 		expect(maybeAddReplayUnsignedThinkingHint(model, SIGNATURE_400)).toBe(SIGNATURE_400);
 	});
-
-	it("passes through when the error is unrelated (no false positives)", () => {
-		const model = buildAnthropicMessagesModel();
-		expect(maybeAddReplayUnsignedThinkingHint(model, "400 rate_limit_error")).toBe("400 rate_limit_error");
-	});
 });

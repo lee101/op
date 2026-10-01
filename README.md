@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://github.com/lee101/op/blob/main/assets/hero.png?raw=true" alt="op">
+</p>
 
 <p align="center">
   <strong>A coding agent with the IDE wired in.</strong>
@@ -8,15 +11,25 @@
   <a href="https://github.com/lee101/op/blob/main/packages/coding-agent/CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-keep-E05735?style=flat&colorA=222222" alt="Changelog"></a>
   <a href="https://github.com/lee101/op/actions"><img src="https://img.shields.io/github/actions/workflow/status/lee101/op/ci.yml?style=flat&colorA=222222&colorB=3FB950" alt="CI"></a>
   <a href="https://github.com/lee101/op/blob/main/LICENSE"><img src="https://img.shields.io/github/license/lee101/op?style=flat&colorA=222222&colorB=58A6FF" alt="License"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&colorA=222222&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/Rust-DEA584?style=flat&colorA=222222&logo=rust&logoColor=white" alt="Rust"></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/runtime-Bun-f472b6?style=flat&colorA=222222" alt="Bun"></a>
+  <a href="https://discord.gg/4NMW9cdXZa"><img src="https://img.shields.io/badge/Discord-5865F2?style=flat&colorA=222222&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 <p align="center">
-  <strong>op</strong> — the OpenPaths agent. Fork of <a href="https://github.com/can1357/oh-my-pi">oh-my-pi</a> by <a href="https://github.com/can1357">@can1357</a>, itself a fork of <a href="https://github.com/badlogic/pi-mono">Pi</a> by <a href="https://github.com/mariozechner">@mariozechner</a> 
+  <strong>op</strong> — the OpenPaths agent. Built by <a href="https://stencil.so">Stencil Labs</a> · Fork of <a href="https://github.com/can1357/oh-my-pi">oh-my-pi</a> by <a href="https://github.com/can1357">@can1357</a>, itself a fork of <a href="https://github.com/badlogic/pi-mono">Pi</a> by <a href="https://github.com/mariozechner">@mariozechner</a>
 </p>
 
 The most capable agent surface that ships. Continuously tuned by real-world use — complete out of the box, open all the way down.
 
 **60+** providers · **31** built-in tools · **14** lsp ops · **28** dap ops · **~80k** lines of Rust core.
+
+> [!NOTE]
+> Pull requests are **temporarily open to everyone** as a trial. We previously
+> required a vouch before accepting PRs; that requirement is lifted for now
+> while we evaluate how open contributions go. Depending on the results, the
+> vouch system may return.
 
 ## Install
 
@@ -28,10 +41,37 @@ curl -fsSL https://openpaths.io/install | sh
 
 > **Alpine / musl:** the prebuilt musl binary links `libstdc++`/`libgcc` dynamically, which stock Alpine does not ship. Install them first: `apk add libstdc++ libgcc`.
 
-**Local (recommended)**
+**Windows (PowerShell)**
 
 ```powershell
 irm https://openpaths.io/install.ps1 | iex
+```
+
+macOS · Linux · Windows · bun ≥ 1.3.14
+
+**Nix**
+
+```sh
+# Run without installing
+nix run github:lee101/op
+
+# Or install into the active profile
+nix profile install github:lee101/op
+```
+
+Flake consumers can use `packages.<system>.op`, `overlays.default`, `nixosModules.default`, or `homeManagerModules.default`. A Home Manager configuration can install op and own its settings declaratively:
+
+```nix
+{
+  inputs.op.url = "github:lee101/op";
+
+  # In your Home Manager module:
+  imports = [ inputs.op.homeManagerModules.default ];
+  programs.op = {
+    enable = true;
+    settings.startup.quiet = true;
+  };
+}
 ```
 
 The supported command after installation is simply `op`. For a source
@@ -42,12 +82,14 @@ checkout, run `bun setup`, then `bun run dev` or `bun run build`.
 Set `OPENROUTER_API_KEY`, then select the current stealth model with:
 
 ```sh
-op --model openrouter/stealth/ox-alpha
+op --model openrouter/stealth/union-alpha
 ```
-OPENPATHS_API_KEY can be used for [OpenPaths](https://openpaths.io)
+
+OpenRouter's bundled default is `stealth/union-alpha`, the free stealth lane, so a
+fresh install can select it without extra configuration.
 
 The model is bundled so it can be selected on a fresh install; OpenRouter may
-retire or replace stealth models without notice but we fallback to deepseekexp
+retire or replace stealth models without notice.
 
 ### Shell completions
 
@@ -90,13 +132,13 @@ Originally built on [Mario Zechner](https://github.com/mariozechner)'s wonderful
 
 Most harnesses give the agent a Python sandbox and call it done. Ours runs persistent Python and a Bun worker, and either kernel can call back into the agent's own tools — read, search, task — over a loopback bridge. The agent loads a CSV with tool.read from inside Python, charts it from JavaScript, and never leaves the cell.
 
-![op TUI: a single eval session with `[1/2] pandas describe` (Python) printing a real DataFrame.describe() table, followed by `[2/2] top scorer` (JavaScript) running a reduce. Footer: 'Both kernels ran in one session.'](https://omp.sh/captures/eval.webp)
+![op TUI running Python code and rendering a chart.](assets/python.webp)
 
 ### 02 · LSP wired into every write
 
 Ask for a rename and you get a rename. The call goes through workspace/willRenameFiles, so re-exports, barrel files, and aliased imports update before the file moves. Everything your IDE knows, the agent knows.
 
-![op TUI: `LSP references` returns five hits across three files for the symbol `formatBytes`, then `LSP rename` applies the change with edits to format.ts/report.ts/cli.ts, then a `Search formatBytes 0 matches` confirmation. Final line: 'Rename complete. Five edits across three files…'.](https://omp.sh/captures/lsp.webp)
+![op TUI with TypeScript and Biome language servers active.](assets/lspv.webp)
 
 _[Read the LSP config docs](docs/lsp-config.md)_
 
@@ -104,25 +146,25 @@ _[Read the LSP config docs](docs/lsp-config.md)_
 
 A C binary segfaults: the agent attaches lldb, steps to the bad pointer, reads the frame. A Go service hangs: it attaches dlv and walks the goroutines. A Python process is wedged: debugpy, pause, inspect, evaluate. Most agents are still sprinkling print statements.
 
-![op TUI: a live lldb-dap session against a native binary at /tmp/op-native/demo. Adapter=lldb-dap, Status=stopped, Frame=xorshift32, Instruction pointer 0x10000055C, Location demo.c:6:10. Debug scopes and Debug variables cards show locals (x = 57351) and the agent confirms the math: x went from 7 → 57351 (= 7 ^ (7<<13)).](https://omp.sh/clips/dap-poster.webp)
+![op TUI: a live lldb-dap session against a native binary at /tmp/op-native/demo. Adapter=lldb-dap, Status=stopped, Frame=xorshift32, Instruction pointer 0x10000055C, Location demo.c:6:10. Debug scopes and Debug variables cards show locals (x = 57351) and the agent confirms the math: x went from 7 → 57351 (= 7 ^ (7<<13)).](https://openpaths.io/clips/dap-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/dap.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/dap.mp4)_
 
 ### 04 · Time-traveling stream rules
 
 Your rules sit dormant until the model goes off-script. A regex match aborts the stream mid-token, injects the rule as a system reminder, and retries from the same point. You get course-correction without paying context tax on every turn. Injections survive compaction, so the fix sticks.
 
-![op TUI: agent reading src.rs and about to write Box::leak when the request aborts (red `Error: Request was aborted`), an amber `⚠ Injecting rule: box-leak` card injects the rule body `Don't reach for Box::leak in production code paths`, and the agent then course-corrects by proposing `Arc<str>` and asking the user to confirm.](https://omp.sh/clips/ttsr-poster.webp)
+![op TUI: agent reading src.rs and about to write Box::leak when the request aborts (red `Error: Request was aborted`), an amber `⚠ Injecting rule: box-leak` card injects the rule body `Don't reach for Box::leak in production code paths`, and the agent then course-corrects by proposing `Arc<str>` and asking the user to confirm.](https://openpaths.io/clips/ttsr-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/ttsr.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/ttsr.mp4)_
 
 ### 05 · First-class subagents
 
 Split a job across workers and get typed results back. task fans out into isolated worktrees, each worker runs its own tool surface, and the final yield is a schema-validated object the parent reads directly. No prose to parse, no merge conflicts between siblings, no orphaned edits.
 
-![op TUI showing `task` spawning two subagents `ComponentsExports` and `RoutesExports`, the constraints block requiring an IRC DM between peers, the per-subagent status cards with cost and duration, and a final Findings section listing both exports plus an honest 'IRC coordination note' about a one-sided handshake.](https://omp.sh/clips/irc-poster.webp)
+![op TUI showing `task` spawning two subagents `ComponentsExports` and `RoutesExports`, the constraints block requiring an IRC DM between peers, the per-subagent status cards with cost and duration, and a final Findings section listing both exports plus an honest 'IRC coordination note' about a one-sided handshake.](https://openpaths.io/clips/irc-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/irc.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/irc.mp4)_
 
 Watch the fan-out while it runs: `Alt+A` opens [Agent Hub](docs/agent-hub.md), where the roster shows current activity and usage for every subagent. Open one to read its live transcript, type a steering message, revive a parked worker, or kill a stuck one without aborting the parent session.
 
@@ -130,25 +172,25 @@ Watch the fan-out while it runs: `Alt+A` opens [Agent Hub](docs/agent-hub.md), w
 
 Pair a reviewer model to the 'advisor' role and it reads every turn the main agent takes, injecting notes inline — a quiet aside, a concern, or a hard blocker. It runs on its own context and its own model, so it catches what the doer rushed past. The main agent sees the note and course-corrects, or tells you why it won't.
 
-![op TUI: /advisor status shows the advisor running on openai-codex/gpt-5.5; after the main agent scopes a catch to ENOENT instead of swallowing every error, an amber 'Advisor 1 note (concern)' card warns the fix no longer matches the user's literal acceptance criterion.](https://omp.sh/clips/advisor-poster.webp)
+![op TUI: /advisor status shows the advisor running on openai-codex/gpt-5.5; after the main agent scopes a catch to ENOENT instead of swallowing every error, an amber 'Advisor 1 note (concern)' card warns the fix no longer matches the user's literal acceptance criterion.](https://openpaths.io/clips/advisor-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/advisor.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/advisor.mp4)_
 
 ### 07 · Hand someone the link, they're in.
 
 /collab puts your live session on a relay and hands back a link — and a QR. A teammate joins from another terminal with op join, or just opens it in a browser. Share read-write to pair on the same agent, or /collab view for a read-only link anyone can watch but no one can steer. Frames are sealed client-side; the relay never sees your keys.
 
-![op TUI: /collab view prints 'Collab session started!' with an op join command, a my.openpaths.io browser link, the note 'Anyone with this link can watch the session but cannot prompt the agent', and a large scannable QR code.](https://omp.sh/clips/collab-poster.webp)
+![op TUI: /collab view prints 'Collab session started!' with an op join command, a my.openpaths.io browser link, the note 'Anyone with this link can watch the session but cannot prompt the agent', and a large scannable QR code.](https://openpaths.io/clips/collab-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/collab.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/collab.mp4)_
 
 ### 08 · Read a pdf on arxiv, why not?
 
 web_search chains twenty-three ranked providers and hands whatever URLs it finds straight to read. Arxiv PDFs, GitHub pages, Stack Overflow threads come back as structured markdown with anchors intact — the same tool surface you use on local files. Cite, follow, quote, never lose where you came from.
 
-![op TUI: web_search returns 10 ranked Perplexity sources for inference-time compute scaling, the agent picks an arxiv paper, calls read https://arxiv.org/pdf/2604.10739v1, and summarizes the paper's headline result with real numbers.](https://omp.sh/clips/web-poster.webp)
+![op TUI: web_search returns 10 ranked Perplexity sources for inference-time compute scaling, the agent picks an arxiv paper, calls read https://arxiv.org/pdf/2604.10739v1, and summarizes the paper's headline result with real numbers.](https://openpaths.io/clips/web-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/web.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/web.mp4)_
 
 ### 09 · Unapologetically native. Even on Windows.
 
@@ -157,6 +199,8 @@ Other agents shell out to rg, grep, find, and bash. On many machines those binar
 ### 10 · Code review with priorities and a verdict
 
 Get a clear verdict on whether the change ships, with every issue ranked P0 through P3 and scored for confidence. /review spawns dedicated reviewer subagents that sweep branches, single commits, or uncommitted work in parallel. You tackle what blocks release first; nothing important hides in a wall of prose.
+
+Want to steer the review yourself? `/annotate code-review` opens the diff so you can pin notes to lines before the reviewers run. `/annotate` also takes the latest reply, a session message, a file, or quoted text and pastes your notes into the prompt. See [`/annotate`](docs/slash-command-internals.md#12-bundled-command-note-annotate).
 
 ### 11 · Hashline: edit by content hash
 
@@ -186,37 +230,33 @@ op reads the working tree through git_overview, git_file_diff, and git_hunk, the
 
 Sixteen internal schemes — `pr://`, `issue://`, `agent://`, `skill://`, `ssh://`, and the rest — resolve transparently inside every FS-shaped tool the agent already calls. `read pr://1428` returns the same shape as `read src/foo.ts`. `grep` walks a diff like a directory. `agent://<id>/findings.0.path` pulls a field out of a subagent's output by path.
 
-![op TUI reading pr://lee101/op/1063 and then /diff/1, showing hunk headers, added lines, and a [MODIFIED] (+12 -0) summary.](https://omp.sh/captures/pr.webp)
-
 ### 18 · Conflict resolution, made easy.
 
 Each merge conflict becomes one URL. The agent writes `@theirs`, `@ours`, or `@base` to `conflict://N` and the file resolves cleanly. Bulk form: `conflict://*`.
 
-![op TUI: ✓ Read src/session.ts (⚠ 1 conflict), then ✓ Write conflict://1 · 1 line with content @theirs, then a confirmation 'Resolved.'](https://omp.sh/clips/conflict-poster.webp)
+![op TUI: ✓ Read src/session.ts (⚠ 1 conflict), then ✓ Write conflict://1 · 1 line with content @theirs, then a confirmation 'Resolved.'](https://openpaths.io/clips/conflict-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/conflict.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/conflict.mp4)_
 
 ### 19 · Preview, then accept.
 
 `ast_edit` returns a _(proposed)_ card with the replacement count. The change is staged. The agent writes a one-line reason to `xd://resolve`; the TUI turns it into an **Accept** card and the disk move happens — atomic, all or nothing.
 
-![op TUI: ✓ AST Edit: console.log($X) (proposed) 3 replacements · 1 file, then ✓ Accept: 3 replacements in 1 file (AST Edit), followed by 'Applied 3 replacements in src/auth.ts.'](https://omp.sh/clips/codemod-poster.webp)
+![op TUI: ✓ AST Edit: console.log($X) (proposed) 3 replacements · 1 file, then ✓ Accept: 3 replacements in 1 file (AST Edit), followed by 'Applied 3 replacements in src/auth.ts.'](https://openpaths.io/clips/codemod-poster.webp)
 
-_[Watch the capture ↗](https://omp.sh/clips/codemod.mp4)_
+_[Watch the capture ↗](https://openpaths.io/clips/codemod.mp4)_
 
 ### 20 · Drives a _real browser_. _Or your Slack?_
 
-Stealth's on by default, so pages see a normal user instead of a headless bot. The same API drives any Electron app in place — point it at Slack and the agent reads your DMs the way it reads the web. Or skip the sandbox entirely: the browser relay extension lets the agent adopt the Chrome tabs you already have open, without stealing focus.
-
-![op TUI driving the browser tool against DuckDuckGo](https://omp.sh/captures/browser.webp)
+Eval's `browser.open(...)` returns a tab handle with direct navigation, inspection, interaction, and element helpers; `tab.run(...)` handles custom JavaScript. It drives Chromium or Electron in an isolated tab runtime. Stealth is on by default, while the browser relay can adopt Chrome tabs you already have open without stealing focus.
 
 ### 21 · Hands on the desktop itself
 
-`computer` runs persistent JavaScript against the real host: enumerate windows and displays, capture screenshots, send native input, walk the OS accessibility tree, touch the clipboard. Not the browser tool, no DOM — the same desktop you're looking at.
+Eval's `computer` helpers — `computer.window(...)`, `win.screenshot()`, `win.ax()`, `el.press()`, plus `computer.run(fnOrCode, options)` for multi-step scripts — control the real host: enumerate windows and displays, capture screenshots, send native input, walk the OS accessibility tree, and use the clipboard. It exposes no browser DOM.
 
 ## Whatever the task needs, _it's already in the box_.
 
-31 tools live in the same namespace as `read` and `bash`. Pin the active set with `--tools read,edit,bash,…`; rarely used discoverable tools stay behind `xd://` devices. `read xd://` lists them, and `write xd://<tool>` runs one when `tools.xdev` is enabled.
+Core tools live in the same namespace as `read` and `bash`. Pin the active set with `--tools read,edit,bash,…`; rarely used discoverable tools stay behind `xd://` devices. `read xd://` lists them, and `write xd://<tool>` runs one when `tools.xdev` is enabled.
 
 **Files & search**
 
@@ -242,7 +282,7 @@ Stealth's on by default, so pages see a normal user instead of a headless bot. T
 **Coordination**
 
 - `task` — fan out subagents in parallel, optionally workspace-isolated.
-- `hub` — message live agents, wait on or cancel background jobs, and supervise long-running processes.
+- `wait` — block until the next background result, peer message, or steering interrupt; message peers and control jobs via `agent://` and `proc://`.
 - `todo` — ordered mutations over the session todo list with phase tracking.
 - `ask` — structured follow-up questions for interactive runs.
 
@@ -253,7 +293,6 @@ Stealth's on by default, so pages see a normal user instead of a headless bot. T
 - `web_search` — one query across configured providers, returning answer plus citations.
 - `github` — GitHub CLI ops — repo, PR, issues, code search, Actions run-watch.
 - `generate_image` — generate or edit raster images via Gemini, GPT, or xAI Grok image models.
-- `inspect_image` — vision-model analysis of a local image file.
 - `tts` — text-to-speech via xAI Grok Voice — five built-in voices, WAV or MP3.
 
 **Memory & skills**
@@ -267,7 +306,7 @@ Stealth's on by default, so pages see a normal user instead of a headless bot. T
 - `learn` — capture a reusable lesson; optionally promote it into a managed skill.
 - `manage_skill` — create, update, or delete an isolated managed skill.
 
-Setting-gated, off by default: `github`, `security_scan`, `generate_image`, `tts`, `checkpoint`, `rewind`, and the memory tools (`retain`/`recall`/`reflect`/`memory_edit`, per `memory.backend`). `inspect_image` activates automatically when the active model can't see.
+Setting-gated, off by default: `github`, `security_scan`, `generate_image`, `tts`, `checkpoint`, `rewind`, and the memory tools (`retain`/`recall`/`reflect`/`memory_edit`, per `memory.backend`).
 
 [Full reference →](https://openpaths.io/docs/tools)
 
@@ -290,7 +329,7 @@ Slash commands shift how a whole session runs:
 
 ## Sixty-plus providers, a thousand models, _one /model away_.
 
-Ten roles route work by intent. `default` for normal turns. `smol` for cheap subagent fan-out. `slow` for deep reasoning. `plan` for plan mode. `commit` for changelogs. Plus `vision`, `designer`, `task`, `advisor`, and `tiny` for their namesakes. Override at launch with `--smol`, `--slow`, or `--plan`; cycle through the configured models for the active role with `Ctrl+P`. Swap the active model mid-session with the `/model` slash command.
+Nine roles route work by intent. `default` for normal turns. `smol` for cheap subagent fan-out. `slow` for deep reasoning. `plan` for plan mode. `commit` for changelogs. Plus `vision`, `task`, `advisor`, and `tiny` for their namesakes. Override at launch with `--smol`, `--slow`, or `--plan`; cycle through the configured models for the active role with `Ctrl+P`. Swap the active model mid-session with the `/model` slash command.
 
 Auth tags below: `oauth` signs in with your provider account, `plan` routes through a coding-plan subscription, `local` runs against a local server with the key optional.
 
@@ -298,7 +337,7 @@ Auth tags below: `oauth` signs in with your provider account, `plan` routes thro
 
 Direct APIs and gateways. Mix providers per role.
 
-Anthropic `oauth` · OpenAI · OpenAI Codex `oauth` · Google Gemini · Google Vertex · Google Antigravity `oauth` · xAI · SuperGrok `oauth` · DeepSeek · Mistral · Groq · Cerebras · Fireworks · Together · Baseten · Hugging Face · NVIDIA · Meta · Amazon Bedrock · Azure OpenAI · SiliconFlow · GMI Cloud · CoreWeave · Sakana AI · OpenRouter · Synthetic · Vercel AI Gateway · Cloudflare AI Gateway · Wafer Serverless
+Anthropic `oauth` · OpenAI · OpenAI Codex `oauth` · Google Gemini · Google Vertex · Google Antigravity `oauth` · xAI · SuperGrok `oauth` · DeepSeek · Mistral · Groq · Cerebras · Fireworks · Together · Baseten · DeepInfra · Hugging Face · NVIDIA · Meta · Amazon Bedrock · Azure OpenAI · SiliconFlow · GMI Cloud · CoreWeave · Sakana AI · Command Code · Charm Hyper · RunAnywhere · StepFun · Helmcode · OpenRouter · Synthetic · Vercel AI Gateway · Cloudflare AI Gateway · Wafer Serverless
 
 ### Coding plans
 
@@ -340,7 +379,7 @@ modelRoles:
 
 ### Four knobs that make routing useful
 
-- **Custom providers** — Declare anything that speaks `openai-completions`, `openai-responses`, `openai-codex-responses`, `azure-openai-responses`, `anthropic-messages`, `bedrock-converse-stream`, `google-generative-ai`, `google-gemini-cli`, or `google-vertex` in `~/.op/agent/models.yml`.
+- **Custom providers** — Declare anything that speaks `openai-completions`, `openai-responses`, `openai-codex-responses`, `azure-openai-responses`, `anthropic-messages`, `bedrock-converse-stream`, `google-generative-ai`, `google-gemini-cli`, `google-vertex`, `typesafe`, or `openrouter-decisions` (the two judge APIs) in `~/.op/agent/models.yml`.
 - **Fallback chains** — Per-role or per-model chains under `retry.fallbackChains`. When the primary throws 429s or hits a quota wall, the next entry takes the rest of the turn — restored on cooldown.
 - **Path-scoped models** — Scope `enabledModels` and `disabledProviders` entries to a `path:` prefix to pin a different model set on one repo without touching the global config. Scoped entries cover the path and everything under it.
 - **Round-robin credentials** — Stack API keys per provider and the runtime rotates with session affinity and per-credential backoff. Useful when one key would burn its quota by lunch.
@@ -411,7 +450,7 @@ Vuln lookups answer with vendor data, not blog summaries.
 Six crates, one platform-tagged N-API addon. Search, shell, AST, highlight, PTY, desktop control, image decode, BPE counting — all in-process on the libuv pool. No fork/exec on the hot path. Another ~80k lines ride along vendored: the brush bash fork, plus 58 command-line utilities — coreutils, findutils, sed, jq, ripgrep-backed grep, fd, diff, moreutils — ported into the builtins crate and compiled straight into the shell.
 
 - Crates: `pi-natives`, `pi-shell`, `pi-ast`, `pi-iso`, `pi-voice`, `pi-walker`
-- Platforms: `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64` — x64 ships dual AVX2 and baseline binaries
+- Platforms: `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64`, `win32-arm64` — x64 ships dual AVX2 and baseline binaries
 
 Per crate, code lines only:
 
@@ -462,7 +501,7 @@ The TUI is the default surface. Tool calls render as cards, edits preview before
 
 The same prompt cards surface over ACP, so editors get the picker without writing one.
 
-![op TUI: the ask tool renders an option picker with three choices, a (Recommended) badge on the first, and 'up/down navigate · enter select · esc cancel' footer.](https://omp.sh/captures/ask.webp)
+![op TUI showing a multi-select question from the ask tool.](assets/ask.webp)
 
 ### SDK — embed in Node
 
@@ -494,7 +533,7 @@ await session.prompt("list .ts files");
 
 `op --mode rpc`
 
-For non-Node embedders, or when you want process isolation. NDJSON commands in, response and event frames out. `--mode rpc-ui` adds tool cards, selectors, and dialogs as `extension_ui_request` frames the host must answer.
+For non-Node embedders, or when you want process isolation. NDJSON commands in, response and event frames out; each prompt ends with its own `prompt_result`. `--mode rpc-ui` adds tool cards, selectors, and dialogs as `extension_ui_request` frames the host must answer; `--no-ui` keeps even extension dialogs off the wire for hosts with no UI.
 
 ```
 $ op --mode rpc --no-session
@@ -608,7 +647,7 @@ For architecture and contribution guidelines, see [packages/coding-agent/DEVELOP
 | **[@openpaths/utils](packages/utils)**                                      | Shared utilities (logging, streams, dirs/env/process helpers)               |
 | **[@openpaths/wire](packages/wire)**                                        | Shared collab live-session protocol types and relay constants               |
 | **[@openpaths/hashline](packages/hashline)**                                   | Line-anchored patch language and applier behind the `edit` tool             |
-| **[@openpaths/mnemopi](packages/mnemopi)**                                  | Local SQLite memory engine for OpenPaths agents                              |
+| **[@openpaths/mnemopi](packages/mnemopi)**                                  | Local SQLite memory engine for OpenPaths agents                             |
 | **[@openpaths/snapcompact](packages/snapcompact)**                             | Bitmap-frame context compression package and SQuAD eval suite               |
 | **[@openpaths/browser-relay](packages/browser-relay)**                         | Chrome extension that lets the browser tool drive your existing tabs        |
 | **[@openpaths/metaharness](packages/metaharness)**                          | Unified benchmark runners, Harbor run storage, REST/SSE API, live dashboard |
@@ -624,6 +663,7 @@ For architecture and contribution guidelines, see [packages/coding-agent/DEVELOP
 | **[pi-iso](crates/pi-iso)**                        | Task isolation backend resolver: APFS clones, btrfs/zfs reflinks, overlayfs, projfs, rcopy          |
 | **[pi-voice](crates/pi-voice)**                    | Audio capture/playback, Opus codecs, and live WebRTC streaming primitives                           |
 | **[pi-walker](crates/pi-walker)**                  | Parallel ignore-aware filesystem walker with the scan cache shared by grep, glob, and workspace     |
+| **[pi-edit](crates/pi-edit)**                      | Edit engine behind the `edit` tool: line-anchored patch/hashline modes, streaming previews, atomic apply |
 | **[brush-core](crates/vendor/brush-core)**         | Vendored fork of [brush-shell](https://github.com/reubeno/brush) for embedded bash execution        |
 | **[pi-builtins](crates/pi-builtins)**              | Bash builtins (cd, echo, test, printf, read, export, …) plus 67 in-process command-line utilities |
 
@@ -638,14 +678,21 @@ guidelines on contributing.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+op is licensed under the [MIT License](LICENSE).
+
+Third-party and vendored code, including `crates/vendor/brush-core` and the
+third-party portions identified in `crates/pi-builtins/LICENSE`, remains under
+its respective upstream license. See `THIRD-PARTY-NOTICES.txt` and
+component-local notices for attribution and additional terms.
 
 © 2025 Mario Zechner  
-© 2025-2026 Can Bölük
+© 2025-2026 Can Bölük  
+© 2026 [Stencil Labs, Inc.](https://stencil.so)
 
 _made for terminals that stay open_
 
 - [openpaths.io](https://openpaths.io)
+- [Stencil Labs](https://stencil.so)
 - [GitHub](https://github.com/lee101/op)
 - [Changelog](https://github.com/lee101/op/blob/main/packages/coding-agent/CHANGELOG.md)
 - [npm](https://www.npmjs.com/package/@openpaths/coding-agent)

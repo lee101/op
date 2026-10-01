@@ -1,6 +1,6 @@
 # hello-extension
 
-A minimal `openpaths` extension that demonstrates the two most common authoring patterns: subscribing to `session_start` to notify on load, and registering a `/hello` slash command that sends a greeting into the conversation. It is intentionally small — use it as a copy-paste starting point for your own extension.
+A minimal `op` extension that demonstrates the two most common authoring patterns: subscribing to `session_start` to notify on load, and registering a `/hello` slash command that sends a greeting into the conversation. It is intentionally small — use it as a copy-paste starting point for your own extension.
 
 ## Install
 
@@ -12,7 +12,7 @@ cp -r . ~/.op/agent/extensions/hello-extension
 
 Restart `op`. You will see the startup notification immediately.
 
-With `op --profile <name>`, use `~/.op/profiles/<name>/agent/extensions/hello-extension` instead. `PI_CODING_AGENT_DIR` likewise changes the agent directory.
+With `op --profile <name>`, use `~/.op/profiles/<name>/agent/extensions/hello-extension` under the default layout. `PI_CODING_AGENT_DIR` changes the default profile's agent directory, not a named profile's. Initialized XDG roots can change these locations.
 
 **Option B — point the settings `extensions` array at it:**
 

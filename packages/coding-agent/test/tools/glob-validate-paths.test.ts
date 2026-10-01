@@ -3,7 +3,8 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import type { RenderResultOptions } from "@openpaths/coding-agent/extensibility/custom-tools/types";
-import { getThemeByName, initTheme, type Theme } from "@openpaths/coding-agent/modes/theme/theme";
+import { InternalUrlFilesystem } from "@openpaths/coding-agent/internal-urls/url-filesystem";
+import { getThemeByName, initTheme, type Theme } from "@openpaths/tui/theme";
 import {
 	expandDelimitedPathEntries,
 	parseFindPattern,
@@ -12,7 +13,7 @@ import {
 } from "@openpaths/coding-agent/tools/path-utils";
 import type { Component } from "@openpaths/tui";
 import { removeWithRetries } from "@openpaths/utils";
-import { globToolRenderer } from "../../src/tools/glob";
+import { globToolRenderer } from "@openpaths/tui/tools/glob";
 
 let uiTheme: Theme;
 
@@ -145,6 +146,7 @@ describe("delimited path expansion", () => {
 			rawPaths: ["apps\\**\\*.txt"],
 			cwd: tempDir,
 			internalUrlAction: "search",
+			filesystem: new InternalUrlFilesystem({ context: {}, tier: "read" }),
 		});
 
 		expect(scope.searchPath).toBe(path.join(tempDir, "apps"));

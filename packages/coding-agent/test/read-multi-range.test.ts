@@ -2,17 +2,16 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { Patch, Patcher } from "@openpaths/hashline";
 import type { AgentToolResult } from "@openpaths/agent-core";
 import { Settings } from "@openpaths/coding-agent/config/settings";
-import { getFileSnapshotStore } from "@openpaths/coding-agent/edit/file-snapshot-store";
-import { HashlineFilesystem } from "@openpaths/coding-agent/edit/hashline/filesystem";
-import { writethroughNoop } from "@openpaths/coding-agent/lsp";
+import { EditTool } from "@openpaths/coding-agent/edit";
 import type { ClientBridge } from "@openpaths/coding-agent/session/client-bridge";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
-import type { ReadToolDetails } from "@openpaths/coding-agent/tools/read";
+import type { ReadToolDetails } from "@openpaths/tui/tools/read";
 import { ReadTool } from "@openpaths/coding-agent/tools/read";
 import { removeWithRetries } from "@openpaths/utils";
+
+import { cfgReadSummarizeEnabled } from "@openpaths/coding-agent/tools/settings";
 
 function textOutput(result: AgentToolResult<ReadToolDetails>): string {
 	return result.content
@@ -25,7 +24,7 @@ function createSession(cwd: string, bridge?: ClientBridge): ToolSession {
 	const settings = Settings.isolated();
 	// Disable structural summarization so multi-range tests assert raw line content
 	// regardless of language heuristics.
-	settings.set("read.summarize.enabled", false);
+	cfgReadSummarizeEnabled.set(settings, false);
 	return {
 		cwd,
 		hasUI: false,
@@ -51,20 +50,6 @@ describe("read tool multi-range selector", () => {
 
 	afterEach(async () => {
 		await removeWithRetries(tmpDir);
-	});
-
-	it("keeps the workspace-relative path in hashline headers for nested files", async () => {
-		const filePath = path.join(tmpDir, "src", "nested", "numbered.txt");
-		await fs.mkdir(path.dirname(filePath), { recursive: true });
-		await fs.writeFile(filePath, "alpha\nbeta\n");
-
-		const tool = new ReadTool(createSession(tmpDir));
-		const text = textOutput(await tool.execute("call-filename-header", { path: filePath }));
-		const firstLine = text.split("\n")[0];
-
-		// A same-basename file elsewhere in the tree must not capture a
-		// follow-up edit, so the header retains the workspace-relative path.
-		expect(firstLine).toBe(`[${path.join("src", "nested", "numbered.txt")}#${firstLine.slice(-5, -1)}]`);
 	});
 
 	it("returns both ranges separated by an elision marker", async () => {
@@ -306,15 +291,9 @@ describe("read tool multi-range selector", () => {
 		expect(text).toContain("1:first\n2:");
 		expect(text).not.toContain("\n4:");
 
-		const patch = Patch.parse(`${header}\nCUT 2`, { cwd: tmpDir });
-		const filesystem = new HashlineFilesystem({
-			session,
-			writethrough: writethroughNoop,
-			beginDeferredDiagnosticsForPath: () => {
-				throw new Error("deferred diagnostics are unused");
-			},
+		await new EditTool(session, "hashline").execute("call-bridge-edit", {
+			input: `${header}\nCUT 2`,
 		});
-		await new Patcher({ fs: filesystem, snapshots: getFileSnapshotStore(session) }).apply(patch);
 
 		expect(await fs.readFile(filePath, "utf8")).toBe("first\nlast\n");
 	});

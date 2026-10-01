@@ -3,7 +3,7 @@ import { ThinkingLevel } from "@openpaths/agent-core";
 import type { Model } from "@openpaths/ai";
 import type { ResolvedModelRoleValue } from "../../src/config/model-resolver";
 import { resolvePlanModelTransition } from "../../src/plan-mode/model-transition";
-import { AUTO_THINKING } from "../../src/thinking";
+import { AUTO_THINKING } from "@openpaths/tui/thinking";
 
 /**
  * Plan-mode model transition policy (issue #5657). The active model in plan

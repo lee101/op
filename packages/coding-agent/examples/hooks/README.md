@@ -1,6 +1,6 @@
 # Hooks Examples
 
-Example hooks for op-coding-agent.
+Example hooks for omp-coding-agent. Hook modules load through the extension runner, so every `pi.on(...)` handler here behaves like an extension handler.
 
 ## Usage
 
@@ -8,8 +8,8 @@ Example hooks for op-coding-agent.
 # Load a hook with --hook flag
 op --hook examples/hooks/permission-gate.ts
 
-# Or copy to hooks directory for auto-discovery
-cp permission-gate.ts ~/.op/agent/hooks/
+# Or copy to a hooks/pre (or hooks/post) directory for auto-discovery
+cp permission-gate.ts ~/.op/agent/hooks/pre/
 ```
 
 ## Examples
@@ -25,16 +25,15 @@ cp permission-gate.ts ~/.op/agent/hooks/
 | `auto-commit-on-exit.ts` | Auto-commits on exit using last assistant message for commit message           |
 | `custom-compaction.ts`   | Custom compaction that summarizes entire conversation                          |
 | `qna.ts`                 | Extracts questions from last response into editor via `ctx.ui.setEditorText()` |
-| `snake.ts`               | Snake game with custom UI, keyboard handling, and session persistence          |
-| `status-line.ts`         | Shows turn progress in footer via `ctx.ui.setStatus()` with themed colors      |
+| `status-line.ts`         | Shows plain-text turn progress in the footer via `ctx.ui.setStatus()`          |
 | `handoff.ts`             | Transfer context to a new focused session via `/handoff <goal>`                |
 
 ## Writing Hooks
 
-See [docs/hooks.md](../../docs/hooks.md) for full documentation.
+See [docs/hooks.md](../../../../docs/hooks.md) for full documentation.
 
 ```typescript
-import type { HookAPI } from "@openpaths/coding-agent/hooks";
+import type { HookAPI } from "@openpaths/coding-agent/extensibility/hooks";
 
 export default function (pi: HookAPI) {
 	// Subscribe to events
