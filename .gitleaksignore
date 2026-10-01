@@ -1,0 +1,8 @@
+cde2fee500fb8f5c85c8c93a20453c7cd20a4232:packages/ai/test/factory-droid-gemini.test.ts:generic-api-key:265
+cde2fee500fb8f5c85c8c93a20453c7cd20a4232:packages/ai/test/factory-droid-gemini.test.ts:github-pat:265
+c4a2441d8f9195de810b3492be5bf5673cecf9c9:packages/coding-agent/test/acp-session-effects.test.ts:github-pat:15
+5d43f390911533096562d11d393d430845dc8101:packages/coding-agent/test/skillshare/pack.test.ts:private-key:140
+ae7af75570e5b384eb3cae43781a474a46ce6ef6:packages/coding-agent/src/stt/models.ts:generic-api-key:79
+5060ac09dea7fad2eaaba2bfd7aac632353e97da:packages/ai/test/fixtures/factory-droid-responses-ws-frames.jsonl:generic-api-key:1
+5060ac09dea7fad2eaaba2bfd7aac632353e97da:packages/ai/test/fixtures/factory-droid-responses-ws-frames.jsonl:generic-api-key:2
+5060ac09dea7fad2eaaba2bfd7aac632353e97da:packages/ai/test/fixtures/factory-droid-responses-ws-frames.jsonl:generic-api-key:9
