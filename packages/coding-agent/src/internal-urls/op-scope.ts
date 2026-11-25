@@ -7,7 +7,7 @@ import { getDocFilenames, getEmbeddedDoc } from "./docs-index";
 import type { InternalUrl, ResolveContext } from "./types";
 
 /** Host + path of an `op://` URL, exactly as the handler reads it; `""` when the URL names the docs root. */
-export function opDocFilename(url: InternalUrl): string {
+export function ompDocFilename(url: InternalUrl): string {
 	const host = url.rawHost || url.hostname;
 	const pathname = url.rawPathname ?? url.pathname;
 	return host ? (pathname && pathname !== "/" ? host + pathname : host) : "";
@@ -18,8 +18,8 @@ export function opDocFilename(url: InternalUrl): string {
  * docs root (`op://`, `op:///`, `op://docs`, `op://docs/`). Throws on
  * absolute paths and `..` traversal — the rejections the handler reports.
  */
-export function opDocRel(url: InternalUrl): string {
-	const filename = opDocFilename(url);
+export function ompDocRel(url: InternalUrl): string {
+	const filename = ompDocFilename(url);
 	if (filename.length === 0) return "";
 	if (path.isAbsolute(filename)) throw new Error("Absolute paths are not allowed in op:// URLs");
 	const normalized = path.posix.normalize(filename.replaceAll("\\", "/"));
@@ -30,7 +30,7 @@ export function opDocRel(url: InternalUrl): string {
 	return normalized.startsWith("docs/") ? normalized.slice("docs/".length) : normalized;
 }
 
-/** One embedded doc of an `op://` root scope. */
+/** One embedded doc of a `op://` root scope. */
 interface OpDocEntry {
 	/** Canonical `op://<rel>` URL. */
 	url: string;
@@ -42,7 +42,7 @@ interface OpDocEntry {
  * Every embedded doc for a root scope, in docs-index (sorted) order. Empty
  * when no docs corpus is reachable.
  */
-export async function opDocsScopeEntries(context?: ResolveContext): Promise<OpDocEntry[]> {
+export async function ompDocsScopeEntries(context?: ResolveContext): Promise<OpDocEntry[]> {
 	const entries: OpDocEntry[] = [];
 	for (const rel of getDocFilenames()) {
 		context?.signal?.throwIfAborted();

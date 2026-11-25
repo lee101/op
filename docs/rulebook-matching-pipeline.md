@@ -71,7 +71,7 @@ Consequence: precedence and deduplication are **name-based only**. Two different
 
 ### Native provider (`builtin.ts`)
 
-Loads `.omp` rules from:
+Loads `.op` rules from:
 
 - project rules: `<cwd>/.op/rules/*.{md,mdc}` when the cwd's `.op/` directory is non-empty
 - user rules: `<active-native-agent-dir>/rules/*.{md,mdc}`

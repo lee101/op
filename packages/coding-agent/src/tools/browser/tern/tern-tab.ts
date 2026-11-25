@@ -232,7 +232,7 @@ const CONSOLE_LIMIT = 500;
 const NAVIGATION_IDLE_MS = 500;
 const KIT_CALL =
 	"async function (method, args) { const kit = globalThis.__ompTernKit; if (!kit) return { missing: true }; return { value: await kit[method](...args) }; }";
-const HANDLE_ATTRIBUTE = "data-omp-tern-handle";
+const HANDLE_ATTRIBUTE = "data-op-tern-handle";
 
 /** The tab-helper name for errors: `tab.pdf()`. */
 function helper(name: string): string {
@@ -1365,7 +1365,7 @@ export class TernTab implements InProcessRunTab {
 			throw new ToolError("highlight duration must be a non-negative number");
 		const spec = this.#spec(selector);
 		await this.#target(`tab.highlight(${describe(selector)})`, spec, "point", null);
-		const id = `omp-highlight-${crypto.randomUUID()}`;
+		const id = `op-highlight-${crypto.randomUUID()}`;
 		await this.#kit("highlight", [spec, id]);
 		try {
 			await untilAborted(this.#signal, () => Bun.sleep(duration));
@@ -1838,7 +1838,7 @@ export class TernTab implements InProcessRunTab {
 					context.session.browserScreenshotDir,
 					`screenshot-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, -1)}.${ext}`,
 				)
-			: path.join(os.tmpdir(), `omp-sshots-${Snowflake.next()}.${ext}`);
+			: path.join(os.tmpdir(), `op-sshots-${Snowflake.next()}.${ext}`);
 		await Bun.write(dest, savedBuffer);
 		context.screenshots.push({
 			dest,
@@ -1873,7 +1873,7 @@ export class TernTab implements InProcessRunTab {
 		const changed = diff.pixelChangeRatio > screenshotThreshold(opts.threshold);
 		const diffPath = opts.output
 			? resolveToCwd(opts.output, context.session.cwd)
-			: path.join(os.tmpdir(), `omp-screenshot-diff-${Snowflake.next()}.png`);
+			: path.join(os.tmpdir(), `op-screenshot-diff-${Snowflake.next()}.png`);
 		await Bun.write(diffPath, diff.png);
 		const resized = await resizeImage(
 			{ type: "image", data: diff.png.toString("base64"), mimeType: "image/png" },
@@ -1916,7 +1916,7 @@ export class TernTab implements InProcessRunTab {
 		if (!isRecord(answer) || typeof answer.data !== "string") throw new ToolError("Tern pdf answered without data");
 		const dest = opts.path
 			? resolveToCwd(opts.path, context.session.cwd)
-			: path.join(os.tmpdir(), `omp-browser-${Snowflake.next()}.pdf`);
+			: path.join(os.tmpdir(), `op-browser-${Snowflake.next()}.pdf`);
 		await Bun.write(dest, Buffer.from(answer.data, "base64"));
 		return dest;
 	}
@@ -2282,7 +2282,7 @@ export class TernTab implements InProcessRunTab {
 	}
 
 	async #enableDownloads(dir?: string): Promise<void> {
-		const resolved = path.resolve(dir ?? path.join(os.tmpdir(), `omp-downloads-tern-${this.block}`));
+		const resolved = path.resolve(dir ?? path.join(os.tmpdir(), `op-downloads-tern-${this.block}`));
 		if (this.#downloadDir === resolved) return;
 		await fs.promises.mkdir(resolved, { recursive: true });
 		await this.#op("downloads", { dir: resolved });
@@ -2457,7 +2457,7 @@ export class TernTab implements InProcessRunTab {
 		const har = await this.#network.harStop(this.loadBody);
 		const destination = options.path
 			? resolveToCwd(options.path, context.session.cwd)
-			: path.join(os.tmpdir(), `omp-browser-${Snowflake.next()}.har`);
+			: path.join(os.tmpdir(), `op-browser-${Snowflake.next()}.har`);
 		await Bun.write(destination, `${JSON.stringify(har, null, 2)}\n`);
 		return destination;
 	}

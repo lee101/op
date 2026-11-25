@@ -1516,7 +1516,7 @@ describe("runEvalAgent isolation", () => {
 
 		expect(result.details.patchPath).toMatch(/\.patch$/);
 		const removedArtifactsDir = rmSpy.mock.calls.some(
-			([target]) => typeof target === "string" && target.includes("omp-eval-agent-"),
+			([target]) => typeof target === "string" && target.includes("op-eval-agent-"),
 		);
 		expect(removedArtifactsDir).toBe(false);
 	});
@@ -1538,7 +1538,7 @@ describe("runEvalAgent isolation", () => {
 		await runEvalAgentAndWait({ prompt: "scout", isolated: true }, { session: isolatedSession() });
 
 		const removedArtifactsDir = rmSpy.mock.calls.some(
-			([target]) => typeof target === "string" && target.includes("omp-eval-agent-"),
+			([target]) => typeof target === "string" && target.includes("op-eval-agent-"),
 		);
 		expect(removedArtifactsDir).toBe(false);
 	});

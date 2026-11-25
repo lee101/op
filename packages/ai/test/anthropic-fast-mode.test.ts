@@ -7,6 +7,7 @@ import {
 } from "@openpaths/ai/providers/anthropic";
 import type { Context, Model, ProviderSessionState, ServiceTier } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
+import { withOfficialAnthropicEndpoint } from "./helpers";
 
 function makeAnthropicModel(id: string): Model<"anthropic-messages"> {
 	return buildModel({
@@ -51,6 +52,8 @@ function capturePayload(model: Model<"anthropic-messages">, opts: CaptureOptions
 	});
 	return promise;
 }
+
+withOfficialAnthropicEndpoint();
 
 describe("Anthropic priority service tier → speed='fast'", () => {
 	it("forwards speed='fast' for any model — server decides what's supported", async () => {

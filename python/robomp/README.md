@@ -45,7 +45,7 @@ Flow: webhook → HMAC verify → `github_events.route` → sqlite `events`
 persistent `session_dir`, model randomly drawn from `ROBOMP_MODEL` (CSV).
 
 Release events serialize under `<owner>/<repo>#release`; each tag persists its
-own `releases` row and `.omp-session-<tag>` transcript.
+own `releases` row and `.op-session-<tag>` transcript.
 
 The agent uses op's built-in tools (`read`/`edit`/`bash`/`lsp`, scoped to
 the worktree) plus the host tools in `src/host_tools.py` — the
@@ -72,7 +72,7 @@ $EDITOR .env
 openssl rand -hex 32              # ROBOMP_GH_PROXY_HMAC_KEY
 openssl rand -hex 32              # GITHUB_WEBHOOK_SECRET
 
-bun run pi:image                  # build oh-my-pi/pi:dev (one-time / on pi change)
+bun run pi:image                  # build openpaths/pi:dev (one-time / on pi change)
 bun run robomp:build && bun run robomp:up
 curl -fsS http://localhost:8080/healthz
 ```
@@ -84,7 +84,7 @@ comment out `ROBOMP_GH_PROXY_URL` / `ROBOMP_GH_PROXY_HMAC_KEY` and set
 rejects a `.env` setting both).
 
 Build invalidation is bounded: editing roboomp Python touches only the
-runtime layer; editing pi source rebuilds `oh-my-pi/pi:dev`, which
+runtime layer; editing pi source rebuilds `openpaths/pi:dev`, which
 roboomp's `Dockerfile.robomp` extends via `FROM ${PI_BASE}`.
 
 ### Public URL

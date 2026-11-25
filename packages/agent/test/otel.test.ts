@@ -16,7 +16,7 @@ import {
 	GenAIAttr,
 	GenAIOperation,
 	OpenAIAttr,
-	OmpGenAIAttr,
+	OpGenAIAttr,
 	recordHandoff,
 	recordManualChatTelemetry,
 	resolveTelemetry,
@@ -133,7 +133,7 @@ describe("agent-loop OTEL instrumentation", () => {
 		expect(invoke?.attributes[GenAIAttr.AgentName]).toBe("researcher");
 		expect(invoke?.attributes[GenAIAttr.AgentDescription]).toBe("test-agent");
 		expect(invoke?.attributes[GenAIAttr.ConversationId]).toBe("conv-42");
-		expect(invoke?.attributes[OmpGenAIAttr.AgentStepCount]).toBe(1);
+		expect(invoke?.attributes[OpGenAIAttr.AgentStepCount]).toBe(1);
 
 		// chat envelope
 		expect(chat?.attributes[GenAIAttr.OperationName]).toBe(GenAIOperation.Chat);
@@ -144,7 +144,7 @@ describe("agent-loop OTEL instrumentation", () => {
 		expect(chat?.attributes[GenAIAttr.RequestTopP]).toBe(0.95);
 		expect(chat?.attributes[GenAIAttr.RequestPresencePenalty]).toBe(0.1);
 		expect(chat?.attributes[GenAIAttr.RequestChoiceCount]).toBeUndefined();
-		expect(chat?.attributes[OmpGenAIAttr.AgentStepNumber]).toBe(0);
+		expect(chat?.attributes[OpGenAIAttr.AgentStepNumber]).toBe(0);
 		expect(chat?.attributes[GenAIAttr.RequestStream]).toBe(true);
 		expect(chat?.attributes[GenAIAttr.OutputType]).toBe("text");
 
@@ -153,7 +153,7 @@ describe("agent-loop OTEL instrumentation", () => {
 		expect(chat?.attributes[GenAIAttr.ResponseFinishReasons]).toEqual(["stop"]);
 		expect(chat?.attributes[GenAIAttr.UsageInputTokens]).toBe(24);
 		expect(chat?.attributes[GenAIAttr.UsageOutputTokens]).toBe(34);
-		expect(chat?.attributes[OmpGenAIAttr.UsageTotalTokens]).toBe(58);
+		expect(chat?.attributes[OpGenAIAttr.UsageTotalTokens]).toBe(58);
 		expect(chat?.attributes[GenAIAttr.UsageCacheReadInputTokens]).toBe(5);
 		expect(chat?.attributes[GenAIAttr.UsageCacheCreationInputTokens]).toBe(7);
 		expect(chat?.attributes[GenAIAttr.UsageReasoningOutputTokens]).toBe(11);
@@ -246,7 +246,7 @@ describe("agent-loop OTEL instrumentation", () => {
 		expect(tool?.status.code).toBe(SpanStatusCode.UNSET);
 
 		// op.gen_ai.agent.step.count counts chat completions
-		expect(invoke?.attributes[OmpGenAIAttr.AgentStepCount]).toBe(2);
+		expect(invoke?.attributes[OpGenAIAttr.AgentStepCount]).toBe(2);
 	});
 
 	it("parents downstream spans created during tool execution (active-context propagation)", async () => {
@@ -384,7 +384,7 @@ describe("agent-loop OTEL instrumentation", () => {
 		expect(chat?.status.code).not.toBe(SpanStatusCode.ERROR);
 		const systemAttr = chat?.attributes[GenAIAttr.SystemInstructions] as string | undefined;
 		expect(JSON.parse(systemAttr!)).toEqual([{ type: "text", content: "sys-as-string" }]);
-		const request = JSON.parse(chat?.attributes[OmpGenAIAttr.RequestMessages] as string) as Array<{
+		const request = JSON.parse(chat?.attributes[OpGenAIAttr.RequestMessages] as string) as Array<{
 			content: unknown;
 			role: string;
 		}>;
@@ -405,11 +405,11 @@ describe("agent-loop OTEL instrumentation", () => {
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		const request = JSON.parse(chat?.attributes[OmpGenAIAttr.RequestMessages] as string) as Array<{
+		const request = JSON.parse(chat?.attributes[OpGenAIAttr.RequestMessages] as string) as Array<{
 			content: unknown;
 			role: string;
 		}>;
-		const responseText = JSON.parse(chat?.attributes[OmpGenAIAttr.ResponseText] as string);
+		const responseText = JSON.parse(chat?.attributes[OpGenAIAttr.ResponseText] as string);
 		expect(request.map(message => message.role)).toEqual(["system", "user"]);
 		expect(responseText).toEqual(["hi back"]);
 		expect(chat?.attributes[GenAIAttr.InputMessages]).toBeUndefined();
@@ -448,9 +448,9 @@ describe("agent-loop OTEL instrumentation", () => {
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.CostEstimatedUsd]).toBeCloseTo(0.0105, 6);
-		expect(chat?.attributes[OmpGenAIAttr.CostInputUsd]).toBeCloseTo(0.003, 6);
-		expect(chat?.attributes[OmpGenAIAttr.CostOutputUsd]).toBeCloseTo(0.0075, 6);
+		expect(chat?.attributes[OpGenAIAttr.CostEstimatedUsd]).toBeCloseTo(0.0105, 6);
+		expect(chat?.attributes[OpGenAIAttr.CostInputUsd]).toBeCloseTo(0.003, 6);
+		expect(chat?.attributes[OpGenAIAttr.CostOutputUsd]).toBeCloseTo(0.0075, 6);
 	});
 
 	it("applies dynamic attributes, normalization hooks, and cost deltas", async () => {
@@ -518,8 +518,8 @@ describe("agent-loop OTEL instrumentation", () => {
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.CostUnavailableReason]).toBe("unsupported_tier");
-		expect(chat?.attributes[OmpGenAIAttr.CostEstimatedUsd]).toBeUndefined();
+		expect(chat?.attributes[OpGenAIAttr.CostUnavailableReason]).toBe("unsupported_tier");
+		expect(chat?.attributes[OpGenAIAttr.CostEstimatedUsd]).toBeUndefined();
 	});
 
 	it("fires onChatUsage for every chat step regardless of cost estimator", async () => {
@@ -724,8 +724,8 @@ describe("agent-loop OTEL instrumentation", () => {
 		const span = findSpan(exporter.getFinishedSpans(), "handoff main → specialist");
 		expect(span).toBeDefined();
 		expect(span?.attributes[GenAIAttr.OperationName]).toBe(GenAIOperation.Handoff);
-		expect(span?.attributes[OmpGenAIAttr.HandoffFromAgentName]).toBe("main");
-		expect(span?.attributes[OmpGenAIAttr.HandoffToAgentName]).toBe("specialist");
+		expect(span?.attributes[OpGenAIAttr.HandoffFromAgentName]).toBe("main");
+		expect(span?.attributes[OpGenAIAttr.HandoffToAgentName]).toBe("specialist");
 		expect(span?.attributes[GenAIAttr.ConversationId]).toBe("conv-1");
 	});
 
@@ -756,10 +756,10 @@ describe("agent-loop OTEL instrumentation", () => {
 
 		const span = findSpan(exporter.getFinishedSpans(), "chat mock-model");
 		expect(span?.attributes[GenAIAttr.ConversationId]).toBe("manual-conv");
-		expect(span?.attributes[OmpGenAIAttr.AgentStepNumber]).toBe(7);
-		expect(span?.attributes[OmpGenAIAttr.UsageTotalTokens]).toBe(17);
-		expect(span?.attributes[OmpGenAIAttr.CostEstimatedUsd]).toBe(0.02);
-		expect(JSON.parse(span?.attributes[OmpGenAIAttr.ResponseText] as string)).toEqual(["manual ok"]);
+		expect(span?.attributes[OpGenAIAttr.AgentStepNumber]).toBe(7);
+		expect(span?.attributes[OpGenAIAttr.UsageTotalTokens]).toBe(17);
+		expect(span?.attributes[OpGenAIAttr.CostEstimatedUsd]).toBe(0.02);
+		expect(JSON.parse(span?.attributes[OpGenAIAttr.ResponseText] as string)).toEqual(["manual ok"]);
 	});
 
 	it("reads OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT once at first resolveTelemetry call", () => {
@@ -1016,10 +1016,10 @@ describe("ChatUsageEvent.headers and op.gen_ai.gateway.* span attributes", () =>
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayName]).toBe("litellm");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayCallId]).toBe("ll-call-abc");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayRoutedTo]).toBe("anthropic/claude-sonnet-4-7");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayEndpoint]).toBe(mock.model.baseUrl);
+		expect(chat?.attributes[OpGenAIAttr.GatewayName]).toBe("litellm");
+		expect(chat?.attributes[OpGenAIAttr.GatewayCallId]).toBe("ll-call-abc");
+		expect(chat?.attributes[OpGenAIAttr.GatewayRoutedTo]).toBe("anthropic/claude-sonnet-4-7");
+		expect(chat?.attributes[OpGenAIAttr.GatewayEndpoint]).toBe(mock.model.baseUrl);
 	});
 
 	it("does not stamp gateway attributes when headers carry no known pattern", async () => {
@@ -1042,9 +1042,9 @@ describe("ChatUsageEvent.headers and op.gen_ai.gateway.* span attributes", () =>
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayName]).toBeUndefined();
-		expect(chat?.attributes[OmpGenAIAttr.GatewayCallId]).toBeUndefined();
-		expect(chat?.attributes[OmpGenAIAttr.GatewayEndpoint]).toBeUndefined();
+		expect(chat?.attributes[OpGenAIAttr.GatewayName]).toBeUndefined();
+		expect(chat?.attributes[OpGenAIAttr.GatewayCallId]).toBeUndefined();
+		expect(chat?.attributes[OpGenAIAttr.GatewayEndpoint]).toBeUndefined();
 	});
 
 	it("still invokes the user-supplied onResponse alongside header capture", async () => {
@@ -1073,7 +1073,7 @@ describe("ChatUsageEvent.headers and op.gen_ai.gateway.* span attributes", () =>
 		expect(seen).toHaveLength(1);
 		expect(seen[0]?.["x-litellm-call-id"]).toBe("ll-2");
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayName]).toBe("litellm");
+		expect(chat?.attributes[OpGenAIAttr.GatewayName]).toBe("litellm");
 	});
 
 	it("stamps op.gen_ai.gateway.response_cache.status from cf-aig-cache-status without prompt-cache attrs", async () => {
@@ -1103,7 +1103,7 @@ describe("ChatUsageEvent.headers and op.gen_ai.gateway.* span attributes", () =>
 		await runAndDrain(agentLoop([createUserMessage("hi")], ctx, config, undefined, mock.stream));
 
 		const chat = findSpan(exporter.getFinishedSpans(), "chat mock-model");
-		expect(chat?.attributes[OmpGenAIAttr.GatewayResponseCacheStatus]).toBe("hit");
+		expect(chat?.attributes[OpGenAIAttr.GatewayResponseCacheStatus]).toBe("hit");
 		// Response replay must not inflate or invent provider prompt-cache token counters.
 		// Mock usage defaults cacheRead/cacheWrite to 0; HIT must leave them at zero, not promote a hit.
 		expect(chat?.attributes[GenAIAttr.UsageCacheReadInputTokens]).toBe(0);

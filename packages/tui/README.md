@@ -582,7 +582,7 @@ interface Terminal {
 **Built-in implementations:**
 
 - `ProcessTerminal` - Uses `process.stdin/stdout`
-- `VirtualTerminal` - For testing (uses ghostty-web)
+- `VirtualTerminal` - For testing (uses kitty-vt-wasm)
 
 ## Utilities
 

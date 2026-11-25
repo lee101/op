@@ -31,7 +31,7 @@ async function runRegistryProbe(entries: BundledPiEntry[], source: string): Prom
 // `rewriteLegacyPiImports` catch left the original specifier in place and
 // Bun's native resolver couldn't find a peer install. The build plugin now
 // derives every module key from current package exports, so subpaths route to
-// the same `omp-legacy-pi-bundled:` virtual namespace as package roots without
+// the same `op-legacy-pi-bundled:` virtual namespace as package roots without
 // a generated registry or duplicate key list.
 describe("legacy pi compat compiled-mode subpath overrides (issue #3442)", () => {
 	it("does not evaluate unrelated host modules while loading the registry", async () => {
@@ -79,7 +79,7 @@ export const finalBeta = Reflect.get(globalThis, "__betaLoads") ?? 0;
 
 	it("serves @openpaths/ai/oauth through the bundled virtual namespace in compiled mode", () => {
 		const overrides = __buildLegacyPiPackageRootOverrides(true, bundledModuleKeys);
-		expect(overrides["@openpaths/ai/oauth"]).toBe("omp-legacy-pi-bundled:@openpaths/ai/oauth");
+		expect(overrides["@openpaths/ai/oauth"]).toBe("op-legacy-pi-bundled:@openpaths/ai/oauth");
 	});
 
 	it("expands wildcard exports for concrete on-disk targets (issue #3442 follow-up)", () => {
@@ -91,7 +91,7 @@ export const finalBeta = Reflect.get(globalThis, "__betaLoads") ?? 0;
 		// and registers every concrete `.ts` match against the virtual namespace.
 		const overrides = __buildLegacyPiPackageRootOverrides(true, bundledModuleKeys);
 		expect(overrides["@openpaths/ai/oauth/anthropic"]).toBe(
-			"omp-legacy-pi-bundled:@openpaths/ai/oauth/anthropic",
+			"op-legacy-pi-bundled:@openpaths/ai/oauth/anthropic",
 		);
 		// Sanity: the wildcard expansion also reaches deeper subroots so plugins
 		// pinned to e.g. `@openpaths/ai/providers/openai` keep resolving.
@@ -120,7 +120,7 @@ export const observed = [mod.piEscapeRegexLiteral("a.b*c"), mod.piJoinPath("src"
 		).toEqual(["a\\.b\\*c", path.join("src", "*.ts")]);
 
 		const overrides = __buildLegacyPiPackageRootOverrides(true, bundledModuleKeys);
-		expect(overrides[key]).toBe(`omp-legacy-pi-bundled:${key}`);
+		expect(overrides[key]).toBe(`op-legacy-pi-bundled:${key}`);
 	});
 
 	it("loads catalog root and provider-model exports from the bundled graph", async () => {
@@ -149,7 +149,7 @@ export const observed = result.models.some(model => model.id === "claude-3-5-son
 
 		for (const key of providerKeys) {
 			expect(bundledModuleKeys.has(key)).toBe(true);
-			expect(overrides[key]).toBe(`omp-legacy-pi-bundled:${key}`);
+			expect(overrides[key]).toBe(`op-legacy-pi-bundled:${key}`);
 		}
 	});
 
@@ -157,7 +157,7 @@ export const observed = result.models.some(model => model.id === "claude-3-5-son
 		const key = "@openpaths/coding-agent/registry/agent-registry";
 		const overrides = __buildLegacyPiPackageRootOverrides(true, bundledModuleKeys);
 		expect(bundledModuleKeys.has(key)).toBe(true);
-		expect(overrides[key]).toBe(`omp-legacy-pi-bundled:${key}`);
+		expect(overrides[key]).toBe(`op-legacy-pi-bundled:${key}`);
 	});
 
 	it("does not enumerate root catch-all wildcards (./* / ./*.js)", () => {
@@ -193,7 +193,7 @@ export const observed = result.models.some(model => model.id === "claude-3-5-son
 				key === "typebox"
 			)
 				continue;
-			if (overrides[key] !== `omp-legacy-pi-bundled:${key}`) {
+			if (overrides[key] !== `op-legacy-pi-bundled:${key}`) {
 				missing.push(key);
 			}
 		}

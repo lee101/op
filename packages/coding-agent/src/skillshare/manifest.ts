@@ -7,7 +7,7 @@
  */
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { OmpErrors, type } from "@openpaths/optype";
+import { OpErrors, type } from "@openpaths/optype";
 import { getAgentDir, hasFsCode, isEnoent } from "@openpaths/utils";
 import { resolveOrDefaultProjectRegistryPath } from "../discovery/helpers";
 import { replaceFileAtomically } from "../utils/atomic-file";
@@ -135,7 +135,7 @@ function assertSkillIds(ids: Record<string, unknown>, file: string): void {
 /** Parse `skills.json` text; throws with the file path on malformed content. */
 export function parseSkillsManifest(text: string, file: string): SkillsManifest {
 	const checked = ManifestSchema(parseJson(text, file));
-	if (checked instanceof OmpErrors) throw new Error(`${file}: ${checked.summary}`);
+	if (checked instanceof OpErrors) throw new Error(`${file}: ${checked.summary}`);
 	const skills = checked.skills ?? {};
 	assertSkillIds(skills, file);
 	return { skills };
@@ -144,7 +144,7 @@ export function parseSkillsManifest(text: string, file: string): SkillsManifest 
 /** Parse `skills.lock.json` text; throws with the file path on malformed content. */
 export function parseSkillsLock(text: string, file: string): SkillsLock {
 	const checked = LockSchema(parseJson(text, file));
-	if (checked instanceof OmpErrors) throw new Error(`${file}: ${checked.summary}`);
+	if (checked instanceof OpErrors) throw new Error(`${file}: ${checked.summary}`);
 	const skills = checked.skills ?? {};
 	assertSkillIds(skills, file);
 	for (const id in skills) {

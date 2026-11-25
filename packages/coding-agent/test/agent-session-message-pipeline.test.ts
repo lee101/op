@@ -3183,7 +3183,6 @@ describe("loop.autoNextSteps", () => {
 				await session.dispose();
 				authStorage.close();
 				tempDir[Symbol.dispose]();
-				clearCustomApis();
 			},
 		};
 	}

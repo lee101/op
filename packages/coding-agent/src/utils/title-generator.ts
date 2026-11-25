@@ -661,7 +661,7 @@ export function setSessionTerminalTitle(sessionName: string | undefined, cwd?: s
 }
 
 /** The OSC 1337 user variable Tern reads the session file from. */
-const TERN_SESSION_FILE_VAR = "omp_session_file";
+const TERN_SESSION_FILE_VAR = "op_session_file";
 /** Where the current session file is read from (the interactive session manager). */
 let sessionFileSource: (() => string | undefined) | undefined;
 /** The session file Tern was last told about. */

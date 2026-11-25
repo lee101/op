@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { create, toBinary } from "@bufbuild/protobuf";
 import { streamDevin } from "@openpaths/ai/providers/devin";
 import type { Context, Model } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
-import { GetUserJwtResponseSchema } from "@openpaths/catalog/discovery/devin-gen/exa/auth_pb/auth_pb";
+import { GetUserJwtResponseSchema } from "@openpaths/catalog/discovery/devin-proto";
+import { create, toBinary } from "@openpaths/catalog/discovery/protobuf";
 
 /**
  * Regression for #4228: a Devin Connect frame header advertising an outsized

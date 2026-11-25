@@ -9,6 +9,7 @@ import { formatResultOutputFallback } from "@openpaths/coding-agent/task";
 import { runSubprocess } from "@openpaths/coding-agent/task/executor";
 import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
+import { createSessionDefaults } from "../helpers/session-defaults";
 
 /**
  * Contract: runaway-subagent guards.
@@ -27,7 +28,7 @@ import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
 
 interface SteerCall {
 	content: string;
-	options?: { deliverAs?: "steer" | "followUp" };
+	options?: { deliverAs?: "steer" | "followUp" | "aside" };
 }
 
 interface FakeSessionConfig {
@@ -76,13 +77,13 @@ function createFakeSession(config: FakeSessionConfig = {}): FakeSessionHandle {
 	if (!config.hang) releaseHang();
 
 	const session: Partial<AgentSession> = {
+		...createSessionDefaults(),
 		state: { messages: [] } as never,
 		agent: { state: { systemPrompt: ["test"] } } as never,
 		extensionRunner: undefined as never,
 		sessionManager: { appendSessionInit: () => {} } as never,
 		getActiveToolNames: () => ["read", "yield"],
 		getEnabledToolNames: () => ["read", "yield"],
-		setActiveToolsByName: async (_names: string[]) => {},
 		subscribe: (listener: (event: AgentSessionEvent) => void) => {
 			if (config.events?.length) {
 				const events = config.events;
@@ -107,9 +108,6 @@ function createFakeSession(config: FakeSessionConfig = {}): FakeSessionHandle {
 			abortCount += 1;
 			releaseHang();
 		},
-		dispose: async () => {},
-		setIrcWakeTurnObserver: () => {},
-		subscribeRunState: () => () => {},
 	};
 	return {
 		session: session as AgentSession,

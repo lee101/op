@@ -1,3 +1,4 @@
+import { USER_AGENT, getInstallId } from "@openpaths/utils";
 import { ProviderHttpError } from "../error";
 import type {
 	CredentialRankingStrategy,
@@ -108,6 +109,13 @@ async function fetchOpenCodeGoUsage(params: UsageFetchParams, ctx: UsageFetchCon
 			headers: {
 				accept: "application/json",
 				authorization: `Bearer ${credential.apiKey}`,
+				// Background poll outside any conversation: attribute with the
+				// stable install id so OpenCode can optimize/service the
+				// request (x-opencode-session required from 09/06). Peers
+				// (codex/zai) send USER_AGENT here; without it Bun's default
+				// UA is what upstream flags as "Bun fetch".
+				"User-Agent": USER_AGENT,
+				"x-opencode-session": getInstallId(),
 			},
 			signal: params.signal,
 		});
@@ -171,7 +179,7 @@ async function fetchOpenCodeGoUsage(params: UsageFetchParams, ctx: UsageFetchCon
 
 export const opencodeGoUsageProvider: UsageProvider = {
 	id: OPENCODE_GO_PROVIDER,
-	// v2: retires cached reports from the OMP-observed spend estimator (dollar
+	// v2: retires cached reports from the OP-observed spend estimator (dollar
 	// units) now that limits come from the upstream percent-based `/usage`
 	// endpoint; the 24h last-good retention would otherwise keep serving them.
 	cacheVersion: 2,

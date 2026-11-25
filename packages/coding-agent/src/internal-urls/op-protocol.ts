@@ -7,9 +7,9 @@
  * - op:// - Lists all available documentation files
  * - op://<file>.md - Reads a specific documentation file
  */
-import opDoc from "../prompts/internal-urls/op.md" with { type: "text" };
+import ompDoc from "../prompts/internal-urls/op.md" with { type: "text" };
 import { getDocFilenames, getEmbeddedDoc } from "./docs-index";
-import { opDocFilename, opDocRel, opDocsScopeEntries } from "./op-scope";
+import { ompDocFilename, ompDocRel, ompDocsScopeEntries } from "./op-scope";
 import type {
 	InternalResource,
 	InternalUrl,
@@ -30,14 +30,14 @@ export class OpProtocolHandler implements ProtocolHandler {
 
 	/** Always advertised: harness docs are embedded in every build. */
 	promptDoc(): string {
-		return opDoc.trim();
+		return ompDoc.trim();
 	}
 
 	async resolve(url: InternalUrl): Promise<InternalResource> {
-		const filename = opDocFilename(url);
+		const filename = ompDocFilename(url);
 		// The docs root (`op://`, `op://docs`) names no doc. The grammar also
 		// rejects absolute paths and `..` traversal.
-		const docPath = opDocRel(url);
+		const docPath = ompDocRel(url);
 
 		if (!filename || !docPath) {
 			return this.#listDocs(url);
@@ -48,15 +48,15 @@ export class OpProtocolHandler implements ProtocolHandler {
 
 	/** The docs root expands to every embedded doc; a single-doc URL yields that doc (or throws when unknown). */
 	async enumerate(url: InternalUrl, context?: ResolveContext): Promise<Array<{ url: string; content: string }>> {
-		const docPath = opDocRel(url);
+		const docPath = ompDocRel(url);
 		if (!docPath) {
-			const entries = await opDocsScopeEntries(context);
+			const entries = await ompDocsScopeEntries(context);
 			if (entries.length === 0) {
 				throw new Error("No documentation files found");
 			}
 			return entries;
 		}
-		const resource = await this.#readDoc(docPath, opDocFilename(url), url);
+		const resource = await this.#readDoc(docPath, ompDocFilename(url), url);
 		return [{ url: `op://${docPath}`, content: resource.content }];
 	}
 

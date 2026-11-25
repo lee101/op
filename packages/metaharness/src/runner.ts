@@ -36,8 +36,8 @@ const PI_UPSTREAM_VERSION = "0.86.1";
 const MANAGED_AGENTS: Record<string, true> = { op: true, pi: true };
 
 /** Container-side mount points for `--install source` (must match op_local.py defaults). */
-const SOURCE_SRC_MOUNT = "/opt/omp/src";
-const SOURCE_BIN_MOUNT = "/opt/omp/bin";
+const SOURCE_SRC_MOUNT = "/opt/op/src";
+const SOURCE_BIN_MOUNT = "/opt/op/bin";
 
 /** Host address containers see on Apple Container's vmnet (bridge) network. */
 const VMNET_HOST_IP = "192.168.64.1";
@@ -607,7 +607,7 @@ function probeLine(line: string, probe: CostProbe): void {
 
 /**
  * Realtime usage for a still-running trial, read incrementally from its
- * `agent/omp.txt` JSONL. Only bytes appended since the previous call are read
+ * `agent/op.txt` JSONL. Only bytes appended since the previous call are read
  * and parsed — both this runner's render loop and the manager's 2s sync tick
  * call this for every live trial, and a full-file reread used to block the
  * event loop for seconds (and OOM outright on runaway multi-GB transcripts).
@@ -1227,7 +1227,7 @@ function writeComposeOverlay(benchDir: string, cfg: Config, source: SourceMount 
 		lines.push(`      - ${path.join(source.depsDir, "bin")}:${SOURCE_BIN_MOUNT}:ro`);
 	}
 	if (lines.length === 0) return null;
-	const file = path.join(benchDir, "omp-compose-overlay.yaml");
+	const file = path.join(benchDir, "op-compose-overlay.yaml");
 	fs.writeFileSync(file, `${["services:", "  main:", ...lines].join("\n")}\n`);
 	return file;
 }

@@ -1,11 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { create, toBinary } from "@bufbuild/protobuf";
 import * as AIError from "@openpaths/ai/error";
 import { streamDevin } from "@openpaths/ai/providers/devin";
 import type { Context, Model } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
-import { GetChatMessageResponseSchema } from "@openpaths/catalog/discovery/devin-gen/exa/api_server_pb/api_server_pb";
-import { GetUserJwtResponseSchema } from "@openpaths/catalog/discovery/devin-gen/exa/auth_pb/auth_pb";
+import { GetChatMessageResponseSchema, GetUserJwtResponseSchema } from "@openpaths/catalog/discovery/devin-proto";
+import { create, toBinary } from "@openpaths/catalog/discovery/protobuf";
 
 const CONNECT_END_STREAM_FLAG = 0x02;
 const LARGE_TOOL_RESULT_BYTES = 160 * 1024;

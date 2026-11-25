@@ -3,10 +3,12 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { getManagedSkillsDir } from "@openpaths/coding-agent/autolearn/managed-skills";
+import { disableUserSource, enableUserSource } from "@openpaths/coding-agent/capability";
 import "@openpaths/coding-agent/discovery";
 import { loadSkills } from "@openpaths/coding-agent/extensibility/skills";
 import { removeWithRetries } from "@openpaths/utils";
 import { getAgentDir, setAgentDir } from "@openpaths/utils/dirs";
+import { restoreEnvValue } from "./helpers/settings-test-state";
 
 async function writeSkill(dir: string, name: string, description: string): Promise<void> {
 	const file = path.join(dir, name, "SKILL.md");
@@ -19,9 +21,13 @@ describe("managed-skills discovery", () => {
 	let tempCwd: string;
 	let managedDir: string;
 	let authoredDir: string;
+	let originalClaudeConfigDir: string | undefined;
 
 	let originalAgentDir: string;
 	beforeEach(async () => {
+		originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+		delete process.env.CLAUDE_CONFIG_DIR;
+		delete Bun.env.CLAUDE_CONFIG_DIR;
 		originalAgentDir = getAgentDir();
 		tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "op-managed-disco-home-"));
 		// cwd MUST live under the fake home so loadSkills' ancestor walk is bounded
@@ -36,6 +42,8 @@ describe("managed-skills discovery", () => {
 	});
 
 	afterEach(async () => {
+		restoreEnvValue("CLAUDE_CONFIG_DIR", originalClaudeConfigDir);
+		disableUserSource("claude");
 		spyOn(os, "homedir").mockRestore();
 		setAgentDir(originalAgentDir);
 		await removeWithRetries(tempHome);
@@ -91,7 +99,7 @@ describe("managed-skills discovery", () => {
 		await writeSkill(customDir, "foo", "Authored foo (custom).");
 		await writeSkill(managedDir, "foo", "Managed foo.");
 		const { skills } = await loadSkills({ cwd: tempCwd, customDirectories: [customDir] });
-		expect(skills.some(s => s.source === "omp-managed:user")).toBe(false);
+		expect(skills.some(s => s.source === "op-managed:user")).toBe(false);
 		expect(skills.find(s => s.name === "foo")?.source).toBe("custom:user");
 		const nativeAliases = skills.filter(s => s.source === "native:user" && s.name.endsWith("/foo"));
 		expect(nativeAliases).toHaveLength(1);
@@ -145,6 +153,7 @@ describe("managed-skills discovery", () => {
 	it("preserves provider priority when duplicate authored providers are both enabled (#4648)", async () => {
 		await writeSkill(path.join(tempHome, ".claude", "skills"), "priority-authored", "Enabled claude.");
 		await writeSkill(path.join(tempHome, ".agents", "skills"), "priority-authored", "Enabled agents.");
+		enableUserSource("claude");
 		const { skills } = await loadSkills({ cwd: tempCwd });
 		const matches = skills.filter(s => s.name === "priority-authored");
 		expect(matches).toHaveLength(1);

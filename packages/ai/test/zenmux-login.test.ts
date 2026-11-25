@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "bun:test";
-import { loginZenMux } from "@openpaths/ai/registry/zenmux";
+import { getProviderDefinition } from "@openpaths/ai/registry/registry";
 import type { FetchImpl } from "@openpaths/ai/types";
+
+const loginZenMux = getProviderDefinition("zenmux")!.login!;
 
 describe("zenmux login", () => {
 	it("opens ZenMux key settings and validates against models endpoint", async () => {

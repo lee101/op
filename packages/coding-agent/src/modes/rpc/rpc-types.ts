@@ -158,7 +158,7 @@ export type RpcPromptStatus = "completed" | "aborted" | "error";
 
 /**
  * Failure detail for a `prompt_result` with `status: "error"`. `message` is the
- * provider's error text without OMP-local diagnostics (e.g. request dump paths).
+ * provider's error text without OP-local diagnostics (e.g. request dump paths).
  */
 export interface RpcPromptError {
 	message: string;

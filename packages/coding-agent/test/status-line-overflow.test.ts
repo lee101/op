@@ -259,7 +259,7 @@ describe("path segment truncation at varying maxLength", () => {
 	let tmpDir: string;
 
 	beforeAll(() => {
-		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "omp-overflow-very-long-directory-name-for-testing-"));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "op-overflow-very-long-directory-name-for-testing-"));
 		setProjectDir(tmpDir);
 	});
 
@@ -292,7 +292,7 @@ describe("path segment truncation at varying maxLength", () => {
 
 describe("overflow: path survives before model", () => {
 	it("drops the model segment before the cwd path when both cannot fit", () => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), "omp-statusline-overflow-"));
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "op-statusline-overflow-"));
 		const cwd = path.join(root, "cwdxyz");
 		fs.mkdirSync(cwd);
 		setProjectDir(cwd);

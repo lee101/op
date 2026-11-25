@@ -423,9 +423,6 @@ Small typed decisions the app makes about its own state (the `auto` thinking-lev
 | `PI_JS`                | Boolean flag override for JavaScript; unset or empty defers to `eval.js` (default enabled)          |
 | `PI_PYTHON_SKIP_CHECK` | Truthy flag skips Python interpreter availability checks (subprocess runner still starts on demand) |
 | `PI_PYTHON_IPC_TRACE`  | Truthy flag logs NDJSON frames exchanged with the Python runner subprocess                          |
-| `PI_RUBY_SKIP_CHECK`   | Truthy flag skips Ruby interpreter availability checks                                              |
-| `PI_RUBY_IPC_TRACE`    | Truthy flag logs Ruby runner IPC frames                                                             |
-| `PI_JULIA_IPC_TRACE`   | Truthy flag logs Julia runner IPC frames                                                            |
 | `VIRTUAL_ENV`          | Highest-priority venv path for Python runtime resolution                                            |
 | `CONDA_PREFIX`         | Python environment fallback after `VIRTUAL_ENV`, before local `.venv` / `venv` directories          |
 
@@ -467,7 +464,7 @@ Shell subprocess filtering is separate (`packages/utils/src/env.ts`): it strips 
 | `LM_STUDIO_BASE_URL`         | Default implicit LM Studio discovery base URL override (`http://127.0.0.1:1234/v1` if unset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `OLLAMA_BASE_URL`            | Default implicit Ollama discovery base URL override (`OLLAMA_HOST` if unset, then `http://127.0.0.1:11434`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `OLLAMA_HOST`                | Ollama host used for implicit Ollama discovery when `OLLAMA_BASE_URL` is unset; accepts Ollama-style values such as `127.0.0.1:11434` or `http://host:11434`                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OLLAMA_CONTEXT_LENGTH`      | Positive integer context-window override for implicit Ollama discovery; affects OMP context budgeting only and does not change Ollama's runtime `num_ctx`                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `OLLAMA_CONTEXT_LENGTH`      | Positive integer context-window override for implicit Ollama discovery; affects OP context budgeting only and does not change Ollama's runtime `num_ctx`                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `LLAMA_CPP_BASE_URL`         | Default implicit Llama.cpp discovery base URL override (`http://127.0.0.1:8080` if unset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `PI_EDIT_VARIANT`            | Forces the edit tool variant when valid (`patch`, `replace`, `hashline`, `apply_patch`, `sloppy`); invalid values (including `auto`) are ignored. A matching `edit.modelVariants` entry still wins over it                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `PI_EDIT_FUZZY`              | `1`/`true` forces edit fuzzy matching on, `0`/`false` off; `auto` or any other value is ignored and `edit.fuzzyMatch` applies |
@@ -539,7 +536,7 @@ These affect where coding-agent stores data and which process-local settings ove
 | `PI_CONFIG_FILES`                                   | Platform path-list of settings overlays (`:` on Unix, `;` on Windows); loaded in order before explicit `--config` overlays |
 | `CLAUDE_CONFIG_DIR` | Claude Code user-config directory override (trimmed, resolved relative to process cwd); also moves Claude's `.claude.json` to `<override>/.claude.json`. Does not relocate project `.claude` directories |
 | `OP_AUTORESEARCH_DB_DIR`                           | Directory override for per-project autoresearch DB and project-artifact roots                                              |
-| `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME` | On macOS/Linux, redirect corresponding OMP paths only when the target `op` root (or named-profile root) already exists    |
+| `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME` | On macOS/Linux, redirect corresponding OP paths only when the target `op` root (or named-profile root) already exists    |
 | `PWD`                                               | Used when matching canonical current working directory in path helpers                                                     |
 | `OP_WORKTREE_DIR`                                  | Agent-managed worktrees directory override (default `~/.op/wt`); must be absolute or `~`-relative, relative paths are ignored; wins over the `worktree.base` setting                      |
 | `OP_GITHUB_CACHE_DB`                               | Overrides the GitHub view cache database path (default `~/.op/cache/github-cache.db`)                                                                                                     |
@@ -621,14 +618,13 @@ These are read as runtime signals; they are usually set by the terminal/OS rathe
 | ------------------------- | ------------------------------------------------------------------- |
 | `PI_COMMIT_TEST_FALLBACK` | If `true` (case-insensitive), force commit fallback generation path |
 | `PI_COMMIT_NO_FALLBACK`   | If `true`, disables fallback when agent returns no proposal         |
-| `PI_COMMIT_MAP_REDUCE`    | If `false`, disables map-reduce commit analysis path                |
 | `DEBUG`                   | If set, commit agent error stack traces are printed                 |
 
 ---
 
 ## 11) OpenTelemetry export
 
-OMP initializes OTLP export only when at least one signal has an endpoint. Set `telemetry.otlpExportEnabled: false` (`/settings` → Providers → Privacy) to skip export even when endpoints are configured. `OTEL_SDK_DISABLED=true` also disables initialization.
+OP initializes OTLP export only when at least one signal has an endpoint. Set `telemetry.otlpExportEnabled: false` (`/settings` → Providers → Privacy) to skip export even when endpoints are configured. `OTEL_SDK_DISABLED=true` also disables initialization.
 
 | Variable group                                                                                                  | Behavior                                                                                        |
 | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -639,7 +635,7 @@ OMP initializes OTLP export only when at least one signal has an endpoint. Set `
 | `OTEL_TRACES_EXPORTER`, `OTEL_LOGS_EXPORTER`, `OTEL_METRICS_EXPORTER`                                           | A list containing `none` disables that signal                                                   |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` and per-signal `..._PROTOCOL` variants                                            | Only `http/protobuf` is enabled by this runtime; another explicit protocol disables that signal |
 | `OTEL_SERVICE_NAME`, `OTEL_RESOURCE_ATTRIBUTES`                                                                 | OpenTelemetry resource metadata                                                                 |
-| `OTEL_LOG_LEVEL`                                                                                                | Minimum exported OMP log level                                                                  |
+| `OTEL_LOG_LEVEL`                                                                                                | Minimum exported OP log level                                                                  |
 
 Header values are percent-decoded, so encode spaces and the `,`/`=` delimiters:
 

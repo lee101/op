@@ -955,7 +955,7 @@ export interface AfterToolCallContext {
  *
  * @example
  * ```typescript
- * declare module "@openpaths/agent-core" {
+ * declare module "@openpaths/agent" {
  *   interface CustomAgentMessages {
  *     artifact: ArtifactMessage;
  *     notification: NotificationMessage;

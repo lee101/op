@@ -33,7 +33,7 @@ export function lspMuxReadyBanner(endpoint: string): string {
 export function lspMuxEndpoint(projectDir: string, runtimeDir: string): string {
 	if (process.platform === "win32") {
 		const key = Bun.hash.wyhash(path.resolve(projectDir)).toString(16).padStart(16, "0");
-		return `\\\\.\\pipe\\omp-lsp-mux-${key}`;
+		return `\\\\.\\pipe\\op-lsp-mux-${key}`;
 	}
 	return path.join(runtimeDir, "lsp-mux.sock");
 }

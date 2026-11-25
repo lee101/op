@@ -237,7 +237,7 @@ function startCursorDiscoveryRpcServer(responses: Readonly<Record<string, Uint8A
 }
 
 async function createTempCachePath(): Promise<string> {
-	const dir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-cursor-cache-"));
+	const dir = await fs.mkdtemp(path.join(os.tmpdir(), "op-cursor-cache-"));
 	tempDirs.add(dir);
 	return path.join(dir, "models.db");
 }

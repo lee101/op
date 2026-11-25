@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { type OpenAICompletionsOptions, streamOpenAICompletions } from "@openpaths/ai/providers/openai-completions";
 import { streamSimple } from "@openpaths/ai/stream";
 import type { AssistantMessage, Context, FetchImpl, Model, SimpleStreamOptions, Usage } from "@openpaths/ai/types";
-import { buildOpenAICompat } from "@openpaths/catalog/compat/openai";
+import { resolveModelPolicy } from "@openpaths/catalog/compat/resolve";
 import { getBundledModel } from "@openpaths/catalog/models";
 
 const context: Context = { messages: [{ role: "user", content: "hello", timestamp: 0 }] };
@@ -20,10 +20,10 @@ const {
 const openAI56CompletionsModel: Model<"openai-completions"> = {
 	...openAI56CompletionsSpec,
 	api: "openai-completions",
-	compat: buildOpenAICompat({
+	compat: resolveModelPolicy({
 		...openAI56CompletionsSpec,
 		api: "openai-completions",
-	}),
+	}).compat,
 };
 
 const emptyUsage: Usage = {

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import * as http2 from "node:http2";
-import { create, toBinary } from "@bufbuild/protobuf";
 import { streamCursor } from "@openpaths/ai/providers/cursor";
 import type { Context, Model } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
@@ -9,7 +8,8 @@ import {
 	InteractionUpdateSchema,
 	TextDeltaUpdateSchema,
 	TurnEndedUpdateSchema,
-} from "@openpaths/catalog/discovery/cursor-gen/agent_pb";
+} from "@openpaths/catalog/discovery/cursor-proto";
+import { create, toBinary } from "@openpaths/catalog/discovery/protobuf";
 
 // Cursor forwards caller headers (including `before_provider_headers` extension
 // edits), and it speaks HTTP/2. These assert the TRANSPORT contract against a

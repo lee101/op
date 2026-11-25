@@ -115,7 +115,7 @@ const factory: CustomToolFactory = (pi) => ({
 export default factory;
 ```
 
-Parameter schemas may use the Zod-compatible omptype builder (`pi.zod`), native omptype builder (`pi.arktype`), or legacy-compatible TypeBox shim (`pi.typebox`) and flow through the shared validation/wire pipeline.
+Parameter schemas may use the Zod-compatible optype builder (`pi.zod`), native optype builder (`pi.arktype`), or legacy-compatible TypeBox shim (`pi.typebox`) and flow through the shared validation/wire pipeline.
 
 Factory return type:
 
@@ -132,8 +132,8 @@ From `types.ts` and `loader.ts`:
 - `ui`: UI context (can be no-op in headless modes)
 - `hasUI`: `false` in non-interactive flows
 - `logger`: shared file logger
-- `arktype`: injected omptype `type(...)` builder
-- `zod`: injected Zod-compatible omptype builder
+- `arktype`: injected optype `type(...)` builder
+- `zod`: injected Zod-compatible optype builder
 - `typebox`: compatibility shim for legacy TypeBox-style schemas
 - `pi`: injected `@openpaths/coding-agent` exports
 - `pushPendingAction(action)`: stage a preview action that is finalized by writing a plain-text reason to `xd://resolve` or `xd://reject`
@@ -153,7 +153,7 @@ provide a pending-action store, calling `pushPendingAction` throws
 execute(toolCallId, params, onUpdate, ctx, signal);
 ```
 
-- `params` is statically typed from its omptype or TypeBox schema via `Static<TParams>`.
+- `params` is statically typed from its optype or TypeBox schema via `Static<TParams>`.
 - Runtime argument validation happens before execution in the agent loop.
 - `onUpdate` emits partial results for UI streaming.
 - `ctx` includes `sessionManager`, `modelRegistry`, current `model`, `isIdle()`, `hasQueuedMessages()`, `abort()`, and `localProtocolOptions`. The public context type also permits `settings`, `fetch`, and `autoApprove`, but the normal SDK conversion does not populate those three fields.

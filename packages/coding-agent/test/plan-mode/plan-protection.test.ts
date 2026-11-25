@@ -1,11 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import type { AgentToolCall } from "@openpaths/agent-core";
+import { type AgentToolCall, Tokenizer } from "@openpaths/agent-core";
 import type { SessionMessageEntry } from "@openpaths/agent-core/compaction/entries";
 import { DEFAULT_PRUNE_CONFIG, pruneToolOutputs } from "@openpaths/agent-core/compaction/pruning";
 import { AGGRESSIVE_SHAKE_CONFIG, collectShakeRegions } from "@openpaths/agent-core/compaction/shake";
 import type { ProtectedToolContext } from "@openpaths/agent-core/compaction/tool-protection";
 import type { AssistantMessage, TextContent, ToolResultMessage, Usage } from "@openpaths/ai";
 import { createPlanReadMatcher } from "@openpaths/coding-agent/plan-mode/plan-protection";
+
+const tokenizer = new Tokenizer();
 
 function context(opts: { toolName?: string; callName?: string | undefined; path?: string }): ProtectedToolContext {
 	const toolResult = {
@@ -131,7 +133,7 @@ describe("plan-read protection in compaction", () => {
 			fileResult,
 		];
 
-		const result = pruneToolOutputs(entries, {
+		const result = pruneToolOutputs(entries, tokenizer, {
 			...DEFAULT_PRUNE_CONFIG,
 			protectTokens: 0,
 			minimumSavings: 0,
@@ -153,7 +155,7 @@ describe("plan-read protection in compaction", () => {
 			fileResult,
 		];
 
-		const regions = collectShakeRegions(entries, {
+		const regions = collectShakeRegions(entries, tokenizer, {
 			...AGGRESSIVE_SHAKE_CONFIG,
 			protectTokens: 0,
 			protectedTools: [...AGGRESSIVE_SHAKE_CONFIG.protectedTools, matcher],

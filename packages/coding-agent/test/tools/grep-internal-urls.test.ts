@@ -376,11 +376,11 @@ describe("GrepTool internal URL resolution", () => {
 		const text = getResultText(result);
 		expect(result.details?.files).toContain("op://tools/read.md");
 		expect(text).toContain("Read files, directories, archives");
-		expect(text).not.toMatch(/omp:\/\/tools\/read\.md#[0-9A-F]{4}/);
+		expect(text).not.toMatch(/op:\/\/tools\/read\.md#[0-9A-F]{4}/);
 	});
 
 	it("globs op:// docs by URL pattern", async () => {
-		const text = getResultText(await new GlobTool(createSession()).execute("glob-omp", { path: "op://tools/*.md" }));
+		const text = getResultText(await new GlobTool(createSession()).execute("glob-op", { path: "op://tools/*.md" }));
 
 		expect(text).toContain("op://tools/read.md");
 		expect(text).toContain("op://tools/grep.md");

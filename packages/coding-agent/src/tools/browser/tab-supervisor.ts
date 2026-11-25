@@ -1062,7 +1062,7 @@ export async function releaseTabsForOwner(ownerId: string, opts: ReleaseTabOptio
 }
 
 /**
- * Tabs this settle machinery may ever touch: OMP-launched headless puppeteer
+ * Tabs this settle machinery may ever touch: OP-launched headless puppeteer
  * tabs (`kindTag === "headless"` covers hidden and visible shared-daemon
  * tabs) that are alive and not opted out with `persist`. Connected, relay,
  * and spawned tabs drive the user's own pages/apps, and cmux surfaces are a
@@ -1075,7 +1075,7 @@ function isSettleManaged(tab: TabSession): boolean {
 }
 
 /**
- * Tabs idle-close may reap: every settle-managed tab plus OMP-opened Tern
+ * Tabs idle-close may reap: every settle-managed tab plus OP-opened Tern
  * PiPs (live, visible pages never frozen, but closed when abandoned like
  * headless tabs), minus `persist` opt-outs.
  */
@@ -1383,7 +1383,7 @@ async function buildInitPayload(browser: PuppeteerBrowserHandle, opts: AcquireTa
 			mode: "headless",
 			browserWSEndpoint,
 			safeDir,
-			// Visible launches still need an OMP-owned page, stealth setup, and
+			// Visible launches still need an OP-owned page, stealth setup, and
 			// independent lifecycle; only their fixed device emulation is disabled.
 			emulateViewport: browser.kind.headless,
 			viewport: opts.viewport,

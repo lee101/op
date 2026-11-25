@@ -75,7 +75,7 @@ Project-level bases:
 
 ## Profiles
 
-A named profile (`op --profile <name>`, `OP_PROFILE`, or the legacy fallback `PI_PROFILE`) relocates the OP user base. `OP_PROFILE` wins when it is defined, including when it is explicitly empty; `default`, empty, or whitespace selects the default profile. When a profile is active, every OMP-native user-level path written here as `~/.op/agent/...` normally resolves to `~/.op/profiles/<name>/agent/...`. `--alias <command>` does not select a profile by itself: paired with `--profile`, it creates a shell shortcut for that profile.
+A named profile (`op --profile <name>`, `OP_PROFILE`, or the legacy fallback `PI_PROFILE`) relocates the OP user base. `OP_PROFILE` wins when it is defined, including when it is explicitly empty; `default`, empty, or whitespace selects the default profile. When a profile is active, every OP-native user-level path written here as `~/.op/agent/...` normally resolves to `~/.op/profiles/<name>/agent/...`. `--alias <command>` does not select a profile by itself: paired with `--profile`, it creates a shell shortcut for that profile.
 
 The relocation is uniform across the native provider (`builtin.ts`) and the generic `config.ts` helpers, so it covers slash commands, rules, prompts, instructions, hooks, tools, extensions, settings, skills, and MCP, plus the top-level `SYSTEM.md` / `RULES.md` / `AGENTS.md` files and runtime state (sessions, blobs, `agent.db`). A profile sees only its own OP config, never the default profile's agent config.
 
@@ -134,7 +134,7 @@ Supported formats:
 
 Behavior:
 
-- Validates parsed data against a provided omptype schema.
+- Validates parsed data against a provided optype schema.
 - A `.yml` target falls back to its sibling `.yaml` when `.yml` is absent; an existing `.yaml` also suppresses JSON migration. A `.yaml` target does not fall back to `.yml`.
 - Both `.json` and `.jsonc` are parsed as JSONC.
 - Caches load result until `invalidate()`.
@@ -235,7 +235,7 @@ Providers are sorted by numeric priority (higher first). Full set:
 Provider precedence (higher wins)
 
 native (.op)           priority 100
-op-plugins              priority  90
+op-plugins             priority  90
 claude                  priority  80
 agent-plugins           priority  75
 codex / agents /

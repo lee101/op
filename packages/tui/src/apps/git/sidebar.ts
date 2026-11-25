@@ -1272,7 +1272,7 @@ export class Sidebar {
 				: this.#model.staged.length > 0
 					? "Commit"
 					: "Stage all & commit";
-		// The panels' button (omp-panels.css `op.btn`): accent while the keyboard is on it, muted when it can't run.
+		// The panels' button (op-panels.css `op.btn`): accent while the keyboard is on it, muted when it can't run.
 		const commitTone = !canCommit ? "muted" : on({ kind: "commit-button" }) ? "accent" : undefined;
 		return col(
 			[

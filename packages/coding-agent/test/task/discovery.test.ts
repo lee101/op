@@ -4,10 +4,12 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { disableProvider, enableProvider } from "@openpaths/coding-agent/capability";
 import { clearCache as clearFsCache } from "@openpaths/coding-agent/capability/fs";
+import { clearAgentPluginRootCache } from "@openpaths/coding-agent/discovery/agent-plugin-format";
 import {
 	clearOmpExtensionCliRoots,
 	injectOmpExtensionCliRoots,
 } from "@openpaths/coding-agent/discovery/op-extension-roots";
+import { clearClaudePluginRootsCache, injectPluginDirRoots } from "@openpaths/coding-agent/discovery/helpers";
 import { discoverAgents } from "@openpaths/coding-agent/task/discovery";
 import { removeWithRetries } from "@openpaths/utils";
 
@@ -57,6 +59,63 @@ async function writeOmpPluginAgent(home: string): Promise<void> {
 	await fs.writeFile(path.join(pluginRoot, "agents", "loom-verify-spec.md"), OP_PLUGIN_AGENT_MD);
 }
 
+function agentMd(name: string, model: string): string {
+	return ["---", `name: ${name}`, `description: ${name} probe.`, `model: ${model}`, "---", `body ${name}`].join("\n");
+}
+
+// Register an op-installed marketplace plugin via the OP plugin registry
+// (`~/.op/plugins/installed_plugins.json`), the path listClaudePluginRoots
+// reads as origin "op" — distinct from the node_modules path above. `manifest`
+// controls the declared plugin dialect: `.op-plugin/plugin.json` (OP-native),
+// `.claude-plugin/plugin.json` (Claude Code), `both` (OP wins by precedence),
+// or `none` (bare directory).
+async function writeOmpMarketplacePlugin(
+	home: string,
+	options: {
+		agentName: string;
+		model: string;
+		manifest: "op" | "claude" | "both" | "none";
+	},
+): Promise<void> {
+	const pluginRoot = path.join(home, "marketplace-cache", options.agentName);
+	await fs.mkdir(path.join(pluginRoot, "agents"), { recursive: true });
+	await fs.writeFile(
+		path.join(pluginRoot, "agents", `${options.agentName}.md`),
+		agentMd(options.agentName, options.model),
+	);
+
+	const wantsOmp = options.manifest === "op" || options.manifest === "both";
+	const wantsClaude = options.manifest === "claude" || options.manifest === "both";
+	if (wantsOmp) {
+		await fs.mkdir(path.join(pluginRoot, ".op-plugin"), { recursive: true });
+		await fs.writeFile(
+			path.join(pluginRoot, ".op-plugin", "plugin.json"),
+			JSON.stringify({ name: options.agentName }),
+		);
+	}
+	if (wantsClaude) {
+		await fs.mkdir(path.join(pluginRoot, ".claude-plugin"), { recursive: true });
+		await fs.writeFile(
+			path.join(pluginRoot, ".claude-plugin", "plugin.json"),
+			JSON.stringify({ name: options.agentName }),
+		);
+	}
+
+	const registryDir = path.join(home, ".op", "plugins");
+	await fs.mkdir(registryDir, { recursive: true });
+	await fs.writeFile(
+		path.join(registryDir, "installed_plugins.json"),
+		JSON.stringify({
+			version: 1,
+			plugins: {
+				[`${options.agentName}@my-marketplace`]: [
+					{ installPath: pluginRoot, version: "1.0.0", scope: "user", enabled: true },
+				],
+			},
+		}),
+	);
+}
+
 describe("discoverAgents", () => {
 	let tempHome: string;
 	let projectDir: string;
@@ -70,6 +129,9 @@ describe("discoverAgents", () => {
 	afterEach(async () => {
 		enableProvider("op-plugins");
 		clearOmpExtensionCliRoots();
+		await injectPluginDirRoots(tempHome, []);
+		clearClaudePluginRootsCache();
+		clearAgentPluginRootCache();
 		clearFsCache();
 		await removeWithRetries(tempHome);
 	});
@@ -170,5 +232,77 @@ describe("discoverAgents", () => {
 
 		expect(names).toContain("explicit-agent");
 		expect(names).not.toEqual(expect.arrayContaining(["stale-agent", "settings-agent", "loom-verify-spec"]));
+	});
+
+	test("discovers agents from a --plugin-dir root with the foreign claude-plugins opt-in off (#11151)", async () => {
+		// `--plugin-dir` roots ride the shared plugin registry as user-scope, origin
+		// "plugin-dir" entries. The claude-plugins foreign opt-in is off by default, so
+		// gating user-scope roots purely on scope (as before) dropped these agents.
+		const pluginDir = path.join(tempHome, "my-plugin");
+		await fs.mkdir(path.join(pluginDir, "agents"), { recursive: true });
+		await fs.writeFile(
+			path.join(pluginDir, "agents", "plugin-dir-agent.md"),
+			["---", "name: plugin-dir-agent", "description: agent shipped in a --plugin-dir plugin.", "---", "body"].join(
+				"\n",
+			),
+		);
+		await injectPluginDirRoots(tempHome, [pluginDir], projectDir);
+
+		const { agents } = await discoverAgents(projectDir, tempHome);
+		const names = agents.map(agent => agent.name);
+
+		expect(names).toContain("plugin-dir-agent");
+	});
+
+	test("honors model frontmatter of OP-native op-installed marketplace plugin agents (#12028)", async () => {
+		// op-installed marketplace plugins ride the shared plugin registry as
+		// origin "op" roots. An OP-native package (no Claude manifest) uses OP
+		// model selectors, so `model:` must survive discovery.
+		enableProvider("claude-plugins");
+		await writeOmpMarketplacePlugin(tempHome, {
+			agentName: "op-probe",
+			model: '["@advisor", "@smol"]',
+			manifest: "none",
+		});
+
+		const { agents } = await discoverAgents(projectDir, tempHome);
+		const agent = agents.find(candidate => candidate.name === "op-probe");
+
+		expect(agent).toBeDefined();
+		expect(agent?.model).toEqual(["@advisor", "@smol"]);
+	});
+
+	test("drops model frontmatter of a Claude-format plugin installed via the OP registry (#12031 review)", async () => {
+		// origin "op" but a `.claude-plugin` package: its `model: sonnet` is a
+		// Claude alias, not an OP selector, so it must still be stripped.
+		enableProvider("claude-plugins");
+		await writeOmpMarketplacePlugin(tempHome, {
+			agentName: "claude-probe",
+			model: "sonnet",
+			manifest: "claude",
+		});
+
+		const { agents } = await discoverAgents(projectDir, tempHome);
+		const agent = agents.find(candidate => candidate.name === "claude-probe");
+
+		expect(agent).toBeDefined();
+		expect(agent?.model).toBeUndefined();
+	});
+
+	test("honors model frontmatter when a plugin declares both OP and Claude manifests (#12031 review)", async () => {
+		// `.op-plugin/plugin.json` wins over a sibling `.claude-plugin/plugin.json`,
+		// mirroring the MCP-config precedence, so OP selectors survive.
+		enableProvider("claude-plugins");
+		await writeOmpMarketplacePlugin(tempHome, {
+			agentName: "hybrid-probe",
+			model: '["@advisor", "@smol"]',
+			manifest: "both",
+		});
+
+		const { agents } = await discoverAgents(projectDir, tempHome);
+		const agent = agents.find(candidate => candidate.name === "hybrid-probe");
+
+		expect(agent).toBeDefined();
+		expect(agent?.model).toEqual(["@advisor", "@smol"]);
 	});
 });

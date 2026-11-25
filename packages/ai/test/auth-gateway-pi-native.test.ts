@@ -326,7 +326,7 @@ describe("pi-native gateway reasoning flags", () => {
 });
 
 describe("pi-native gateway usage attribution", () => {
-	it("records observed usage under the caller's x-omp-* identity, host-fallback when absent", async () => {
+	it("records observed usage under the caller's x-op-* identity, host-fallback when absent", async () => {
 		registerMockApi();
 		const dir = await fs.mkdtemp(path.join(os.tmpdir(), "gw-pi-native-usage-"));
 		const storage = await AuthStorage.create(path.join(dir, "auth.db"));
@@ -358,9 +358,9 @@ describe("pi-native gateway usage attribution", () => {
 				headers: {
 					Authorization: "Bearer test-token",
 					"Content-Type": "application/json",
-					"x-omp-install-id": "robomp-install",
-					"x-omp-hostname": "robomp-box",
-					"x-omp-app": "robomp",
+					"x-op-install-id": "robomp-install",
+					"x-op-hostname": "robomp-box",
+					"x-op-app": "robomp",
 				},
 				body: JSON.stringify({ modelId: "pi-native-usage", context: baseContext, stream: false }),
 			});
@@ -411,7 +411,7 @@ describe("pi-native gateway usage attribution", () => {
 
 describe("pi-native encodeStream", () => {
 	it("ships every AssistantMessageEvent verbatim, terminated by [DONE]", async () => {
-		// Pi-native is omp-talks-to-omp: the client feeds parsed events directly
+		// Pi-native is op-talks-to-op: the client feeds parsed events directly
 		// into `AssistantMessageEventStream.push()`, so the wire IS the canonical
 		// event type. No partial-stripping, no per-event re-shaping.
 		const finalMessage = baseAssistant({

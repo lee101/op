@@ -274,7 +274,7 @@ function parseBreadcrumbExtras(lines: string[]): {
  * absolute path. Best-effort — a failure here must never break session
  * creation.
  *
- * `sessionFile` may be relative (e.g. `--session .omp-sessions/work`); it is
+ * `sessionFile` may be relative (e.g. `--session .op-sessions/work`); it is
  * resolved against the recorded `cwd`, matching how the breadcrumb stores it.
  */
 function recordCustomSessionFile(cwd: string, sessionFile: string): void {

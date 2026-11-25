@@ -10,6 +10,9 @@ import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { TempDir } from "@openpaths/utils";
+import { withOfficialAnthropicEndpoint } from "./helpers/anthropic-endpoint";
+
+withOfficialAnthropicEndpoint();
 
 describe("/fast targets the current model's service-tier family", () => {
 	let tempDir: TempDir;

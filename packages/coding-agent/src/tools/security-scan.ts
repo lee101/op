@@ -1,7 +1,7 @@
 import { type } from "@openpaths/optype";
 import type { AgentTool, AgentToolResult, ToolTier } from "@openpaths/agent-core";
 import securityScanDescription from "../prompts/tools/security-scan.md" with { type: "text" };
-import { selectSecurityAccount } from "../security/auth";
+import { selectSecurityOAuthAccount } from "../security/auth";
 import {
 	CodexSecurityCloudClient,
 	type CodexSecurityCloudConfiguration,
@@ -91,7 +91,7 @@ function requireValue(value: string | undefined, label: string): string {
 
 function cloudClientForSession(session: ToolSession, credentialId?: number): CodexSecurityCloudClient {
 	if (!session.authStorage) throw new ToolError("Codex Security cloud requires the authentication registry");
-	const account = selectSecurityAccount(
+	const account = selectSecurityOAuthAccount(
 		session.authStorage,
 		"openai-codex",
 		credentialId,

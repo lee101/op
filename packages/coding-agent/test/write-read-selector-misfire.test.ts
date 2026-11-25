@@ -5,7 +5,7 @@ import * as path from "node:path";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 import { WriteTool } from "@openpaths/coding-agent/tools/write";
-import { readArchiveEntries, writeArchive } from "@openpaths/coding-agent/utils/zip";
+import { readArchiveEntries, writeArchive } from "@openpaths/utils/ar";
 
 // A read-only step that mis-dispatches `read` as `write` passes the full read
 // expression (`src/foo.tsx:1-260:raw`) as the target. Because a literal colon

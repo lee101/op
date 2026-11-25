@@ -7,6 +7,7 @@ import { getEnvApiKey } from "@openpaths/ai/stream";
 import { Effort } from "@openpaths/catalog/effort";
 import { resolveProviderModels } from "@openpaths/catalog/model-manager";
 import { getBundledModels } from "@openpaths/catalog/models";
+import { seedModels } from "@openpaths/catalog/compat/providers";
 import { DEFAULT_MODEL_PER_PROVIDER, PROVIDER_DESCRIPTORS } from "@openpaths/catalog/provider-models/descriptors";
 import { sakanaModelManagerOptions } from "@openpaths/catalog/provider-models/openai-compat";
 import type { FetchImpl, ModelSpec, ResolvedOpenAIResponsesCompat } from "@openpaths/catalog/types";
@@ -52,6 +53,9 @@ describe("Sakana AI provider support", () => {
 		expect(descriptor?.catalogDiscovery?.envVars).toEqual(["SAKANA_API_KEY", "FUGU_API_KEY"]);
 		expect(descriptor?.dynamicModelsAuthoritative).toBe(true);
 		expect(DEFAULT_MODEL_PER_PROVIDER.sakana).toBe("fugu");
+
+		const seeded = seedModels("sakana");
+		expect(seeded.map(model => model.id)).toEqual(["fugu", "fugu-ultra", "fugu-ultra-20260615"]);
 
 		const bundled = getBundledModels("sakana");
 		expect(bundled.map(model => model.id).sort()).toEqual(["fugu", "fugu-ultra", "fugu-ultra-20260615"]);

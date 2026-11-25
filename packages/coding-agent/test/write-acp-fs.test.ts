@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { computeFileHash } from "@openpaths/hashline";
+import { hashlineFileHash } from "@openpaths/natives";
 import type { AgentToolResult } from "@openpaths/agent-core";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { resolveLocalUrlToPath } from "@openpaths/coding-agent/internal-urls";
@@ -100,8 +100,8 @@ describe("write tool ACP fs routing", () => {
 		const text = resultText(result);
 
 		expect(await Bun.file(filePath).text()).toBe(persisted);
-		expect(text).toContain(`[formatted.ts#${computeFileHash(persisted)}]`);
-		expect(text).not.toContain(`[formatted.ts#${computeFileHash(requested)}]`);
+		expect(text).toContain(`[formatted.ts#${hashlineFileHash(persisted)}]`);
+		expect(text).not.toContain(`[formatted.ts#${hashlineFileHash(requested)}]`);
 	});
 
 	it("emits a progress snapshot before filesystem writes complete", async () => {

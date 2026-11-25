@@ -499,7 +499,7 @@ export function buildHarLog(entries: Record<string, unknown>[]): object {
 	return {
 		log: {
 			version: "1.2",
-			creator: { name: "omp-browser", version: "1" },
+			creator: { name: "op-browser", version: "1" },
 			pages: [],
 			entries,
 		},

@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import * as vcs from "@openpaths/natives/vcs";
 import type { AutocompleteItem } from "@openpaths/tui";
 import { logger, prompt } from "@openpaths/utils";
 import type { ExtensionContext, ExtensionFactory } from "../extensibility/extensions";
-import * as git from "../utils/git";
 import commandResumeTemplate from "./command-resume.md" with { type: "text" };
 import { createDashboardController } from "@openpaths/tui/apps/autoresearch-dashboard";
 import { currentResults, findBaselineMetric, findBaselineRunNumber } from "@openpaths/tui/apps/autoresearch-data";
@@ -427,8 +427,9 @@ export const createAutoresearchExtension: ExtensionFactory = api => {
 		const shouldResetTree = !opts.keepTree && (onAutoresearchBranch || opts.resetTreeForce);
 		if (shouldResetTree && session?.baselineCommit) {
 			try {
-				await git.reset(ctx.cwd, { hard: true, target: session.baselineCommit });
-				await git.clean(ctx.cwd);
+				const repository = vcs.requireGit(ctx.cwd);
+				await repository.reset("hard", session.baselineCommit);
+				await repository.clean({});
 				ctx.ui.notify(`Reset worktree to baseline ${session.baselineCommit.slice(0, 12)}.`, "info");
 			} catch (err) {
 				ctx.ui.notify(
@@ -533,7 +534,7 @@ function bestKeptResult(
 
 async function tryReadBranch(cwd: string): Promise<string | null> {
 	try {
-		return (await git.branch.current(cwd)) ?? null;
+		return (await vcs.repo(cwd)?.label()) ?? null;
 	} catch {
 		return null;
 	}

@@ -125,7 +125,7 @@ function isModelAvailable(
 }
 
 export interface FactoryDroidModelDiscoveryOptions extends AccountScope {
-	/** op-stored WorkOS access token (from `/login factory-droid`), when present. */
+	/** OP-stored WorkOS access token (from `/login factory-droid`), when present. */
 	apiKey?: string;
 	fetch?: FetchImpl;
 }

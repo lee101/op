@@ -409,7 +409,7 @@ function socketFallbackDir(dir: string, base: string): string {
 		.update(dir)
 		.digest("hex")
 		.slice(0, 20);
-	return path.join(base, `omp-collab-${key}`);
+	return path.join(base, `op-collab-${key}`);
 }
 
 /**
@@ -453,7 +453,7 @@ export async function publishCollabHost(
 	const token = crypto.randomBytes(32).toString("hex");
 	const endpoint =
 		process.platform === "win32"
-			? `\\\\.\\pipe\\omp-collab-${entryId}`
+			? `\\\\.\\pipe\\op-collab-${entryId}`
 			: await resolveSocketEndpoint(dir, entryId, options?.socketFallbackBase ?? DEFAULT_SOCKET_FALLBACK_BASE);
 	const metaPath = path.join(dir, `${entryId}.json`);
 

@@ -17,7 +17,7 @@ describe("parseGitHubRepo", () => {
 	});
 
 	test("parses SSH scp-style URL", () => {
-		expect(parseGitHubRepo("git@github.com:loftiskg/oh-my-pi.git")).toBe("loftiskg/oh-my-pi");
+		expect(parseGitHubRepo("git@github.com:loftiskg/openpaths.git")).toBe("loftiskg/openpaths");
 	});
 
 	test("parses ssh:// protocol URL", () => {

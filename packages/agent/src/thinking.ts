@@ -1,4 +1,4 @@
-import { Effort } from "@openpaths/ai";
+import { Effort } from "@openpaths/catalog/effort";
 
 /**
  * Agent-local thinking selector.

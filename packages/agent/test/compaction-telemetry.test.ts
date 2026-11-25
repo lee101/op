@@ -21,7 +21,7 @@ import {
 	type AgentTelemetryConfig,
 	GenAIAttr,
 	GenAIOperation,
-	OmpGenAIAttr,
+	OpGenAIAttr,
 	resolveTelemetry,
 } from "@openpaths/agent-core/telemetry";
 import type { AgentMessage } from "@openpaths/agent-core/types";
@@ -100,7 +100,7 @@ function chatSpans(spans: ReadableSpan[]): ReadableSpan[] {
 }
 
 function spansByOneshotKind(spans: ReadableSpan[], kind: string): ReadableSpan[] {
-	return spans.filter(s => s.attributes[OmpGenAIAttr.OneshotKind] === kind);
+	return spans.filter(s => s.attributes[OpGenAIAttr.OneshotKind] === kind);
 }
 
 function makePreparation(overrides: Partial<CompactionPreparation> = {}): CompactionPreparation {
@@ -142,7 +142,7 @@ describe("compaction oneshot telemetry", () => {
 		expect(historySpan?.attributes[GenAIAttr.RequestModel]).toBe("mock-model");
 		expect(historySpan?.attributes[GenAIAttr.UsageInputTokens]).toBe(215); // input + cacheRead + cacheWrite
 		expect(historySpan?.attributes[GenAIAttr.UsageOutputTokens]).toBe(90);
-		expect(historySpan?.attributes[OmpGenAIAttr.AgentStepNumber]).toBe(-1);
+		expect(historySpan?.attributes[OpGenAIAttr.AgentStepNumber]).toBe(-1);
 		expect(historySpan?.status.code).not.toBe(SpanStatusCode.ERROR);
 	});
 
@@ -199,7 +199,7 @@ describe("compaction oneshot telemetry", () => {
 		const chats = chatSpans(exporter.getFinishedSpans());
 		expect(chats).toHaveLength(1);
 		const span = chats[0];
-		expect(span?.attributes[OmpGenAIAttr.OneshotKind]).toBe("compaction_summary");
+		expect(span?.attributes[OpGenAIAttr.OneshotKind]).toBe("compaction_summary");
 		expect(span?.status.code).toBe(SpanStatusCode.ERROR);
 		// finishChatSpan-only attributes must NOT be set on the failure path.
 		expect(span?.attributes[GenAIAttr.ResponseModel]).toBeUndefined();
@@ -227,8 +227,8 @@ describe("handoff oneshot telemetry", () => {
 		const chats = chatSpans(exporter.getFinishedSpans());
 		expect(chats).toHaveLength(1);
 		const span = chats[0];
-		expect(span?.attributes[OmpGenAIAttr.OneshotKind]).toBe("handoff");
-		expect(span?.attributes[OmpGenAIAttr.RequestToolChoice]).toBe("none");
+		expect(span?.attributes[OpGenAIAttr.OneshotKind]).toBe("handoff");
+		expect(span?.attributes[OpGenAIAttr.RequestToolChoice]).toBe("none");
 	});
 });
 
@@ -269,7 +269,7 @@ describe("branch summary oneshot telemetry", () => {
 		const chats = chatSpans(exporter.getFinishedSpans());
 		expect(chats).toHaveLength(1);
 		const span = chats[0];
-		expect(span?.attributes[OmpGenAIAttr.OneshotKind]).toBe("branch_summary");
+		expect(span?.attributes[OpGenAIAttr.OneshotKind]).toBe("branch_summary");
 		expect(span?.attributes[GenAIAttr.UsageInputTokens]).toBe(50);
 		expect(span?.attributes[GenAIAttr.UsageOutputTokens]).toBe(30);
 	});

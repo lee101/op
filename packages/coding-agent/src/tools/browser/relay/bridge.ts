@@ -76,7 +76,7 @@ class CdpConnection {
 	autoAttach = false;
 	/** Minted pseudo-sessions owned by this connection. */
 	readonly sessions = new Map<string, SessionRef>();
-	/** Tabs this connection claimed as drive targets (`OMP.claimTarget` / `Target.createTarget`). */
+	/** Tabs this connection claimed as drive targets (`OP.claimTarget` / `Target.createTarget`). */
 	readonly claims = new Set<string>();
 
 	constructor(
@@ -629,7 +629,7 @@ export class RelayBridge {
 		}
 		// Relay-private claim: the op tab worker marks the page it was spawned
 		// to drive. Never forwarded — real Chrome rejects the unknown method.
-		if (msg.method === "OMP.claimTarget") {
+		if (msg.method === "OP.claimTarget") {
 			this.#claimTab(conn, tabKey);
 			this.#reply(conn, msg, {});
 			return;
@@ -969,7 +969,7 @@ export class RelayBridge {
 		this.#resetRuntime(tab);
 		tab.banned = true;
 		// The user dismissed the debugger infobar (or the attach was torn
-		// down): release the tab's omp-group membership too.
+		// down): release the tab's op-group membership too.
 		this.#syncTabGrouping(tab);
 		this.#retractTab(tab);
 	}

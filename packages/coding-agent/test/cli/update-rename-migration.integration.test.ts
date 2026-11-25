@@ -30,8 +30,8 @@ import {
 } from "../../src/cli/update-cli";
 import { initTheme } from "@openpaths/tui/theme";
 
-const OLD_PKG = "omp-rename-fixture-old";
-const NEW_PKG = "omp-rename-fixture-new";
+const OLD_PKG = "op-rename-fixture-old";
+const NEW_PKG = "op-rename-fixture-new";
 const OLD_VERSION = "1.0.0";
 const NEW_VERSION = "2.0.0";
 let fixtureDir: TempDir;

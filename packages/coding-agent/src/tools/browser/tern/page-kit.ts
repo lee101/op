@@ -220,8 +220,8 @@ const EDIT_ACTIONS = new Set(["type", "fill"]);
 const SETTER_INPUT_TYPES = new Set(["date", "datetime-local", "month", "week", "time", "color", "range"]);
 const UNTYPABLE_INPUT_TYPES = new Set(["checkbox", "radio", "button", "submit", "reset", "image", "hidden", "file"]);
 const TRIVIAL_VALUE_INPUT_TYPES = new Set(["checkbox", "image", "radio"]);
-const HANDLE_ATTR = "data-omp-tern-handle";
-const OVERLAY_ATTR = "data-omp-tern-overlay";
+const HANDLE_ATTR = "data-op-tern-handle";
+const OVERLAY_ATTR = "data-op-tern-overlay";
 
 let registry = new Map();
 // Ref resolution is stateless (it scans _ariaRef expandos), so one instance serves every lookup.
@@ -1188,10 +1188,10 @@ const kit = {
 		return { snapshot, hrefs };
 	},
 	annotate: ids => {
-		const token = "omp-screenshot-" + randomToken();
+		const token = "op-screenshot-" + randomToken();
 		const boxes = [];
 		const root = document.createElement("div");
-		root.setAttribute("data-omp-screenshot-annotations", token);
+		root.setAttribute("data-op-screenshot-annotations", token);
 		root.setAttribute(OVERLAY_ATTR, token);
 		root.style.cssText = "position:fixed;left:0;top:0;z-index:2147483647;pointer-events:none";
 		for (const id of ids) {

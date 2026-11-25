@@ -9,7 +9,7 @@ import {
 	systemChromiumCandidatesForTest,
 } from "@openpaths/coding-agent/tools/browser/launch";
 import { TempDir } from "@openpaths/utils";
-import { Browser, computeExecutablePath, detectBrowserPlatform, resolveBuildId } from "@openpaths/utils/browsers";
+import { computeExecutablePath, detectBrowserPlatform } from "@openpaths/utils/browsers";
 import { APP_NAME } from "@openpaths/utils/dirs";
 import { PUPPETEER_REVISIONS } from "puppeteer-core/internal/revisions.js";
 
@@ -78,7 +78,9 @@ describe("system Chromium candidates", () => {
 		expect(candidates).toContain("/usr/bin/ungoogled-chromium");
 		expect(candidates).toContain("/usr/bin/ungoogled-chromium-browser");
 		expect(candidates).toContain(`/var/lib/flatpak/exports/bin/${UNGOOGLED_CHROMIUM_FLATPAK_ID}`);
-		expect(candidates).toContain(`/home/test/.local/share/flatpak/exports/bin/${UNGOOGLED_CHROMIUM_FLATPAK_ID}`);
+		expect(candidates).toContain(
+			path.join("/home/test", ".local/share/flatpak/exports/bin", UNGOOGLED_CHROMIUM_FLATPAK_ID),
+		);
 	});
 
 	it("keeps the previously supported Linux executables", () => {
@@ -253,8 +255,8 @@ describe("browser executable selection", () => {
 				const cacheDir = path.join(xdgCache, APP_NAME, "puppeteer");
 				const platform = detectBrowserPlatform();
 				if (!platform) throw new Error("unsupported host platform for Chrome-for-Testing selection test");
-				const buildId = await resolveBuildId(Browser.CHROME, platform, PUPPETEER_REVISIONS.chrome);
-				const chromeForTesting = computeExecutablePath({ browser: Browser.CHROME, buildId, cacheDir, platform });
+				const buildId = PUPPETEER_REVISIONS.chrome;
+				const chromeForTesting = computeExecutablePath({ buildId, cacheDir, platform });
 				await Bun.write(chromeForTesting, "#!/bin/sh\necho 'Chrome for Testing'\n");
 				fs.chmodSync(chromeForTesting, 0o755);
 

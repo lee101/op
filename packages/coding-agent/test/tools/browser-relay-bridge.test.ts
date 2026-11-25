@@ -172,7 +172,7 @@ async function claimTab(
 	tabId: number,
 ): Promise<void> {
 	const sessionId = await attachPage(bridge, ext, cdp, connId, tabId);
-	bridge.cdpMessage(connId, JSON.stringify({ id: ++msgSeq, sessionId, method: "OMP.claimTarget" }));
+	bridge.cdpMessage(connId, JSON.stringify({ id: ++msgSeq, sessionId, method: "OP.claimTarget" }));
 	await flush();
 }
 

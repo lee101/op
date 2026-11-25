@@ -176,7 +176,7 @@ export interface LspServerInfo {
 }
 
 /**
- * Premium welcome screen with block-based OMP logo and two-column layout.
+ * Premium welcome screen with block-based OP logo and two-column layout.
  */
 export class WelcomeComponent implements Component {
 	#animStart: number | null = null;

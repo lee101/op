@@ -44,7 +44,7 @@ describe("sshControlFallbackDir", () => {
 		const a = sshControlFallbackDir(canonicalDir, 501);
 		const b = sshControlFallbackDir(canonicalDir, 501);
 		expect(a).toBe(b);
-		expect(a).toBe("/tmp/omp-5434354bc38f9a50fbbd");
+		expect(a).toBe("/tmp/op-5434354bc38f9a50fbbd");
 		expect(Buffer.byteLength(a)).toBe(29);
 		const tempBind = path.join(a, `${"a".repeat(40)}.sock.${"b".repeat(16)}`);
 		expect(Buffer.byteLength(tempBind)).toBe(92);
@@ -55,7 +55,7 @@ describe("sshControlFallbackDir", () => {
 	it("isolates distinct canonical control directories and uids", () => {
 		const base = "/Users/arthur/.op/ssh-control";
 		expect(sshControlFallbackDir(base, 501)).not.toBe(
-			sshControlFallbackDir("/different/xdg/state/omp/ssh-control", 501),
+			sshControlFallbackDir("/different/xdg/state/op/ssh-control", 501),
 		);
 		expect(sshControlFallbackDir(base, 501)).not.toBe(sshControlFallbackDir(base, 502));
 	});
@@ -73,7 +73,7 @@ describe("resolveSshControlDir", () => {
 	it("relocates to the bounded shared fallback when the canonical dir overflows", () => {
 		const canonicalDir = "/Users/arthur/.op/profiles/upstream/ssh-control";
 		const choice = resolveSshControlDir({ canonicalDir, platform: "darwin", uid: 501, tmpBase: "/tmp" });
-		expect(choice).toEqual({ dir: "/tmp/omp-5434354bc38f9a50fbbd", shared: true });
+		expect(choice).toEqual({ dir: "/tmp/op-5434354bc38f9a50fbbd", shared: true });
 		expect(controlPathFitsBudget(choice.dir, "darwin")).toBe(true);
 	});
 
@@ -121,7 +121,7 @@ describe("assertOwnerPrivateDir", () => {
 	});
 
 	const mkScratch = () => {
-		scratch = fs.mkdtempSync(path.join(os.tmpdir(), "omp-ssh-guard-"));
+		scratch = fs.mkdtempSync(path.join(os.tmpdir(), "op-ssh-guard-"));
 		return scratch;
 	};
 

@@ -33,6 +33,7 @@ smoke_cli() {
    # probe for #1011/#1027 worker loading and for npm/compiled distributions
    # missing the dashboard assets that `stats --summary` never touches.
    XDG_DATA_HOME="$runtime_dir/xdg" HOME="$runtime_dir/home" "$op_bin" --smoke-test
+   bun "$ROOT_DIR/scripts/install-tests/settings-session.ts" "$op_bin"
 }
 
 find_tarball() {
@@ -135,7 +136,7 @@ cp "$natives_pkg_backup" "$ROOT_DIR/packages/natives/package.json"
 # 3. Pack the remaining workspace packages (natives core and coding-agent
 #    handled separately). `collab-web` is private but still packed here so its
 #    prepack build and tarball file list stay release-safe.
-for pkg in utils wire optype hashline catalog ai mnemopi snapcompact agent tui stats collab-web; do
+for pkg in utils wire optype catalog ai mnemopi snapcompact agent tui stats collab-web; do
    (
       cd "$ROOT_DIR/packages/$pkg"
       bun pm pack --destination "$TARBALL_DIR" --quiet >/dev/null
@@ -163,7 +164,6 @@ wire_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-wire-*.tgz)"
 optype_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-optype-*.tgz)"
 natives_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-natives-[0-9]*.tgz)"
 natives_leaf_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-natives-"$host_tag"-*.tgz)"
-hashline_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-hashline-*.tgz)"
 catalog_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-catalog-*.tgz)"
 ai_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-ai-*.tgz)"
 mnemopi_tgz="$(find_tarball "$TARBALL_DIR"/openpaths-pi-mnemopi-*.tgz)"
@@ -190,7 +190,6 @@ mkdir -p "$TARBALL_APP_DIR"
 			'@openpaths/optype': '$optype_tgz',
 			'@openpaths/natives': '$natives_tgz',
 			'@openpaths/natives-$host_tag': '$natives_leaf_tgz',
-			'@openpaths/hashline': '$hashline_tgz',
 			'@openpaths/ai': '$ai_tgz',
 			'@openpaths/catalog': '$catalog_tgz',
 			'@openpaths/mnemopi': '$mnemopi_tgz',
@@ -204,7 +203,7 @@ mkdir -p "$TARBALL_APP_DIR"
 		require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
 	"
 
-   bun add "$utils_tgz" "$wire_tgz" "$optype_tgz" "$natives_tgz" "$hashline_tgz" "$catalog_tgz" "$ai_tgz" "$mnemopi_tgz" "$snapcompact_tgz" "$agent_tgz" "$tui_tgz" "$stats_tgz" "$coding_agent_tgz" "$collab_web_tgz"
+   bun add "$utils_tgz" "$wire_tgz" "$optype_tgz" "$natives_tgz" "$catalog_tgz" "$ai_tgz" "$mnemopi_tgz" "$snapcompact_tgz" "$agent_tgz" "$tui_tgz" "$stats_tgz" "$coding_agent_tgz" "$collab_web_tgz"
    # The platform leaf must arrive through the core's optionalDependencies +
    # override, not as a direct dependency — assert it landed before smoking so a
    # resolution regression is distinguishable from a runtime loader bug.

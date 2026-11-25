@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { streamOpenAIResponses } from "@openpaths/ai/providers/openai-responses";
-import { loginMeta } from "@openpaths/ai/registry/meta";
-import type { Context, Model } from "@openpaths/ai/types";
+import { getProviderDefinition } from "@openpaths/ai/registry/registry";
+import type { Context } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
 import { Effort } from "@openpaths/catalog/effort";
-import { META_MUSE_STATIC_MODELS } from "@openpaths/catalog/provider-models/openai-compat";
+import { seedModels } from "@openpaths/catalog/compat/providers";
+
+const loginMeta = getProviderDefinition("meta")!.login!;
 
 const context: Context = {
 	messages: [{ role: "user", content: "hello", timestamp: Date.now() }],
@@ -17,7 +19,7 @@ function createAbortedSignal(): AbortSignal {
 }
 
 function capturePayload(reasoning: Effort): Promise<Record<string, unknown>> {
-	const model = buildModel(META_MUSE_STATIC_MODELS[0]!) as Model<"openai-responses">;
+	const model = buildModel(seedModels<"openai-responses">("meta")[0]!);
 	const { promise, resolve } = Promise.withResolvers<Record<string, unknown>>();
 	streamOpenAIResponses(model, context, {
 		apiKey: "meta-test-key",

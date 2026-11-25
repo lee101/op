@@ -88,7 +88,7 @@ signing to engage.
 
 ### Producing the credential files
 
-Drop these into a working directory (default `~/omp-signing`):
+Drop these into a working directory (default `~/op-signing`):
 
 | File                 | How                                                                                                                                                                                                                                     |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -114,8 +114,8 @@ can appear in that subprocess's arguments. The script prints the filenames
 and Key ID.
 
 ```sh
-scripts/ci-macos-upload-secrets.sh ~/omp-signing --dry-run   # validate first
-scripts/ci-macos-upload-secrets.sh ~/omp-signing             # upload all five
+scripts/ci-macos-upload-secrets.sh ~/op-signing --dry-run   # validate first
+scripts/ci-macos-upload-secrets.sh ~/op-signing             # upload all five
 gh secret list --repo lee101/op                       # confirm
 ```
 

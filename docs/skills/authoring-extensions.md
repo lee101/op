@@ -107,7 +107,7 @@ To package an extension as an installable plugin, add an `op` field to `package.
 
 ```json
 {
-  "name": "my-omp-extension",
+  "name": "my-op-extension",
   "op": {
     "extensions": ["./src/main.ts"]
   }
@@ -168,7 +168,7 @@ Use command contexts for switching, branching, tree navigation, and reload. `com
 ## Registering tools
 
 Tools are called by the LLM. Parameter definitions may use the injected
-Zod-compatible omptype builder; `pi.arktype` and the legacy-compatible
+Zod-compatible optype builder; `pi.arktype` and the legacy-compatible
 `pi.typebox` are also available:
 
 ```ts
@@ -240,7 +240,7 @@ New authoring should use `ExtensionAPI`. Discovered JS/TS hook factories are loa
 op writes structured logs under the active state root's `logs/` directory (by default `~/.op/logs/`; debug level is always on, and nothing is written to the console because that would corrupt the TUI). Each filename includes the process ID. Tail today's default-profile logs to see extension load diagnostics:
 
 ```
-tail -f ~/.op/logs/omp.$(date +%F).*.log
+tail -f ~/.op/logs/op.$(date +%F).*.log
 ```
 
 Failed extension loads are logged with their path and error. Loaded extensions may also emit their own debug logs via `pi.logger`.

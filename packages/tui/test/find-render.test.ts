@@ -74,7 +74,7 @@ describe("findToolRenderer", () => {
 	it("links op hits to their doc URL instead of joining them onto cwd", async () => {
 		applyHyperlinkSetting("always");
 		const uiTheme = (await getThemeByName("dark"))!;
-		const docDetails: FindToolDetails = {
+		const ompDetails: FindToolDetails = {
 			...details,
 			scopePath: "op://",
 			hits: [
@@ -89,7 +89,7 @@ describe("findToolRenderer", () => {
 		};
 		const lines = findToolRenderer
 			.renderResult(
-				{ content: [{ type: "text", text: "" }], details: docDetails },
+				{ content: [{ type: "text", text: "" }], details: ompDetails },
 				{ expanded: true, isPartial: false },
 				uiTheme,
 				args,

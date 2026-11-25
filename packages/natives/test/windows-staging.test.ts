@@ -33,8 +33,8 @@ import {
 } from "../native/loader-state.js";
 import packageJson from "../package.json" with { type: "json" };
 
-const winNodeModulesNativeDir = "C:\\Users\\Admin\\node_modules\\@oh-my-pi\\pi-natives\\native";
-const winWorkspaceNativeDir = "C:\\Users\\Admin\\dev\\oh-my-pi\\packages\\natives\\native";
+const winNodeModulesNativeDir = "C:\\Users\\Admin\\node_modules\\@openpaths\\pi-natives\\native";
+const winWorkspaceNativeDir = "C:\\Users\\Admin\\dev\\openpaths\\packages\\natives\\native";
 const posixNodeModulesNativeDir = "/home/u/proj/node_modules/@openpaths/natives/native";
 
 describe("windows native addon staging", () => {
@@ -125,7 +125,7 @@ describe("windows native addon staging", () => {
 			const workspace = initLoaderContext({
 				platform: "linux",
 				isCompiledBinary: false,
-				nativeDir: "/tmp/oh-my-pi/packages/natives/native",
+				nativeDir: "/tmp/openpaths/packages/natives/native",
 				leafPackageDir,
 			});
 			const installed = initLoaderContext({
@@ -173,7 +173,7 @@ describe("windows native addon staging", () => {
 	});
 
 	it("removes only older version directories after the current native version loads", async () => {
-		const nativesDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-natives-cache-"));
+		const nativesDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-natives-cache-"));
 		const currentMajor = Number.parseInt(packageJson.version, 10);
 		const futureVersion = `${currentMajor + 1}.0.0`;
 		const staleVersion = "15.10.11";

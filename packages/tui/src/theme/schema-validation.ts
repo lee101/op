@@ -118,7 +118,7 @@ const themeJsonSchema = type({
 	},
 });
 
-/** Validate a custom theme with the full omptype contract. */
+/** Validate a custom theme with the full optype contract. */
 export function validateThemeJson(value: unknown): ThemeJson {
 	const parsed = themeJsonSchema(value);
 	if (parsed instanceof type.errors) throw new Error(parsed.summary);

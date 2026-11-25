@@ -221,7 +221,7 @@ The assistant can then answer normally or emit another complete MiniMax call env
 - **Not real XML.** Do not entity-escape parameter bodies or run them through an XML DOM parser; matching is based on protocol delimiters.
 - **One envelope, many invokes.** Parallelism is sibling calls inside `<minimax:tool_call>`, not JSON `tool_calls` and not one envelope per required batch.
 - **Schema determines strings.** Without the tool schema, even a JavaScript string renderer value is JSON-quoted; supply tool definitions to renderer/scanner APIs for round trips.
-- **No ids on the wire.** OMP-generated ids are internal. Preserve call/result order.
+- **No ids on the wire.** OP-generated ids are internal. Preserve call/result order.
 - **Errors are first-class records.** Use `<error>/<stderr>`, not a successful `<result>` containing an out-of-band error flag.
 - **Canonical wrapper vs accepted recovery syntax.** The parser accepts bare invokes and `<tool_call>`, but the injected contract requires `<minimax:tool_call>`.
 - **Complete the invoke before stopping.** A natural-language promise to call a tool is not a call; the closing `</invoke>` is what finalizes coercion and the normal lifecycle.

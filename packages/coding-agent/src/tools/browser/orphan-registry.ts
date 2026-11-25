@@ -10,7 +10,7 @@
  *
  * This module records, on disk under the broker runtime dir, which OS process
  * created each shared-browser page target. Any live op process can then reap
- * targets whose owning process is gone. It only ever touches OMP-owned
+ * targets whose owning process is gone. It only ever touches OP-owned
  * shared-browser targets — user-owned connected/relay/spawned browsers have no
  * registry and are never scanned.
  *

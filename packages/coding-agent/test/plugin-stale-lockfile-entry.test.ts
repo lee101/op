@@ -27,7 +27,7 @@ async function writeJson(filePath: string, value: unknown): Promise<void> {
 // legitimate only as symlinks (`op plugin link`, marketplace runtime
 // registration), which must keep loading.
 test("stale lockfile-only directory plugin is skipped while declared and linked plugins load", async () => {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-plugin-stale-"));
+	const root = await fs.mkdtemp(path.join(os.tmpdir(), "op-plugin-stale-"));
 	tempRoots.push(root);
 	const home = path.join(root, "home");
 	const cwd = path.join(root, "project");
@@ -66,7 +66,7 @@ test("stale lockfile-only directory plugin is skipped while declared and linked 
 	await writeJson(path.join(pluginsDir, "package.json"), {
 		dependencies: { "declared-plugin": "1.0.0" },
 	});
-	await writeJson(path.join(pluginsDir, "omp-plugins.lock.json"), {
+	await writeJson(path.join(pluginsDir, "op-plugins.lock.json"), {
 		plugins: {
 			"declared-plugin": { version: "1.0.0", enabled: true, enabledFeatures: null },
 			"stale-plugin": { version: "0.1.0", enabled: true, enabledFeatures: null },
@@ -82,7 +82,7 @@ test("stale lockfile-only directory plugin is skipped while declared and linked 
 });
 
 test("manifest-less project roots retain lockfile-only directory plugins", async () => {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-project-plugin-"));
+	const root = await fs.mkdtemp(path.join(os.tmpdir(), "op-project-plugin-"));
 	tempRoots.push(root);
 	const home = path.join(root, "home");
 	const cwd = path.join(root, "project");
@@ -94,7 +94,7 @@ test("manifest-less project roots retain lockfile-only directory plugins", async
 		version: "1.0.0",
 		op: { extensions: ["ext.ts"] },
 	});
-	await writeJson(path.join(pluginsDir, "omp-plugins.lock.json"), {
+	await writeJson(path.join(pluginsDir, "op-plugins.lock.json"), {
 		plugins: {
 			"project-plugin": { version: "1.0.0", enabled: true, enabledFeatures: null },
 		},

@@ -9,6 +9,7 @@ import { SKILL_PROMPT_MESSAGE_TYPE } from "@openpaths/coding-agent/session/messa
 import { runSubprocess } from "@openpaths/coding-agent/task/executor";
 import type { AgentDefinition } from "@openpaths/coding-agent/task/types";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
+import { createSessionDefaults } from "../helpers/session-defaults";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ function createMockSession(
 	};
 
 	return {
+		...createSessionDefaults(),
 		state,
 		agent: { state: { systemPrompt: ["test"] } },
 		model: undefined,
@@ -38,7 +40,6 @@ function createMockSession(
 		},
 		getActiveToolNames: () => ["read", "yield"],
 		getEnabledToolNames: () => ["read", "yield"],
-		setActiveToolsByName: async () => {},
 		subscribe: (listener: (event: AgentSessionEvent) => void) => {
 			listeners.push(listener);
 			return () => {
@@ -52,12 +53,7 @@ function createMockSession(
 			return true;
 		},
 		sendCustomMessage: vi.fn(async () => {}),
-		waitForIdle: async () => {},
 		getLastAssistantMessage: () => state.messages[state.messages.length - 1],
-		abort: async () => {},
-		dispose: async () => {},
-		setIrcWakeTurnObserver: () => {},
-		subscribeRunState: () => () => {},
 	} as unknown as AgentSession;
 }
 

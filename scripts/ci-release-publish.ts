@@ -15,7 +15,7 @@
  *      `dist/types` (plus `dist/client` for `stats`) is added to `files`,
  *      and packages with a `publishBin` override get their `bin` swapped to
  *      the prepack bundle (coding-agent: `src/cli.ts` → `dist/cli.js`).
- *      Packages flagged `publishJs` (omptype) additionally emit transpiled
+ *      Packages flagged `publishJs` (optype) additionally emit transpiled
  *      per-module JS into `dist/js/` and get their runtime entries (`main`,
  *      `exports[*]` import paths) repointed there, with a `bun` condition
  *      keeping TS-source resolution for Bun consumers — so the published
@@ -435,7 +435,7 @@ function publishTargetJob(target: PublishTarget, packLocks: KeyedMutex): Publish
 				return;
 			}
 			log(`Packing ${name}…`);
-			packDir = await fs.mkdtemp(path.join(os.tmpdir(), "omp-pack-"));
+			packDir = await fs.mkdtemp(path.join(os.tmpdir(), "op-pack-"));
 			const destination = packDir;
 			// The tarball lands in a private temp dir, so the lock only needs to cover packing.
 			const result = await packLocks(target.packLock, () =>

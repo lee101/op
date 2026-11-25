@@ -144,12 +144,12 @@ Because bundled parsing uses `level: "fatal"`, unrecoverable YAML errors or inva
 
 ## Filesystem and plugin discovery
 
-`discoverAgents(cwd, home, extensionRoots?)` (`src/task/discovery.ts`) merges agents from OMP-native roots, OP extension packages, and Claude marketplace plugin roots before appending bundled definitions. Direct cross-harness roots such as `.claude/agents`, `.codex/agents`, and `.gemini/agents` are intentionally skipped — their frontmatter schema is not the OP task-agent contract (`TASK_AGENT_CONFIG_SOURCE = ".omp"` filters the native config-dir lists).
+`discoverAgents(cwd, home, extensionRoots?)` (`src/task/discovery.ts`) merges agents from OP-native roots, OP extension packages, and Claude marketplace plugin roots before appending bundled definitions. Direct cross-harness roots such as `.claude/agents`, `.codex/agents`, and `.gemini/agents` are intentionally skipped — their frontmatter schema is not the OP task-agent contract (`TASK_AGENT_CONFIG_SOURCE = ".op"` filters the native config-dir lists).
 
 ### Discovery inputs and precedence
 
-1. Nearest project `.op/agents` dir from `findAllNearestProjectConfigDirs("agents", cwd)` (first `.omp` hit only)
-2. User `.op/agents` dir from `getConfigDirs("agents", { project: false })` (first `.omp` hit only)
+1. Nearest project `.op/agents` dir from `findAllNearestProjectConfigDirs("agents", cwd)` (first `.op` hit only)
+2. User `.op/agents` dir from `getConfigDirs("agents", { project: false })` (first `.op` hit only)
 3. `<extension-root>/agents` for every enabled OP extension package returned by `listOmpExtensionRoots(...)`, in this order:
    - explicit CLI `--extension` / SDK `additionalExtensionPaths` directory roots
    - the session's effective `extensions:` array, in its configured order
@@ -160,7 +160,7 @@ Because bundled parsing uses `level: "fatal"`, unrecoverable YAML errors or inva
 
 The OP extension-package surface is disabled when the `op-plugins` capability provider is disabled. Marketplace roots are excluded from `listOmpExtensionRoots` and enter only through the separately gated Claude-plugin path.
 
-Claude-dialect plugin agents discard their frontmatter `model` so Claude aliases are not misread as OP selectors. This applies to foreign Claude roots and packages whose manifest declares the Claude format, including OP installs or `--plugin-dir` roots. OMP-native and Agent-Plugins-standard packages retain their model selectors.
+Claude-dialect plugin agents discard their frontmatter `model` so Claude aliases are not misread as OP selectors. This applies to foreign Claude roots and packages whose manifest declares the Claude format, including OP installs or `--plugin-dir` roots. OP-native and Agent-Plugins-standard packages retain their model selectors.
 
 ## Merge and collision rules
 
@@ -172,7 +172,7 @@ Discovery uses first-wins dedup by exact `agent.name`:
 
 Implications:
 
-- Project `.omp` overrides user `.omp`.
+- Project `.op` overrides user `.op`.
 - Earlier extension roots override later extension roots, Claude marketplace plugins, and bundled agents.
 - Non-bundled agents override bundled agents with the same name.
 - Name matching is case-sensitive (`Task` and `task` are distinct).

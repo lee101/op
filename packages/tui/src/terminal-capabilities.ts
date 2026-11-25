@@ -1460,7 +1460,7 @@ function sanitizeOsc99Id(id: string | undefined): string {
 }
 
 function osc99Id(id: string | undefined): string {
-	return sanitizeOsc99Id(id) || `omp-${nextOsc99NotificationId++}`;
+	return sanitizeOsc99Id(id) || `op-${nextOsc99NotificationId++}`;
 }
 
 function utf8CodePointBytes(char: string): number {

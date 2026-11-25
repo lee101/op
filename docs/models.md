@@ -212,7 +212,7 @@ providers:
   openai:
     apiKey: "!op read op://dev/openai/api-key"
     headers:
-      X-Team-Key: "!bw get password omp-team-key"
+      X-Team-Key: "!bw get password op-team-key"
 ```
 
 Successful command outputs are cached for the process lifetime, and concurrent requests share an in-flight execution. Failures back off for 30 seconds. Refresh callers that request `refreshCommandCredentials` (including the model hub's explicit refresh) and 401 credential recovery invalidate the relevant cached API keys and headers; an ordinary catalog refresh does not. Runtime API-key overrides, including `--api-key`, take precedence over configured credentials.
@@ -512,7 +512,7 @@ If `authHeader: true` and provider `apiKey` is set, models get:
 Resolution does not fail for a missing variable: with `apiKey: MY_PROVIDER_API_KEY`
 and `authHeader: true`, an unset or empty `MY_PROVIDER_API_KEY` produces
 `Authorization: Bearer MY_PROVIDER_API_KEY`. Launchers using env-backed keys must
-check that the variable is set and non-empty before starting OMP.
+check that the variable is set and non-empty before starting OP.
 
 [Command-resolved secrets](#command-resolved-secrets) do not use this literal
 fallback: a failing command or empty trimmed stdout resolves to no value, so it

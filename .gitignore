@@ -92,3 +92,5 @@ packages/coding-agent/bench/boot-baseline.json
 /bazel-pi
 /bazel-openpaths
 /.bazelrc.user
+
+.parity/

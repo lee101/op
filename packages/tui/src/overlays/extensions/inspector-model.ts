@@ -257,9 +257,9 @@ function pathSegments(filePath: string): string[] {
 export function projectListHint(ext: Extension): string | undefined {
 	if (ext.source.level !== "project") return undefined;
 	const parts = pathSegments(ext.path);
-	const opIndex = parts.lastIndexOf(".op");
-	if (opIndex <= 0) return undefined;
-	const parent = parts[opIndex - 1];
+	const ompIndex = parts.lastIndexOf(".op");
+	if (ompIndex <= 0) return undefined;
+	const parent = parts[ompIndex - 1];
 	return parent && parent !== "." ? parent : undefined;
 }
 

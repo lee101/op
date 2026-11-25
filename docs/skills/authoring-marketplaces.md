@@ -5,7 +5,7 @@ description: Use when creating a new op marketplace. Covers marketplace.json sch
 
 # Authoring Marketplaces
 
-A marketplace is a Git repository (or local directory) that contains a catalog file at either `.op-plugin/marketplace.json` (preferred for omp-specific catalogs) or `.claude-plugin/marketplace.json` (Claude Code-compatible; used as the fallback). Anyone can author one. Users add it with `/marketplace add owner/repo` and then install individual plugins from it.
+A marketplace is a Git repository (or local directory) that contains a catalog file at either `.op-plugin/marketplace.json` (preferred for op-specific catalogs) or `.claude-plugin/marketplace.json` (Claude Code-compatible; used as the fallback). Anyone can author one. Users add it with `/marketplace add owner/repo` and then install individual plugins from it.
 
 ## Minimum viable marketplace
 
@@ -105,7 +105,7 @@ The catalog file lives at either `.op-plugin/marketplace.json` or `.claude-plugi
       "category": "devops",
       "source": {
         "source": "github",
-        "repo": "acme-corp/omp-deploy-plugin",
+        "repo": "acme-corp/op-deploy-plugin",
         "ref": "main"
       }
     }
@@ -186,7 +186,7 @@ Declares the plugin as an npm package. `version` is optional:
 ```json
 "source": {
   "source": "npm",
-  "package": "@acme/omp-plugin",
+  "package": "@acme/op-plugin",
   "version": "1.2.0"
 }
 ```
@@ -210,7 +210,7 @@ my-plugin/
   README.md                      ← recommended: description + usage
 ```
 
-> Note: MCP servers may instead be declared by the manifest's `mcpServers` field — either an inline server map or a path to a config file inside the plugin root (`{ "mcpServers": "./mcp-omp.json" }`). op reads `.op-plugin/plugin.json` first, then `.claude-plugin/plugin.json`; a manifest declaration replaces the default `.mcp.json` rather than merging with it, so one published tree can carry a per-harness MCP config.
+> Note: MCP servers may instead be declared by the manifest's `mcpServers` field — either an inline server map or a path to a config file inside the plugin root (`{ "mcpServers": "./mcp-op.json" }`). op reads `.op-plugin/plugin.json` first, then `.claude-plugin/plugin.json`; a manifest declaration replaces the default `.mcp.json` rather than merging with it, so one published tree can carry a per-harness MCP config.
 
 > Note: extension modules declared via `package.json` `op.extensions` **are** loaded from marketplace installs — installation symlinks the cached plugin into the scope's `node_modules` and records it in `op-plugins.lock.json`, the same runtime surfaces used by npm-installed and `op plugin link`ed plugins.
 
@@ -241,7 +241,7 @@ Install and discovery details:
 - Invalid plugin entries are logged and skipped; invalid JSON or required top-level fields reject the catalog.
 - `skills/` and `commands/` may be remapped with `.claude-plugin/plugin.json`. Declared skill paths normally add to the default; for a plugin whose catalog source is exactly `"./"`, they replace it. Declared `commands` (preferred) or `slash-commands` replace the default unless `./commands` is included explicitly. Paths outside the plugin root are ignored with a warning.
 - Catalog `lspServers` and `dapAdapters` values are materialized during install. Catalog `commands`, `agents`, `hooks`, and `mcpServers` are otherwise metadata; they do not remap runtime discovery.
-- Portable Agent Plugins packages with a standard root `plugin.json` use fixed `skills/<name>/SKILL.md` and `mcp.json` locations instead of legacy skill/MCP manifests. Their skill frontmatter is strictly validated, and every skill/MCP resource must resolve inside the package root. Other OMP-specific components remain available for valid portable packages; a fatally invalid standard manifest rejects the package.
+- Portable Agent Plugins packages with a standard root `plugin.json` use fixed `skills/<name>/SKILL.md` and `mcp.json` locations instead of legacy skill/MCP manifests. Their skill frontmatter is strictly validated, and every skill/MCP resource must resolve inside the package root. Other OP-specific components remain available for valid portable packages; a fatally invalid standard manifest rejects the package.
 
 ## Naming rules
 
@@ -260,7 +260,7 @@ Names retain their spelling, but collision checks are case-insensitive: `My-Plug
 
 ## Publishing workflow
 
-1. Create `marketplace.json` at `.op-plugin/marketplace.json` (omp-only) or `.claude-plugin/marketplace.json` (shared with Claude Code) in a new Git repo.
+1. Create `marketplace.json` at `.op-plugin/marketplace.json` (op-only) or `.claude-plugin/marketplace.json` (shared with Claude Code) in a new Git repo.
 2. Add plugin entries pointing to subdirectories (or external sources).
 3. Push to GitHub.
 4. Share the `owner/repo` string. Users add it with `/marketplace add owner/repo`.

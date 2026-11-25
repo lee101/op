@@ -117,9 +117,9 @@ _patch_harbor_cleanup_cancellation()
 _patch_apple_container_dns()
 
 # Container-side staging paths (absolute; never depend on $HOME at write time).
-_TARBALL_DST = "/tmp/omp-local.tgz"
-_MODELS_DST = "/tmp/omp-models.yml"
-_CONFIG_DST = "/tmp/omp-config.yml"
+_TARBALL_DST = "/tmp/op-local.tgz"
+_MODELS_DST = "/tmp/op-models.yml"
+_CONFIG_DST = "/tmp/op-config.yml"
 _OUTPUT_FILENAME = "op.txt"
 
 # Provider → host env vars used in --no-gateway (direct-auth) mode only.
@@ -250,8 +250,8 @@ class OpLocal(BaseInstalledAgent):
         # the in-container op run, JSON-encoded in OP_BENCH_FORWARD_ENV.
         self._forward_env = self._parse_forward_env()
         # Source-mount paths (defaults must match the runner's compose overlay).
-        self._source_dir = _env("OP_BENCH_SOURCE_DIR", "/opt/omp/src")
-        self._source_bun = _env("OP_BENCH_SOURCE_BUN", "/opt/omp/bin/bun")
+        self._source_dir = _env("OP_BENCH_SOURCE_DIR", "/opt/op/src")
+        self._source_bun = _env("OP_BENCH_SOURCE_BUN", "/opt/op/bin/bun")
         self._source_arch = _env("OP_BENCH_SOURCE_ARCH")
         # Resolved during install(); reused by version + run commands.
         self._home = "/root"
@@ -379,7 +379,7 @@ class OpLocal(BaseInstalledAgent):
                 "set -e; "
                 f"test -x {q(self._source_bun)} || {{ echo 'op source mode: bun mount missing' >&2; exit 5; }}; "
                 f"test -f {q(cli)} || {{ echo 'op source mode: repo mount missing' >&2; exit 5; }}; "
-                f"test -d {q(self._source_dir + '/node_modules/@oh-my-pi')} || "
+                f"test -d {q(self._source_dir + '/node_modules/@openpaths')} || "
                 "{ echo 'op source mode: linux deps mount missing' >&2; exit 5; }; "
                 f"{q(self._source_bun)} --version"
             ),
@@ -432,8 +432,8 @@ class OpLocal(BaseInstalledAgent):
                 f"binary mode: no op binary provided for container arch {arch}"
             )
         app_dir = f"{self._home}/.op-bench"
-        dst = f"{app_dir}/omp"
-        staging = "/tmp/omp-bin"
+        dst = f"{app_dir}/op"
+        staging = "/tmp/op-bin"
         await self.exec_as_agent(
             environment, command=f"mkdir -p {shlex.quote(app_dir)}"
         )

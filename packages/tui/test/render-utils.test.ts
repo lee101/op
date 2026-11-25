@@ -583,7 +583,7 @@ describe("sanitizeDisplayLines", () => {
 
 describe("sanitizeDisplayWarning", () => {
 	it("strips terminal controls, expands tabs, flattens lines, and shortens home paths", () => {
-		const filePath = path.join(os.homedir(), ".omp", "WATCHDOG.yml");
+		const filePath = path.join(os.homedir(), ".op", "WATCHDOG.yml");
 		const warning = sanitizeDisplayWarning(`${filePath}: advisor "\x1b[31mBad\tName\x1b[0m\nfollow-up" dropped`);
 
 		expect(warning).toContain("~/.op/WATCHDOG.yml");

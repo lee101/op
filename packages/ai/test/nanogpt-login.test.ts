@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "bun:test";
-import { loginNanoGPT } from "@openpaths/ai/registry/nanogpt";
+import { getProviderDefinition } from "@openpaths/ai/registry/registry";
 import type { FetchImpl } from "@openpaths/ai/types";
+
+const loginNanoGPT = getProviderDefinition("nanogpt")!.login!;
 
 describe("nanogpt login", () => {
 	it("validates API key without requiring a specific model entitlement", async () => {

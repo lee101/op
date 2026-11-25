@@ -88,6 +88,9 @@
         "clientSecret": {
           "type": "string"
         },
+        "scope": {
+          "type": "string"
+        },
         "redirectUri": {
           "type": "string"
         },
@@ -126,7 +129,7 @@
         "instructions": {
           "type": "boolean",
           "default": true,
-          "description": "Include server-provided instructions in the system prompt. Set false to omit them without disabling the server or its tools. OMP-specific: supported by native config, standalone mcp.json/.mcp.json, and OP extension packages; imported tool configs ignore it."
+          "description": "Include server-provided instructions in the system prompt. Set false to omit them without disabling the server or its tools. OP-specific: supported by native config, standalone mcp.json/.mcp.json, and OP extension packages; imported tool configs ignore it."
         },
         "auth": {
           "$ref": "#/$defs/authConfig"

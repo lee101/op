@@ -1,11 +1,11 @@
-# omptype Guide (schema authoring in this repo)
+# optype Guide (schema authoring in this repo)
 
 Internal schemas use **`@openpaths/optype`** — an ArkType-compatible validator
 with a lazy JIT runtime (`packages/optype`). Author types with
 `import { type } from "@openpaths/optype"`.
 
 
-## Why omptype (runtime contract)
+## Why optype (runtime contract)
 
 - `type()` does not eagerly generate a validator. The benchmark measurements in
   `packages/optype/README.md` are hardware/runtime-dependent, not API guarantees.
@@ -19,7 +19,7 @@ with a lazy JIT runtime (`packages/optype`). Author types with
 
 `packages/ai/src/utils/schema/wire.ts` distinguishes two schema kinds:
 
-- **omptype** = a callable function with `.toJsonSchema` and `.assert` methods (`isArkSchema`).
+- **optype** = a callable function with `.toJsonSchema` and `.assert` methods (`isArkSchema`).
 - **JSON Schema** = a plain object.
 
 At the provider boundary, `toolWireSchema()` requests draft-2020-12 JSON Schema,
@@ -62,15 +62,15 @@ if (out instanceof type.errors) {
 // `out` is the validated/morphed value (defaults filled, extras stripped)
 ```
 
-- Failure returns an `OmpErrors` (array of `OmpError`); `type.errors === OmpErrors`.
-- Structural validation is fast-fail; predicates/morphs may return custom `OmpErrors`.
+- Failure returns an `OpErrors` (array of `OpError`); `type.errors === OpErrors`.
+- Structural validation is fast-fail; predicates/morphs may return custom `OpErrors`.
 - Built-in defaults and `"+": "delete"` produce transformed copies by default.
   User `.pipe()` callbacks are not automatically cloned; do not mutate their
   input. A scope's `clone` option can supply a cloning function, while
   `clone: false` explicitly writes object/array transformations back to the input.
 - NEVER use `.allows()` for tool validation — it skips morphs/defaults/pipes.
 - `.infer` / `.inferIn` are inference-only properties.
-- Definition mistakes (bad DSL, illegal composition) throw `OmpTypeError` at
+- Definition mistakes (bad DSL, illegal composition) throw `OpTypeError` at
   `type()` time.
 
 ## Methods
@@ -133,7 +133,7 @@ const types = type.module({
 
 ## Adapters
 
-TypeBox-style and Zod-style authoring are backed by the omptype runtime:
+TypeBox-style and Zod-style authoring are backed by the optype runtime:
 
 ```ts
 import { Type, type Static } from "@openpaths/optype/typebox";
@@ -143,5 +143,5 @@ const User = z.object({ name: z.string() });
 type User = z.infer<typeof User>;
 ```
 
-These produce real omptype schemas with JIT validation and `toJsonSchema`.
+These produce real optype schemas with JIT validation and `toJsonSchema`.
 Internal code authors the string DSL directly.

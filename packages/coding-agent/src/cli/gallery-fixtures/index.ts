@@ -23,8 +23,11 @@ import { memoryFixtures } from "./memory";
 import { miscFixtures } from "./misc";
 import { searchFixtures } from "./search";
 import { shellFixtures } from "./shell";
+import { statusLineFixtures } from "./status-line";
 import { webFixtures } from "./web";
 
+export * from "./composer";
+export * from "./segments";
 export * from "./types";
 
 export const galleryFixtures = {
@@ -38,5 +41,6 @@ export const galleryFixtures = {
 	...memoryFixtures,
 	...webFixtures,
 	...codeintelFixtures,
+	...statusLineFixtures,
 	...miscFixtures,
 };

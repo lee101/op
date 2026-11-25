@@ -135,7 +135,7 @@ Loaded via symbolic link.
 		fs.mkdirSync(path.join(tempHomeDir, ".op", "plugins"), { recursive: true });
 		fs.writeFileSync(
 			path.join(tempHomeDir, ".op", "plugins", "package.json"),
-			JSON.stringify({ name: "omp-plugins", dependencies: { "sdk-installed-extension": "1.0.0" } }),
+			JSON.stringify({ name: "op-plugins", dependencies: { "sdk-installed-extension": "1.0.0" } }),
 		);
 
 		const previousAgentDir = getAgentDir();

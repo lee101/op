@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
 	type BlockState,
 	processInteractionUpdate,
@@ -29,7 +28,8 @@ import {
 	UpdateTodosResultSchema,
 	UpdateTodosSuccessSchema,
 	UpdateTodosToolCallSchema,
-} from "@openpaths/catalog/discovery/cursor-gen/agent_pb";
+} from "@openpaths/catalog/discovery/cursor-proto";
+import { create, fromBinary, toBinary } from "@openpaths/catalog/discovery/protobuf";
 
 /** One `todoSync` invocation, recorded verbatim. */
 interface SyncCall {

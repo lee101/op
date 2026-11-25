@@ -1379,7 +1379,7 @@ export class WorkerCore {
 			// Puppeteer's protocol map cannot express the relay-private method; the
 			// send signature is otherwise identical.
 			const raw = session as unknown as { send(method: string): Promise<unknown> };
-			await raw.send("OMP.claimTarget");
+			await raw.send("OP.claimTarget");
 		} catch {
 			// Not the op relay; nothing to claim.
 		} finally {
@@ -2579,7 +2579,7 @@ export class WorkerCore {
 					session.browserScreenshotDir,
 					`screenshot-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, -1)}.${ext}`,
 				)
-			: path.join(os.tmpdir(), `omp-sshots-${Snowflake.next()}.${ext}`);
+			: path.join(os.tmpdir(), `op-sshots-${Snowflake.next()}.${ext}`);
 		await fs.promises.mkdir(path.dirname(dest), { recursive: true });
 		await Bun.write(dest, savedBuffer);
 		screenshots.push({
@@ -2623,7 +2623,7 @@ export class WorkerCore {
 		const changed = diff.pixelChangeRatio > threshold;
 		const diffPath = opts.output
 			? resolveToCwd(opts.output, session.cwd)
-			: path.join(os.tmpdir(), `omp-screenshot-diff-${Snowflake.next()}.png`);
+			: path.join(os.tmpdir(), `op-screenshot-diff-${Snowflake.next()}.png`);
 		await fs.promises.mkdir(path.dirname(diffPath), { recursive: true });
 		await Bun.write(diffPath, diff.png);
 		const resized = await resizeImage(
@@ -2648,7 +2648,7 @@ export class WorkerCore {
 	async #pdf(session: SessionSnapshot, signal: AbortSignal | undefined, opts: PdfOptions = {}): Promise<string> {
 		const dest = opts.path
 			? resolveToCwd(opts.path, session.cwd)
-			: path.join(os.tmpdir(), `omp-browser-${Snowflake.next()}.pdf`);
+			: path.join(os.tmpdir(), `op-browser-${Snowflake.next()}.pdf`);
 		await fs.promises.mkdir(path.dirname(dest), { recursive: true });
 		await untilAborted(signal, () =>
 			this.#requirePage().pdf({

@@ -87,7 +87,7 @@ Marketplace installs add registry and cache state alongside those runtime entrie
 
 Manifest is resolved as:
 
-1. `package.json.omp`
+1. `package.json.op`
 2. fallback `package.json.pi`
 3. fallback `{ version: package.version }`
 

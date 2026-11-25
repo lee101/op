@@ -128,7 +128,7 @@ describe("codex saved-reset trigger integration", () => {
 	});
 
 	beforeEach(async () => {
-		lockRoot = await fs.mkdtemp(path.join(os.tmpdir(), "omp-codex-reset-"));
+		lockRoot = await fs.mkdtemp(path.join(os.tmpdir(), "op-codex-reset-"));
 		vi.spyOn(aiStream, "getEnvApiKey").mockReturnValue(undefined);
 		sessions = [];
 		managers = [];

@@ -26,7 +26,7 @@ Config sources (.op/.claude/.cursor/.vscode/mcp.json, mcp.json, etc.)
 
 `timeout` is in milliseconds, defaults to 30,000, and accepts `0` to disable
 client-side timeouts. A valid `OP_MCP_TIMEOUT_MS` environment value overrides
-the per-server timeout. `requestIdFormat` and `instructions` are OMP-specific;
+the per-server timeout. `requestIdFormat` and `instructions` are OP-specific;
 native configs, standalone MCP JSON, and OP plugins parse them, while foreign
 tool-format providers generally do not.
 
@@ -101,7 +101,7 @@ Key behavior:
 
 ### Environment expansion during discovery
 
-OMP-native MCP config (`.op/mcp.json`, `~/.op/agent/mcp.json`, plus their `.mcp.json` variants) expands `${VAR}` and `${VAR:-default}` placeholders recursively before converting to runtime config. It also accepts boolean/string forms for `enabled` (`true`, `false`, `1`, `0`) and numeric strings for `timeout`. `requestIdFormat` accepts only `"number"` or `"string"`; other values warn and fall back to numeric IDs.
+OP-native MCP config (`.op/mcp.json`, `~/.op/agent/mcp.json`, plus their `.mcp.json` variants) expands `${VAR}` and `${VAR:-default}` placeholders recursively before converting to runtime config. It also accepts boolean/string forms for `enabled` (`true`, `false`, `1`, `0`) and numeric strings for `timeout`. `requestIdFormat` accepts only `"number"` or `"string"`; other values warn and fall back to numeric IDs.
 
 The standalone fallback provider in `src/discovery/mcp-json.ts` reads project-root `mcp.json` and `.mcp.json`, expands the same `${...}` placeholders in endpoint/auth fields, and type-checks `enabled`/`timeout` without coercing string values. Both providers require a finite, non-negative timeout and validate `requestIdFormat` and boolean `instructions`.
 

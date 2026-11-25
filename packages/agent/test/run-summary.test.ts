@@ -16,7 +16,7 @@ import {
 	emptyAgentRunCoverage,
 	emptyAgentRunSummary,
 } from "@openpaths/agent-core/run-collector";
-import { EXECUTE_TOOL_STATUS_ATTR, GenAIAttr, OmpGenAIAggregateAttr } from "@openpaths/agent-core/telemetry";
+import { EXECUTE_TOOL_STATUS_ATTR, GenAIAttr, OpGenAIAggregateAttr } from "@openpaths/agent-core/telemetry";
 import type { AgentEvent, AgentLoopConfig, AgentMessage, AgentTool } from "@openpaths/agent-core/types";
 import type { AssistantMessage, Message } from "@openpaths/ai";
 import { createMockModel } from "@openpaths/ai/providers/mock";
@@ -324,12 +324,12 @@ describe("AgentRunSummary aggregation", () => {
 		await detailed.detailed();
 		const invokeSpan = tracer.findSpan("invoke_agent");
 		expect(invokeSpan).toBeDefined();
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.ChatsCount]).toBe(2);
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.ToolsCount]).toBe(1);
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.ToolsOkCount]).toBe(1);
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.UsageInputTokensTotal]).toBe(6);
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.UsageTotalTokensTotal]).toBe(13);
-		expect(invokeSpan?.attributes[OmpGenAIAggregateAttr.ToolsInvoked]).toEqual(["alpha"]);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.ChatsCount]).toBe(2);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.ToolsCount]).toBe(1);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.ToolsOkCount]).toBe(1);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.UsageInputTokensTotal]).toBe(6);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.UsageTotalTokensTotal]).toBe(13);
+		expect(invokeSpan?.attributes[OpGenAIAggregateAttr.ToolsInvoked]).toEqual(["alpha"]);
 	});
 });
 

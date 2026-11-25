@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import type { Api, Model } from "@openpaths/ai";
 import { buildModel } from "@openpaths/catalog/build";
 import { kNoAuth } from "@openpaths/coding-agent/config/model-registry";
@@ -6,6 +6,7 @@ import {
 	type ModelLookupRegistry,
 	resolveModelOverrideWithAuthFallback,
 } from "@openpaths/coding-agent/config/model-resolver";
+import { resetSettingsForTest, Settings } from "@openpaths/coding-agent/config/settings";
 
 /**
  * Regression test for #985.
@@ -251,5 +252,32 @@ describe("issue #5325: sessionId forwarded to getApiKey for session-sticky OAuth
 		expect(result.warning).toBe(
 			'Invalid thinking level "invalid" in pattern "qwen3.6-plus-free:invalid". Using default instead.',
 		);
+	});
+});
+
+describe("issue #11709: disabled provider subagent model resolution", () => {
+	afterEach(() => {
+		resetSettingsForTest();
+	});
+
+	test("skips an authenticated model from a disabled provider", async () => {
+		const settings = await Settings.init({
+			inMemory: true,
+			overrides: { disabledProviders: ["opencode-zen"] },
+		});
+		const registry = createMockRegistry({
+			models: [unauthedTaskModel, parentModel],
+			authedProviders: new Set(["opencode-zen", "deepseek"]),
+		});
+
+		const result = await resolveModelOverrideWithAuthFallback(
+			["opencode-zen/qwen3.6-plus-free", "deepseek/deepseek-v4-pro"],
+			undefined,
+			registry,
+			settings,
+		);
+
+		expect(result.model?.provider).toBe("deepseek");
+		expect(result.model?.id).toBe("deepseek-v4-pro");
 	});
 });

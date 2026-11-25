@@ -7,7 +7,7 @@ import type { PluginRuntimeState } from "@openpaths/coding-agent/extensibility/p
 import * as piUtils from "@openpaths/utils";
 import { removeWithRetries } from "@openpaths/utils";
 
-// Regression for #11090: `omp-plugins.lock.json` can diverge from the package
+// Regression for #11090: `op-plugins.lock.json` can diverge from the package
 // version in node_modules. `plugin doctor` must surface the stale copy instead
 // of treating the on-disk manifest alone as proof of health.
 describe("PluginManager.doctor version drift", () => {
@@ -16,7 +16,7 @@ describe("PluginManager.doctor version drift", () => {
 	let pluginsNodeModules: string;
 
 	beforeEach(async () => {
-		tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "omp-plugin-drift-"));
+		tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "op-plugin-drift-"));
 		pluginsDir = path.join(tmpRoot, "plugins");
 		pluginsNodeModules = path.join(pluginsDir, "node_modules");
 		await fs.mkdir(pluginsNodeModules, { recursive: true });
@@ -24,7 +24,7 @@ describe("PluginManager.doctor version drift", () => {
 		vi.spyOn(piUtils, "getPluginsDir").mockReturnValue(pluginsDir);
 		vi.spyOn(piUtils, "getPluginsNodeModules").mockReturnValue(pluginsNodeModules);
 		vi.spyOn(piUtils, "getPluginsPackageJson").mockReturnValue(path.join(pluginsDir, "package.json"));
-		vi.spyOn(piUtils, "getPluginsLockfile").mockReturnValue(path.join(pluginsDir, "omp-plugins.lock.json"));
+		vi.spyOn(piUtils, "getPluginsLockfile").mockReturnValue(path.join(pluginsDir, "op-plugins.lock.json"));
 		vi.spyOn(piUtils, "getProjectDir").mockReturnValue(tmpRoot);
 		vi.spyOn(piUtils, "getProjectPluginOverridesPath").mockReturnValue(path.join(tmpRoot, "plugin-overrides.json"));
 	});
@@ -43,11 +43,11 @@ describe("PluginManager.doctor version drift", () => {
 		);
 		await Bun.write(
 			path.join(pluginsDir, "package.json"),
-			JSON.stringify({ name: "omp-plugins", private: true, dependencies: { [name]: `^${lockVersion}` } }, null, 2),
+			JSON.stringify({ name: "op-plugins", private: true, dependencies: { [name]: `^${lockVersion}` } }, null, 2),
 		);
 		const state: PluginRuntimeState = { version: lockVersion, enabledFeatures: null, enabled: true };
 		await Bun.write(
-			path.join(pluginsDir, "omp-plugins.lock.json"),
+			path.join(pluginsDir, "op-plugins.lock.json"),
 			JSON.stringify({ plugins: { [name]: state }, settings: {} }, null, 2),
 		);
 	}
@@ -159,7 +159,7 @@ describe("PluginManager.doctor version drift", () => {
 		await fs.symlink(sourcePath, installedPath);
 		await Bun.write(
 			path.join(pluginsDir, "package.json"),
-			JSON.stringify({ name: "omp-plugins", private: true, dependencies: {} }),
+			JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }),
 		);
 
 		const checks = await new PluginManager(tmpRoot).doctor();

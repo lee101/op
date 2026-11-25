@@ -48,7 +48,7 @@ function formatBytes(bytes: number): string {
 }
 
 async function cleanBundleOutputs(outDir: string): Promise<void> {
-	// dist/ is shared with the dev binary (dist/omp); only remove assets
+	// dist/ is shared with the dev binary (dist/op); only remove assets
 	// emitted by this script.
 	let entries: string[];
 	try {

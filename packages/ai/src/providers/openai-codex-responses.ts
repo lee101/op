@@ -254,7 +254,7 @@ const CODEX_WEBSOCKET_MESSAGE_QUEUE_CAPACITY = Number($env.PI_CODEX_WEBSOCKET_ME
 const CODEX_WEBSOCKET_MAX_IDLE_REUSE_MS = Number($env.PI_CODEX_WEBSOCKET_MAX_IDLE_REUSE_MS || 30_000);
 /**
  * Steady-state liveness ceiling for the Codex WebSocket transport. Distinct from
- * the OMP-wide stream watchdog removed in #1392: a WebSocket can stay TCP-open
+ * the OP-wide stream watchdog removed in #1392: a WebSocket can stay TCP-open
  * indefinitely without exchanging frames (server crash after upgrade, half-open
  * network path), so we still need a transport-internal cap to detect those
  * states and trigger the WS→SSE fallback. Only applies AFTER the first event

@@ -46,7 +46,7 @@ describe("legacy-pi specifier shim", () => {
 	});
 
 	it("resolves a canonical @openpaths subpath that remaps to itself", async () => {
-		// Regression: the resolve hook matches `@openpaths/pi-*` as well as the
+		// Regression: the resolve hook matches `@openpaths/*` as well as the
 		// legacy scopes, so resolving the remapped specifier called
 		// `Bun.resolveSync` with a specifier this same hook matches. Bun
 		// re-entered the hook and re-prefixed the namespace on every pass until

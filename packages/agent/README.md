@@ -1,17 +1,17 @@
-# @openpaths/agent-core
+# @openpaths/agent
 
 Stateful agent with tool execution and event streaming. Built on `@openpaths/ai`.
 
 ## Installation
 
 ```bash
-npm install @openpaths/agent-core
+npm install @openpaths/agent
 ```
 
 ## Quick Start
 
 ```typescript
-import { Agent } from "@openpaths/agent-core";
+import { Agent } from "@openpaths/agent";
 import { getModel } from "@openpaths/ai";
 
 const agent = new Agent({
@@ -260,7 +260,7 @@ remain separate. `replaceQueue("steering" | "followUp", messages)` replaces only
 Extend `AgentMessage` via declaration merging:
 
 ```typescript
-declare module "@openpaths/agent-core" {
+declare module "@openpaths/agent" {
 	interface CustomAgentMessages {
 		notification: { role: "notification"; text: string; timestamp: number };
 	}
@@ -333,7 +333,7 @@ Thrown errors are caught by the agent and reported to the LLM as tool errors wit
 For browser apps that proxy through a backend:
 
 ```typescript
-import { Agent, streamProxy } from "@openpaths/agent-core";
+import { Agent, streamProxy } from "@openpaths/agent";
 
 const agent = new Agent({
 	streamFn: (model, context, options) =>
@@ -350,7 +350,7 @@ const agent = new Agent({
 For direct control without the Agent class:
 
 ```typescript
-import { agentLoop, agentLoopContinue } from "@openpaths/agent-core";
+import { agentLoop, agentLoopContinue } from "@openpaths/agent";
 
 const context: AgentContext = {
 	systemPrompt: ["You are helpful."],
@@ -450,7 +450,7 @@ fold N summaries with `aggregateAgentRunSummaries` / `aggregateAgentRunCoverage`
 import {
 	aggregateAgentRunSummaries,
 	aggregateAgentRunCoverage,
-} from "@openpaths/agent-core";
+} from "@openpaths/agent";
 
 const summaries: AgentRunSummary[] = [];
 const coverages: AgentRunCoverage[] = [];

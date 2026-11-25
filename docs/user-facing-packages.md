@@ -36,7 +36,7 @@ Sources: [`packages/stats/README.md`](../packages/stats/README.md), [`packages/s
 
 ### `packages/optype` — schema validation library
 
-Sources: [`packages/optype/README.md`](../packages/optype/README.md), [`packages/optype/package.json`](../packages/optype/package.json), and the repository [omptype authoring guide](./omptype-guide.md).
+Sources: [`packages/optype/README.md`](../packages/optype/README.md), [`packages/optype/package.json`](../packages/optype/package.json), and the repository [optype authoring guide](./optype-guide.md).
 
 - Package: public `@openpaths/optype`; install with `bun add @openpaths/optype`. Its manifest declares Node 20 or newer and Bun 1.3.14 or newer.
 - Feature: callable ArkType-compatible schemas with cheap interpreted startup, lazy hot-path compilation, validation errors, defaults and morphs, and JSON Schema emission.

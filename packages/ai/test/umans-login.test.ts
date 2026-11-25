@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "bun:test";
-import { loginUmans } from "@openpaths/ai/registry/umans";
+import { getProviderDefinition } from "@openpaths/ai/registry/registry";
 import type { FetchImpl } from "@openpaths/ai/types";
+
+const loginUmans = getProviderDefinition("umans")!.login!;
 
 describe("umans login", () => {
 	it("validates pasted keys against the Anthropic messages endpoint", async () => {

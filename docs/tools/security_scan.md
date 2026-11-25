@@ -1,6 +1,6 @@
 # security_scan
 
-> Plan and run OMP-native security reviews, validate stored findings, and explicitly interact with Codex Security cloud scans.
+> Plan and run OP-native security reviews, validate stored findings, and explicitly interact with Codex Security cloud scans.
 
 ## Availability and prerequisites
 
@@ -218,7 +218,7 @@ Plan an exact revision diff with an external output directory:
   "target_kind": "ref_diff",
   "base_revision": "origin/main",
   "head_revision": "HEAD",
-  "output_root": "/tmp/omp-security-review"
+  "output_root": "/tmp/op-security-review"
 }
 ```
 

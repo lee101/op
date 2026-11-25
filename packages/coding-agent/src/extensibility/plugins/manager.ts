@@ -199,7 +199,7 @@ export class PluginManager {
 					pkgJsonPath,
 					JSON.stringify(
 						{
-						name: "op-plugins",
+							name: "op-plugins",
 							private: true,
 							dependencies: {},
 						},

@@ -626,7 +626,6 @@ export class KeybindingsManager extends TuiKeybindingsManager {
 		this.#userBindings = userBindings;
 		super.setUserBindings(userBindings);
 	}
-
 	override getKeys(keybinding: Keybinding): KeyId[] {
 		const keys = super.getKeys(keybinding);
 		const yieldingKeys = getYieldingKeys(keybinding);

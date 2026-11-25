@@ -113,7 +113,7 @@ yields after the prompt. `prompt()` and `abort_and_prompt()` return that
 request id, and `on_prompt_result()` delivers each typed `PromptResultEvent`:
 
 ```python
-from omp_rpc import PromptResultEvent, RpcClient
+from op_rpc import PromptResultEvent, RpcClient
 
 def on_result(result: PromptResultEvent) -> None:
     if result.status == "error" and result.error is not None:
@@ -188,7 +188,7 @@ so `prompt_and_wait()` still completes when `agent_end` is filtered out.
 `RemoveQueuedMessageResult` are exported for typed callers:
 
 ```python
-from omp_rpc import QueuedMessageQueue, RpcClient
+from op_rpc import QueuedMessageQueue, RpcClient
 
 with RpcClient() as client:
     client.follow_up("Review the diff")
@@ -306,6 +306,12 @@ request = client.next_ui_request(timeout=5.0)
 
 if request.method == "confirm":
     client.send_ui_confirmation(request.id, True)
+elif request.method == "select":
+    # option_details aligns positionally with options when descriptions are present.
+    for index, label in enumerate(request.options or ()):
+        detail = request.option_details[index] if request.option_details else {}
+        print(label, detail.get("description"))
+    client.send_ui_value(request.id, "approved")
 elif request.method in {"input", "editor"}:
     client.send_ui_value(request.id, "approved")
 ```

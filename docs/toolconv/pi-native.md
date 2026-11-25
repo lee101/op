@@ -54,7 +54,7 @@ The gateway bearer is the resolved model/API key. It is sent as
 forwarded; an explicit `model.headers.Authorization` takes precedence over the
 resolved key.
 
-The client also sends `x-omp-install-id`, `x-omp-hostname`, and `x-omp-app`
+The client also sends `x-op-install-id`, `x-op-hostname`, and `x-op-app`
 for usage attribution. Those identity headers are not forwarded upstream.
 
 `transport` changes only dispatch. Pricing, context window, maximum-token and

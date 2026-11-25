@@ -33,7 +33,7 @@ interface Step {
 }
 
 /**
- * Native equivalent of `scripts/link-openpaths.io` for Windows, where `sh` is
+ * Native equivalent of `scripts/link-op.sh` for Windows, where `sh` is
  * unavailable (issue #12483). Same semantics: verify the wrapper target,
  * resolve Bun's global bin dir (`bun pm -g bin`, then
  * `${BUN_INSTALL:-$HOME/.bun}/bin`), and link `op` to it — symlink first,
@@ -45,7 +45,7 @@ function linkOmpWindows(repoRoot: string): number {
 	try {
 		fs.accessSync(target, fs.constants.F_OK);
 	} catch {
-		console.error(`link-omp: target wrapper not found: ${target}`);
+		console.error(`link-op: target wrapper not found: ${target}`);
 		return 1;
 	}
 	let globalBin = "";
@@ -65,16 +65,16 @@ function linkOmpWindows(repoRoot: string): number {
 			// nothing to replace
 		}
 		fs.symlinkSync(target, linkPath, "file");
-		console.log(`link-omp: linked ${linkPath} -> ${target}`);
+		console.log(`link-op: linked ${linkPath} -> ${target}`);
 		return 0;
 	} catch (error) {
-		console.error(`link-omp: symlink failed (${error}), falling back to copy`);
+		console.error(`link-op: symlink failed (${error}), falling back to copy`);
 		try {
 			fs.copyFileSync(target, linkPath);
-			console.log(`link-omp: copied ${target} -> ${linkPath}`);
+			console.log(`link-op: copied ${target} -> ${linkPath}`);
 			return 0;
 		} catch (copyError) {
-			console.error(`link-omp: copy failed: ${copyError}`);
+			console.error(`link-op: copy failed: ${copyError}`);
 			return 1;
 		}
 	}
@@ -84,7 +84,7 @@ const steps: Step[] = [
 	{ label: "bun install", cmd: ["bun", "install"] },
 	{ label: "build:native", cmd: ["bun", "run", "build:native", ...passthrough] },
 	{ label: "coding-agent link", cmd: ["bun", "--cwd=packages/coding-agent", "link"] },
-	{ label: "link op", cmd: ["sh", "scripts/link-openpaths.io"] },
+	{ label: "link op", cmd: ["sh", "scripts/link-op.sh"] },
 ];
 
 for (const step of steps) {

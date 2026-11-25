@@ -157,7 +157,7 @@ const ensureClientBuild = async () => {
  * preflight, which this server never approves, so a hostile page cannot
  * trigger a paid judge run through a cross-site form or `fetch`.
  */
-const STATS_ACTION_HEADER = "X-Omp-Stats-Action";
+const STATS_ACTION_HEADER = "X-Op-Stats-Action";
 
 /**
  * Handle API requests.

@@ -211,8 +211,8 @@ In interactive mode, `input` handlers run before the built-in first-message auto
 Also exposed:
 
 - `pi.logger`
-- `pi.arktype` (the omptype `type(...)` schema builder)
-- `pi.zod` (Zod-compatible builder backed by omptype)
+- `pi.arktype` (the optype `type(...)` schema builder)
+- `pi.zod` (Zod-compatible builder backed by optype)
 - `pi.typebox` (legacy TypeBox-compatible shim)
 - `pi.pi` (package exports)
 
@@ -521,7 +521,7 @@ Current runtime note: `ExtensionRunner.emitResourcesDiscover(...)` is implemente
 
 ## Tool authoring details
 
-`registerTool` uses `ToolDefinition` from `types.ts`. Its `parameters` field accepts omptype schemas; the injected TypeBox compatibility shim remains available for legacy extensions.
+`registerTool` uses `ToolDefinition` from `types.ts`. Its `parameters` field accepts optype schemas; the injected TypeBox compatibility shim remains available for legacy extensions.
 
 Prefer registration in the factory, but tools discovered later (for example in
 `session_start`) are also mounted into the live registry. Registrations made

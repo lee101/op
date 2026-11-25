@@ -39,7 +39,7 @@ if "__omp_prelude_loaded__" not in globals():
 
     def _emit_status(op: str, **data):
         """Emit structured status event for TUI rendering."""
-        _omp_display({"application/x-omp-status": {"op": op, **data}}, raw=True)
+        _omp_display({"application/x-op-status": {"op": op, **data}}, raw=True)
 
     def env(key: str | None = None, value: str | None = None):
         """Get/set environment variables."""
@@ -385,8 +385,8 @@ if "__omp_prelude_loaded__" not in globals():
     # host-owned loopback endpoint must always connect directly.
     _BRIDGE_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
-    _OMP_CALL_IDENTITY = contextvars.ContextVar("omp_call_identity", default=None)
-    _OMP_CALL_OCCURRENCES = contextvars.ContextVar("omp_call_occurrences", default=None)
+    _OMP_CALL_IDENTITY = contextvars.ContextVar("op_call_identity", default=None)
+    _OMP_CALL_OCCURRENCES = contextvars.ContextVar("op_call_occurrences", default=None)
 
     def __omp_reset_call_occurrences__():
         _OMP_CALL_OCCURRENCES.set(None)

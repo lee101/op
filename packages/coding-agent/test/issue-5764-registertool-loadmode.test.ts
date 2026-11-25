@@ -11,6 +11,7 @@ import { Settings } from "@openpaths/coding-agent/config/settings";
 import { CustomToolAdapter } from "@openpaths/coding-agent/extensibility/custom-tools/wrapper";
 import type { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extensions/runner";
 import { RegisteredToolAdapter } from "@openpaths/coding-agent/extensibility/extensions/wrapper";
+import { extensionToolSourceInfo } from "@openpaths/coding-agent/extensibility/extensions/loader";
 import { BUILTIN_TOOLS, type ToolSession } from "@openpaths/coding-agent/tools";
 import {
 	defaultLoadModeForToolName,
@@ -66,6 +67,7 @@ describe("issue #5764: registerTool loadMode default", () => {
 					execute: noopExecute,
 				},
 				extensionPath: "<test>",
+				sourceInfo: extensionToolSourceInfo({ name: "read" }, "<test>"),
 			},
 			runner,
 		);
@@ -85,6 +87,7 @@ describe("issue #5764: registerTool loadMode default", () => {
 					execute: noopExecute,
 				},
 				extensionPath: "<test>",
+				sourceInfo: extensionToolSourceInfo({ name: "my_ext_tool" }, "<test>"),
 			},
 			runner,
 		);

@@ -7,7 +7,7 @@ Verified against: Qwen's canonical function-calling guide (`qwen.readthedocs.io/
 The template/tokenizer details below refer to the Qwen3-8B reference listed
 above, not every later Qwen deployment. OP's owned converter does not execute
 that template or apply `enable_thinking`; see
-[op / pi converter behavior](#omp--pi-converter-behavior) for the implemented
+[op / pi converter behavior](#op--pi-converter-behavior) for the implemented
 request and scanner behavior.
 
 ## Special tokens
@@ -214,7 +214,7 @@ simple substring check. The default `tools.format: auto` uses that fallback
 only when the model has `supportsTools: false`; otherwise it keeps native
 tools. For a Coder endpoint requiring its native XML protocol, set
 `tools.format: native`, unset `PI_DIALECT`, and configure the serving endpoint's
-`qwen3_xml` parser. `qwen3_xml` is not an OMP-owned dialect or a valid
+`qwen3_xml` parser. `qwen3_xml` is not an OP-owned dialect or a valid
 `tools.format` value.
 
 There is a separate `QwenXmlInbandScanner` in

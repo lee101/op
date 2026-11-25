@@ -28,9 +28,9 @@ export function createGallerySegmentContext(sessionOptions?: GallerySessionOptio
 		hostname: "gallery-host",
 		sessionAccent: false,
 		activeRepo: {
-			cwd: "/workspace/oh-my-pi",
-			repoRoot: "/workspace/oh-my-pi",
-			relativeRepoRoot: "oh-my-pi",
+			cwd: "/workspace/openpaths",
+			repoRoot: "/workspace/openpaths",
+			relativeRepoRoot: "openpaths",
 			source: "single-direct-child-repo",
 		},
 		width: 100,
@@ -161,7 +161,7 @@ function variantsFor(id: StatusLineSegmentId): readonly SegmentVariantSpec[] {
 					label: "linked worktree",
 					context: {
 						options: { path: { stripWorkPrefix: true } },
-						worktree: { projectName: "oh-my-pi", worktreeName: "gallery-reference" },
+						worktree: { projectName: "openpaths", worktreeName: "gallery-reference" },
 						git: { branch: "gallery-reference", status: null, pr: null },
 					},
 				},

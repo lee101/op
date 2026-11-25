@@ -237,7 +237,7 @@ function lerpColor(from: number, to: number, t: number): number {
  * Terminal emulation fed every PTY byte: kitty's real core (screen.c +
  * vt-parser.c compiled to wasm via kitty-vt-wasm), so SGR, rewrap-on-resize,
  * scrollback, graphemes, and wide chars behave exactly as in kitty. Any
- * session — omp-tui host or not — can be read as plain text (`snapshot`) or
+ * session — op-tui host or not — can be read as plain text (`snapshot`) or
  * rasterized to pixels (`png`). Backs the `screen`/`shot` ops, the socketless
  * `text` fallback, and the after-screenshot on input ops. Query replies the
  * core emits (DA, DECRQSS, XTGETTCAP, OSC color queries) surface on
@@ -746,7 +746,7 @@ function request(
 		return Promise.reject(
 			new Error(
 				`session "${session.name}" has no debug socket — the app is not an ` +
-					"omp-tui host (or exited). screen/raw/send/resize/stop still work.",
+					"op-tui host (or exited). screen/raw/send/resize/stop still work.",
 			),
 		);
 	}
@@ -783,7 +783,7 @@ async function stopSession(session: Session): Promise<number | null> {
 		if (session.sock) {
 			await request(session, { op: "quit" }, 2_000);
 		} else if (session.exit === null) {
-			// Non-omp-tui apps have no debug socket; Ctrl-C is the
+			// Non-op-tui apps have no debug socket; Ctrl-C is the
 			// conventional quit chord.
 			session.proc.terminal.write("\x03");
 		}
@@ -982,7 +982,7 @@ const factory = (op: ToolHost) => {
 
 		const rows = params.rows ?? 30;
 		const cols = params.cols ?? 100;
-		const dir = mkdtempSync(join(tmpdir(), `omp-tui-${name}-`));
+		const dir = mkdtempSync(join(tmpdir(), `op-tui-${name}-`));
 		const sockPath = join(dir, "debug.sock");
 		const gatePath = join(dir, "spawn.gate");
 		const screen = await Screen.create(cols, rows);
@@ -1079,7 +1079,7 @@ const factory = (op: ToolHost) => {
 			text += `\n${screenshotText(shot)}`;
 		} else {
 			text +=
-				"\n(no debug socket: app is not an omp-tui host; `send` injects " +
+				"\n(no debug socket: app is not an op-tui host; `send` injects " +
 				"input, `screen` renders the emulated display)" +
 				`\n${session.screen.snapshot()}`;
 		}
@@ -1219,7 +1219,7 @@ const factory = (op: ToolHost) => {
 					const session = need(params.name);
 					const png = join(
 						tmpdir(),
-						`omp-tui-${session.name}-${Date.now()}.png`,
+						`op-tui-${session.name}-${Date.now()}.png`,
 					);
 					const bytes = await session.screen.png();
 					writeFileSync(png, bytes);

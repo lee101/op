@@ -893,7 +893,7 @@ describe("json-schema validator unsupported-keyword regressions", () => {
 			type: "object",
 			properties: { kind: { type: "string" }, extra: { type: "string" } },
 			if: { properties: { kind: { const: "a" } }, required: ["kind"] },
-			// biome-ignore lint/suspicious/noThenProperty: JSON Schema if/then/else keyword
+			// oxlint-disable-next-line unicorn/no-thenable -- JSON Schema if/then/else keyword
 			then: { required: ["extra"] },
 		};
 		expect(isJsonSchemaValueValid(schema, { kind: "b" })).toBe(true);
@@ -955,7 +955,7 @@ describe("meta-validator conditional keywords", () => {
 			isValidJsonSchema({
 				type: "object",
 				if: { properties: { kind: { const: "a" } } },
-				// biome-ignore lint/suspicious/noThenProperty: JSON Schema if/then/else keyword
+				// oxlint-disable-next-line unicorn/no-thenable -- JSON Schema if/then/else keyword
 				then: { required: ["extra"] },
 				else: { required: ["other"] },
 			}),
@@ -967,7 +967,7 @@ describe("meta-validator conditional keywords", () => {
 	});
 
 	it("rejects malformed then", () => {
-		// biome-ignore lint/suspicious/noThenProperty: JSON Schema if/then/else keyword
+		// oxlint-disable-next-line unicorn/no-thenable -- JSON Schema if/then/else keyword
 		expect(isValidJsonSchema({ type: "object", then: "not-a-schema" })).toBe(false);
 	});
 

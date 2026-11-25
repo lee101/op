@@ -9,6 +9,7 @@ import { SessionManager } from "@openpaths/coding-agent/session/session-manager"
 import { runSubprocess } from "@openpaths/coding-agent/task/executor";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
 import { TempDir } from "@openpaths/utils";
+import { createSessionDefaults } from "../helpers/session-defaults";
 
 const authStorages: AuthStorage[] = [];
 const tempDirs: TempDir[] = [];
@@ -40,6 +41,7 @@ it("overlaps registry refresh with session-file opening and session setup", asyn
 	let sessionCreated = false;
 	const listeners: Array<(event: AgentSessionEvent) => void> = [];
 	const session = {
+		...createSessionDefaults(),
 		state: { messages: [] },
 		agent: { state: { systemPrompt: ["test"] } },
 		model: undefined,
@@ -47,7 +49,6 @@ it("overlaps registry refresh with session-file opening and session setup", asyn
 		sessionManager: { appendSessionInit: () => {} },
 		getActiveToolNames: () => ["yield"],
 		getEnabledToolNames: () => ["yield"],
-		setActiveToolsByName: async () => {},
 		subscribe: (listener: (event: AgentSessionEvent) => void) => {
 			listeners.push(listener);
 			return () => {};
@@ -64,12 +65,6 @@ it("overlaps registry refresh with session-file opening and session setup", asyn
 			}
 			return true;
 		},
-		waitForIdle: async () => {},
-		getLastAssistantMessage: () => undefined,
-		abort: async () => {},
-		dispose: async () => {},
-		setIrcWakeTurnObserver: () => {},
-		subscribeRunState: () => () => {},
 	} as unknown as AgentSession;
 	vi.spyOn(sdkModule, "createAgentSession").mockImplementation(async () => {
 		sessionCreationStarted.resolve();

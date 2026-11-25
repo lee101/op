@@ -14,7 +14,7 @@ Source of truth in code:
 
 ## Preferred config locations
 
-OP can discover MCP servers from multiple tools (`.claude/`, `.cursor/`, `.vscode/`, `opencode.json`, and more), but for OMP-native configuration you should usually use one of these primary files:
+OP can discover MCP servers from multiple tools (`.claude/`, `.cursor/`, `.vscode/`, `opencode.json`, and more), but for OP-native configuration you should usually use one of these primary files:
 
 - Project: `.op/mcp.json`
 - User: `~/.op/agent/mcp.json` (or `~/.op/profiles/<name>/agent/mcp.json` when a named profile is active — see [Profiles](#profiles))
@@ -43,7 +43,7 @@ OP also translates these current tool-native sources:
 - VS Code: project-only `.vscode/mcp.json` using `mcp.servers`
 - installed Claude marketplace plugins, OP extension packages, and portable Agent Plugins (`plugin.json` plus root `mcp.json`) that declare MCP servers
 
-For Claude Code, Codex, Gemini CLI, Cursor, and Windsurf, the project entry is encountered before its same-named user entry — matching OMP-native config, whose project entry precedes its active-profile user entry — so a project `enabled: false` suppresses a same-named user server. OpenCode deep-merges each server across layers: project overrides user, `.opencode/` overrides the project root, and `.jsonc` overrides `.json` within a directory. Partial overrides inherit fields from lower layers. Cross-provider priority is listed in [Discovery and precedence](#discovery-and-precedence).
+For Claude Code, Codex, Gemini CLI, Cursor, and Windsurf, the project entry is encountered before its same-named user entry — matching OP-native config, whose project entry precedes its active-profile user entry — so a project `enabled: false` suppresses a same-named user server. OpenCode deep-merges each server across layers: project overrides user, `.opencode/` overrides the project root, and `.jsonc` overrides `.json` within a directory. Partial overrides inherit fields from lower layers. Cross-provider priority is listed in [Discovery and precedence](#discovery-and-precedence).
 
 ### Profiles
 
@@ -56,7 +56,7 @@ Discovery, the `/mcp` commands, and the config writer all follow the active prof
 
 Project-scoped MCP config (`.op/mcp.json`) is keyed to the working directory, not the profile, so it applies under every profile. External-tool configs (`.claude/`, `.cursor/`, etc.) are also profile-independent because they belong to those tools rather than to an OP profile.
 
-MCP follows the same profile rules as the rest of OMP-native config; see [Configuration Discovery → Profiles](./config-usage.md#profiles).
+MCP follows the same profile rules as the rest of OP-native config; see [Configuration Discovery → Profiles](./config-usage.md#profiles).
 
 ## Add a schema reference
 
@@ -69,7 +69,7 @@ Add this line at the top of the file for editor autocomplete and validation:
 }
 ```
 
-OP now writes this automatically when `/mcp add`, `/mcp enable`, `/mcp disable`, `/mcp reauth`, or other config-writing flows create or update an OMP-managed MCP file.
+OP now writes this automatically when `/mcp add`, `/mcp enable`, `/mcp disable`, `/mcp reauth`, or other config-writing flows create or update an OP-managed MCP file.
 
 ## File shape
 
@@ -104,8 +104,8 @@ Shared fields for every transport:
 
 - `enabled?: boolean` — skip this server when `false`, unless the active-profile user `enabledServers` allowlist names it
 - `timeout?: number` — MCP request timeout in milliseconds; `0` disables client-side MCP timeouts
-- `requestIdFormat?: "number" | "string"` — outgoing JSON-RPC request-id encoding; defaults to per-transport integers. `"string"` uses collision-resistant snowflake IDs. This OMP-specific field is read only from OMP-native files, root `mcp.json` / `.mcp.json`, and OP extension packages; configs translated from other tools ignore it.
-- `instructions?: boolean` — include server-provided instructions in the system prompt (default: `true`). Set `false` to omit that server's instructions without disabling its tools. Like `requestIdFormat`, this is OMP-specific and is ignored in configs translated from other tools.
+- `requestIdFormat?: "number" | "string"` — outgoing JSON-RPC request-id encoding; defaults to per-transport integers. `"string"` uses collision-resistant snowflake IDs. This OP-specific field is read only from OP-native files, root `mcp.json` / `.mcp.json`, and OP extension packages; configs translated from other tools ignore it.
+- `instructions?: boolean` — include server-provided instructions in the system prompt (default: `true`). Set `false` to omit that server's instructions without disabling its tools. Like `requestIdFormat`, this is OP-specific and is ignored in configs translated from other tools.
 - `auth?: { ... }` — stored-credential metadata; managed credential injection is implemented for OAuth
 - `oauth?: { ... }` — explicit OAuth client and callback settings used during auth/reauth
 
@@ -391,7 +391,7 @@ This is the part that usually trips people up.
 
 ### Discovery-time `${...}` expansion
 
-OP expands `${VAR}` and `${VAR:-default}` placeholders while discovering MCP configs from OMP-native files and standalone fallback files. Expansion applies recursively to string values in `command`, `args`, `env`, `cwd`, `url`, `headers`, `auth`, and `oauth`; unresolved placeholders remain literal strings.
+OP expands `${VAR}` and `${VAR:-default}` placeholders while discovering MCP configs from OP-native files and standalone fallback files. Expansion applies recursively to string values in `command`, `args`, `env`, `cwd`, `url`, `headers`, `auth`, and `oauth`; unresolved placeholders remain literal strings.
 
 Example:
 
@@ -454,7 +454,7 @@ The active profile's user file supplies two cross-source overrides:
 }
 ```
 
-`/mcp enable` and `/mcp disable` update `enabled` directly when the definition is in an OMP-owned writable file. OP does not mutate another tool's config: for such sources, those commands maintain the user-level allowlist or denylist instead and remove a conflicting stale override.
+`/mcp enable` and `/mcp disable` update `enabled` directly when the definition is in an OP-owned writable file. OP does not mutate another tool's config: for such sources, those commands maintain the user-level allowlist or denylist instead and remove a conflicting stale override.
 
 ## `/mcp add` vs editing JSON directly
 
@@ -507,7 +507,7 @@ Across providers, the first definition wins. Duplicate names are not merged; Ope
 
 Within OP native config, project `.op/mcp.json` precedes `.op/.mcp.json`, then the active profile's user `mcp.json` and `.mcp.json`. Root fallback `mcp.json` precedes root `.mcp.json`. In practice:
 
-- prefer `.op/mcp.json` or the active profile's user `mcp.json` for an OMP-specific override
+- prefer `.op/mcp.json` or the active profile's user `mcp.json` for an OP-specific override
 - keep names and endpoint definitions unique across tools when possible
 - use the user `disabledServers` list when a third-party config keeps reintroducing an unwanted server
 - set `mcp.enableProjectConfig: false` to exclude every project-level source before deduplication, allowing a same-named user entry to survive
