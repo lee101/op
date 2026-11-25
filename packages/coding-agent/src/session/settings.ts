@@ -1210,7 +1210,7 @@ export const cfgProvidersOpenrouterVariant = register({
 	id: "providers.openrouterVariant",
 	type: "enum",
 	values: ["default", "nitro", "floor", "online", "exacto"] as const,
-	default: "default",
+	default: "floor",
 	ui: {
 		tab: "providers",
 		group: "Protocol",
@@ -1218,9 +1218,13 @@ export const cfgProvidersOpenrouterVariant = register({
 		description:
 			"Default routing-variant suffix appended to OpenRouter model IDs (overridden when the selector already names a variant)",
 		options: [
-			{ value: "default", label: "Default", description: "No suffix; use OpenRouter's default routing" },
+			{ value: "floor", label: ":floor", description: "Prioritize cheapest available provider (default)" },
+			{
+				value: "default",
+				label: "Default",
+				description: "No suffix; use OpenRouter's default load-balanced routing",
+			},
 			{ value: "nitro", label: ":nitro", description: "Prioritize throughput / lowest latency" },
-			{ value: "floor", label: ":floor", description: "Prioritize cheapest available provider" },
 			{ value: "online", label: ":online", description: "Enable OpenRouter's web-search plugin" },
 			{
 				value: "exacto",

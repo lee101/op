@@ -24,7 +24,7 @@ describe("RunAnywhere provider", () => {
 		const seedIds = seedModels("runanywhere").map(model => model.id);
 		expect(seedIds).toEqual(["glm-5.3-flash", "qwen3.8-27b"]);
 		// The declared default must actually resolve against the seed rows.
-		expect(seedIds).toContain(entry?.defaultModel);
+		expect(seedIds).toContain(String(entry?.defaultModel));
 	});
 
 	test("carries no catalog discovery, so a discovered row can never fake a $0 rate", () => {

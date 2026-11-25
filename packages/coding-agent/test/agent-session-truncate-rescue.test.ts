@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
 import * as path from "node:path";
 import { Agent, type AgentTool } from "@openpaths/agent-core";
+import * as compactionModule from "@openpaths/agent-core/compaction";
 import { createMockModel, type MockResponse } from "@openpaths/ai/providers/mock";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
@@ -54,14 +55,14 @@ describe("AgentSession dead-end truncate rescue", () => {
 		const compactionStarts: number[] = [];
 		tempDir = TempDir.createSync("op-dead-end-truncate-rescue");
 		authStorage = await AuthStorage.create(path.join(tempDir.path(), "auth.db"));
-		authStorage.setRuntimeApiKey("mock", "test-key");
+		authStorage.keys.setRuntime("mock", "test-key");
 		const modelRegistry = new ModelRegistry(authStorage, path.join(tempDir.path(), "models.yml"));
 		const mock = createMockModel({ responses: options.responses });
 		vi.spyOn(modelRegistry, "getAvailable").mockReturnValue([mock]);
 
 		const sessionManager = SessionManager.inMemory(tempDir.path());
 		const settings = Settings.isolated({
-			"compaction.strategy": "context-full",
+			"compaction.methodOrder": ["soft"],
 			"compaction.thresholdTokens": 100_000,
 			"compaction.midTurnEnabled": true,
 			"compaction.autoContinue": false,
@@ -97,6 +98,10 @@ describe("AgentSession dead-end truncate rescue", () => {
 
 	it("recovers a single oversized-turn dead end via middle-out truncation instead of pausing", async () => {
 		const state = await createSession({ responses: [{ content: ["done"] }] });
+		// Pin the dead end: the single oversized turn leaves no older prefix to
+		// summarize, so summary compaction cannot start and only the rescue tiers
+		// can make progress.
+		vi.spyOn(compactionModule, "prepareCompaction").mockReturnValue(undefined);
 
 		// One turn whose entire bulk is an unfenced user paste: elide finds no
 		// fenced/XML block and no tool result, so the pre-truncate behavior

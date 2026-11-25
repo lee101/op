@@ -277,7 +277,7 @@ export function parseEnvFile(filePath: string): Record<string, string> {
 	// OP_ overrides PI_
 	for (const k in result) {
 		if (k.startsWith("OP_")) {
-			result[`PI_${k.slice(4)}`] = result[k];
+			result[`PI_${k.slice(3)}`] = result[k];
 		}
 	}
 

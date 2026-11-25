@@ -10,6 +10,10 @@ class "deepseek" {
     // match. Without a family the descriptor's V4-generation filter drops the
     // row, so it survived only as a stale previous-snapshot entry.
     family "flash" glob="*deepseek-flash"
+    // Dated V4.1 Flash snapshots (`deepseek-flash-0813`, MMDD suffix) share the
+    // bare id's ladder; `-latest` aliases keep their host-specific ladders.
+    family "flash" glob="*deepseek-flash-0*"
+    family "flash" glob="*deepseek-flash-1*"
     family "pro" glob="*deepseek*v4*pro*"
     // Bare V4 chat/reasoner ids without a flash/pro segment.
     family "v4" glob="*deepseek-v4*"

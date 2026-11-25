@@ -119,7 +119,7 @@ function hotkeyGroups(bindings: HotkeysMarkdownBindings): HotkeyGroup[] {
 		{
 			title: "Other",
 			rows: [
-				{ keys: [hints(["tab"])], action: "Path completion / accept autocomplete" },
+				{ keys: [hints(["tab"])], action: "Accept autocomplete (queues a follow-up when nothing is open)" },
 				{ keys: [act("app.interrupt")], action: "Cancel autocomplete / interrupt active work" },
 				{ keys: [act("app.clear")], action: "Clear editor (first) / exit (second)" },
 				...exitRows,

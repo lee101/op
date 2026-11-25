@@ -806,15 +806,7 @@ const PI_SCOPE_ALIASES = ["openpaths", "oh-my-pi", "mariozechner", "earendil-wor
 // Internal host package basenames bundled inside the op binary. Upstream
 // published the same packages `pi-` prefixed, so both spellings are accepted
 // on the way in and canonicalised onto these names on the way out.
-const PI_PACKAGE_NAMES = [
-	"agent-core",
-	"ai",
-	"catalog",
-	"coding-agent",
-	"natives",
-	"tui",
-	"utils",
-] as const;
+const PI_PACKAGE_NAMES = ["agent-core", "ai", "catalog", "coding-agent", "natives", "tui", "utils"] as const;
 
 const PI_LEGACY_PACKAGE_NAMES: Record<string, string> = Object.fromEntries(
 	PI_PACKAGE_NAMES.map(name => [`pi-${name}`, name]),
@@ -2015,7 +2007,7 @@ const commonJsFallbackModulePaths = new Map<string, string>();
 const extensionSynchronousSpecifierTargets = new Map<string, Map<string, string>>();
 const synchronousModuleSources = new Map<string, string>();
 const commonJsGraphModulePaths = new Set<string>();
-const COMMONJS_REQUIRE_GLOBAL = "__opLegacyPiRequireGraphModule";
+const COMMONJS_REQUIRE_GLOBAL = "__ompLegacyPiRequireGraphModule";
 const commonJsModuleDefinitions = new Map<string, { source: string; filename: string; dirname: string }>();
 const commonJsModuleCache = new Map<
 	string,

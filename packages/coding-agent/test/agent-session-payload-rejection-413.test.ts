@@ -479,7 +479,10 @@ describe("AgentSession payload-rejection 413 handling", () => {
 		expect(startCount()).toBeGreaterThanOrEqual(1);
 		expect(prepareSpy).toHaveBeenCalled();
 		expect(notices.filter(n => n.source === NOTICE_SOURCE && n.message.includes("413")).length).toBe(0);
-		expect(promptSpy).not.toHaveBeenCalled();
+		// The dead-end middle-out truncate rescue tier shrinks the oversized tool
+		// output, so maintenance resumes the turn once instead of pausing.
+		expect(notices.some(n => n.source === "compaction" && n.message.includes("middle-out truncated"))).toBe(true);
+		expect(promptSpy).toHaveBeenCalledTimes(1);
 		expect(continueSpy).not.toHaveBeenCalled();
 	});
 

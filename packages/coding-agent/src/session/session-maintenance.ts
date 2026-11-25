@@ -15,6 +15,7 @@ import {
 	AUTO_HANDOFF_THRESHOLD_FOCUS,
 	applyShakeRegions,
 	buildMiddleOutText,
+	CompactionCancelledError,
 	type CompactionDetails,
 	type CompactionPreparation,
 	type CompactionResult,

@@ -304,8 +304,8 @@ describe("KeybindingsManager.create", () => {
 		setKeybindings(manager);
 
 		expect(manager.getKeys("app.plan.toggle")).toEqual(["ctrl+q"]);
-		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+enter"]);
-		expect(manager.getEffectiveConfig()["app.message.followUp"]).toBe("ctrl+enter");
+		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+enter", "tab"]);
+		expect(manager.getEffectiveConfig()["app.message.followUp"]).toEqual(["ctrl+enter", "tab"]);
 		expect(matchesAppFollowUp(ctrl("q"))).toBe(false);
 		expect(matchesAppFollowUp("\x1b[13;5u")).toBe(true);
 	});
@@ -315,7 +315,7 @@ describe("KeybindingsManager.create", () => {
 			"unknown.action": "ctrl+q",
 		});
 
-		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+q", "ctrl+enter"]);
+		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+q", "ctrl+enter", "tab"]);
 	});
 
 	it("keeps Ctrl+Q when the user explicitly assigns it to follow-up (#1903)", () => {
@@ -324,5 +324,22 @@ describe("KeybindingsManager.create", () => {
 		});
 
 		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+q"]);
+	});
+
+	it("removes the Tab follow-up default when a user remap claims Tab elsewhere", () => {
+		const manager = KeybindingsManager.inMemory({
+			"app.plan.toggle": "tab",
+		});
+
+		expect(manager.getKeys("app.plan.toggle")).toEqual(["tab"]);
+		expect(manager.getKeys("app.message.followUp")).toEqual(["ctrl+q", "ctrl+enter"]);
+	});
+
+	it("keeps only Tab when the user explicitly assigns it to follow-up", () => {
+		const manager = KeybindingsManager.inMemory({
+			"app.message.followUp": "tab",
+		});
+
+		expect(manager.getKeys("app.message.followUp")).toEqual(["tab"]);
 	});
 });

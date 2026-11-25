@@ -817,7 +817,10 @@ describe("AgentSession shake", () => {
 
 			// Shake fires once. The pre-fix bug auto-continued, which would re-trigger shake
 			// on the next agent_end. The fix replaces that loop with a one-shot fallback.
-			expect(shakeSpy).toHaveBeenCalledTimes(1);
+			// The fork's dead-end rescue may additionally run a middle-out
+			// `shake("truncate")` tier inside the context-full fallback; only the
+			// auto-compaction `elide` pass is under test here.
+			expect(shakeSpy.mock.calls.filter(([mode]) => mode !== "truncate")).toHaveLength(1);
 
 			const shakeEnd = events.find(
 				e => e.type === "auto_compaction_end" && (e as { action?: string }).action === "shake",
@@ -869,7 +872,10 @@ describe("AgentSession shake", () => {
 			session.agent.emitExternalEvent({ type: "agent_end", messages: [assistantMessage] });
 			await session.waitForIdle();
 
-			expect(shakeSpy).toHaveBeenCalledTimes(1);
+			// The fork's dead-end rescue may additionally run a middle-out
+			// `shake("truncate")` tier inside the context-full fallback; only the
+			// auto-compaction `elide` pass is under test here.
+			expect(shakeSpy.mock.calls.filter(([mode]) => mode !== "truncate")).toHaveLength(1);
 
 			const shakeEnd = events.find(
 				e => e.type === "auto_compaction_end" && (e as { action?: string }).action === "shake",
@@ -994,7 +1000,10 @@ describe("AgentSession shake", () => {
 
 			await session.prompt("small pending prompt", { skipCompactionCheck: true });
 
-			expect(shakeSpy).toHaveBeenCalledTimes(1);
+			// The fork's dead-end rescue may additionally run a middle-out
+			// `shake("truncate")` tier inside the context-full fallback; only the
+			// auto-compaction `elide` pass is under test here.
+			expect(shakeSpy.mock.calls.filter(([mode]) => mode !== "truncate")).toHaveLength(1);
 			expect(compactSpy).toHaveBeenCalled();
 			const fullStart = events.find(
 				event => event.type === "auto_compaction_start" && (event as { action?: string }).action === "context-full",
