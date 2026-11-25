@@ -783,6 +783,9 @@ mod tests {
 		git(&repo, &["commit", "-q", "-m", "first commit"]);
 		std::fs::create_dir(repo.join("cache")).expect("create cache");
 		std::fs::write(repo.join("cache/blob"), "warm").expect("write cache");
+		// `git init` only creates `.git/hooks` when its template dir ships
+		// one; Apple's git (Xcode CLT) has no templates, so create it here.
+		std::fs::create_dir_all(&hooks).expect("create hooks dir");
 		let hook = hooks.join("post-checkout");
 		std::fs::write(&hook, "#!/bin/sh\necho \"$* $PWD\" > ../hook.log\necho hook-out\n")
 			.expect("write hook");

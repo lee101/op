@@ -2088,6 +2088,9 @@ mod tests {
 	fn commit_hooks_match_git_commit_behavior() {
 		let (temp, repo) = fixture();
 		let hooks = temp.path().join(".git/hooks");
+		// `git init` creates `.git/hooks` only from its template dir; Apple's
+		// git (Xcode CLT) ships none.
+		fs::create_dir_all(&hooks).unwrap();
 		let pre_commit = hooks.join("pre-commit");
 		write_hook(&pre_commit, "echo 'policy says no' >&2\nexit 1", true);
 		fs::write(temp.path().join("a"), "blocked\n").unwrap();
