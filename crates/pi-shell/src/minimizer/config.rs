@@ -132,9 +132,7 @@ impl MinimizerConfig {
 		}
 		let legacy_requested = resolve_legacy_filters(
 			opts.legacy_filters,
-			std::env::var("OP_MINIMIZER_LEGACY_FILTERS")
-				.ok()
-				.as_deref(),
+			std::env::var("OP_MINIMIZER_LEGACY_FILTERS").ok().as_deref(),
 		);
 		cfg.legacy_filters_active = legacy_requested;
 		if let Some(path) = opts.settings_path.as_deref()
