@@ -1,13 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { convertAnthropicMessages } from "@openpaths/ai/providers/anthropic";
-import type {
-	AssistantMessage,
-	Message,
-	Model,
-	ModelSpec,
-	ToolResultMessage,
-	UserMessage,
-} from "@openpaths/ai/types";
+import type { AssistantMessage, Message, Model, ModelSpec, ToolResultMessage, UserMessage } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
 
 /**

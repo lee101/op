@@ -10,10 +10,7 @@ import { scheduler } from "node:timers/promises";
 import { type } from "@openpaths/optype";
 import { Agent, type AgentMessage, type AgentTool } from "@openpaths/agent-core";
 import type { AssistantMessage, AssistantMessageEvent, ToolCall } from "@openpaths/ai";
-import {
-	accumulateToolCallArgumentsDelta,
-	finalizeToolCallArgumentsDone,
-} from "@openpaths/ai/providers/openai-shared";
+import { accumulateToolCallArgumentsDelta, finalizeToolCallArgumentsDone } from "@openpaths/ai/providers/openai-shared";
 import { createMockModel } from "@openpaths/ai/providers/mock";
 import { kStreamingPartialJson } from "@openpaths/ai/utils/block-symbols";
 import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
@@ -29,11 +26,7 @@ import { ExtensionToolWrapper } from "@openpaths/coding-agent/extensibility/exte
 import { GoalRuntime } from "@openpaths/coding-agent/goals/runtime";
 import { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
-import {
-	convertToLlm,
-	isUserInterruptAbort,
-	shouldRenderAbortReason,
-} from "@openpaths/coding-agent/session/messages";
+import { convertToLlm, isUserInterruptAbort, shouldRenderAbortReason } from "@openpaths/coding-agent/session/messages";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";
 import { removeSyncWithRetries, Snowflake } from "@openpaths/utils";

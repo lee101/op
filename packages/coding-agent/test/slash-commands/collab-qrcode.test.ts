@@ -74,7 +74,10 @@ async function createRuntimeHarness(options?: { collabHost?: NonNullable<Interac
 }
 
 function mockStartedHostLinks(
-	host = fakeHost({ webLink: "https://my.openpaths.io/#started-full", webViewLink: "https://my.openpaths.io/#started-view" }),
+	host = fakeHost({
+		webLink: "https://my.openpaths.io/#started-full",
+		webViewLink: "https://my.openpaths.io/#started-view",
+	}),
 ) {
 	return vi.spyOn(CollabHost.prototype, "start").mockImplementation(function (this: CollabHost): Promise<void> {
 		Object.defineProperties(this, {

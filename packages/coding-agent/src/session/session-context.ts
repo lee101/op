@@ -1,11 +1,7 @@
 import type { AgentMessage } from "@openpaths/agent-core";
 import { customMessageEntryMessage, isUserRequestEntry } from "@openpaths/tui/chat/transcript-entry";
 import { getAnthropicCompactionPayload, isTurnStartEntry } from "@openpaths/agent-core/compaction";
-import {
-	coerceServiceTierByFamily,
-	type OpenAIResponsesHistoryPayload,
-	type ServiceTierByFamily,
-} from "@openpaths/ai";
+import { coerceServiceTierByFamily, type OpenAIResponsesHistoryPayload, type ServiceTierByFamily } from "@openpaths/ai";
 import * as snapcompact from "@openpaths/snapcompact";
 import { isRecord } from "@openpaths/utils";
 import {

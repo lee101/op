@@ -445,9 +445,7 @@ async function runStatus(flags: AuthGatewayCommandArgs["flags"]): Promise<void> 
 				`token: ${tokenPresent ? chalk.green("present") : chalk.red("missing")} at ${status.tokenFile}\n`,
 			);
 			if (!tokenPresent) {
-				process.stdout.write(
-					"Run `op auth-gateway token` or `op auth-gateway serve` to create a bearer token.\n",
-				);
+				process.stdout.write("Run `op auth-gateway token` or `op auth-gateway serve` to create a bearer token.\n");
 			}
 		}
 		if (!tokenPresent) process.exitCode = 1;

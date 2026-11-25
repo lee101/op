@@ -141,8 +141,7 @@ describe.skipIf(!SSH_OK)("ssh:// handler against a real localhost ssh", () => {
 		const kind = await Bun.$`ssh -o BatchMode=yes localhost test -d ${TMP}/wdir && echo dir || echo notdir`.text();
 		expect(kind.trim()).toBe("dir"); // directory intact, not clobbered into a file
 		// The dir-error path must remove the temp it created beside the destination.
-		const leftovers =
-			await Bun.$`ssh -o BatchMode=yes localhost ls -A ${TMP} | grep -c "wdir.op-tmp" || true`.text();
+		const leftovers = await Bun.$`ssh -o BatchMode=yes localhost ls -A ${TMP} | grep -c "wdir.op-tmp" || true`.text();
 		expect(leftovers.trim()).toBe("0");
 	});
 

@@ -7,10 +7,7 @@ import { buildModel } from "@openpaths/catalog/build";
 import { writeModelCache } from "@openpaths/catalog/model-cache";
 import { resolveProviderModels } from "@openpaths/catalog/model-manager";
 import { getBundledModels } from "@openpaths/catalog/models";
-import {
-	googleModelManagerOptions,
-	googleVertexModelManagerOptions,
-} from "@openpaths/catalog/provider-models/google";
+import { googleModelManagerOptions, googleVertexModelManagerOptions } from "@openpaths/catalog/provider-models/google";
 import {
 	MODELS_DEV_PROVIDER_DESCRIPTORS,
 	mapModelsDevToModels,

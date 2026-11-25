@@ -110,9 +110,7 @@ class HostConnection {
 	/** Send `request` and wait for its answer; host-side failures reject with a {@link ToolError}. */
 	call(request: IdaHostRequest): Promise<unknown> {
 		if (!this.#open) {
-			return Promise.reject(
-				new IdaHostGoneError(`IDA host ${this.#name} exited; see \`op ps logs ${this.#name}\``),
-			);
+			return Promise.reject(new IdaHostGoneError(`IDA host ${this.#name} exited; see \`op ps logs ${this.#name}\``));
 		}
 		const entry = Promise.withResolvers<unknown>();
 		this.#pending.set(request.id, entry);

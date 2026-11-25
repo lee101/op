@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-	isOpenAICompletionsProgressChunk,
-	streamOpenAICompletions,
-} from "@openpaths/ai/providers/openai-completions";
+import { isOpenAICompletionsProgressChunk, streamOpenAICompletions } from "@openpaths/ai/providers/openai-completions";
 import type { Context, FetchImpl, Model, ModelSpec } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
 import { getBundledModel } from "@openpaths/catalog/models";

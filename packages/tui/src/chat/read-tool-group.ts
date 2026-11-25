@@ -728,9 +728,7 @@ export class ReadToolGroupComponent extends Container implements ToolExecutionHa
 		);
 		const hidden = lines.length - shown;
 		if (hidden > 0) {
-			blocks.push(
-				keyed(text([span(formatCount("more line", hidden), "muted")], { role: "op.tool.stats" }), "more"),
-			);
+			blocks.push(keyed(text([span(formatCount("more line", hidden), "muted")], { role: "op.tool.stats" }), "more"));
 		}
 		return blocks;
 	}

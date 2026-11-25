@@ -8,13 +8,7 @@ import type { Component, OverlayHandle } from "@openpaths/tui";
 import { Loader, Spacer, Text } from "@openpaths/tui";
 import { formatKeyHint } from "@openpaths/tui/app-keybindings";
 import { appKey, editorKey } from "@openpaths/tui/chrome/keybinding-hints";
-import {
-	getAgentDbPath,
-	getAgentDir,
-	getProjectDir,
-	normalizePathForComparison,
-	sanitizeText,
-} from "@openpaths/utils";
+import { getAgentDbPath, getAgentDir, getProjectDir, normalizePathForComparison, sanitizeText } from "@openpaths/utils";
 import {
 	ADVISOR_DEFAULT_TOOL_NAMES,
 	discoverAdvisorConfigs,

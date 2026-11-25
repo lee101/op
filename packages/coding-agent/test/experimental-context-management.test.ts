@@ -8,11 +8,7 @@ import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { AgentSession, type AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
 import { CONTEXT_NOTES_ENTRY_TYPE, getContextNotes } from "@openpaths/coding-agent/session/context-notes";
-import {
-	createCustomMessage,
-	convertToLlm,
-	SKILL_PROMPT_MESSAGE_TYPE,
-} from "@openpaths/coding-agent/session/messages";
+import { createCustomMessage, convertToLlm, SKILL_PROMPT_MESSAGE_TYPE } from "@openpaths/coding-agent/session/messages";
 import type { CompactionEntry } from "@openpaths/coding-agent/session/session-entries";
 import { ExtensionRuntime, loadExtensionFromFactory } from "@openpaths/coding-agent/extensibility/extensions/loader";
 import { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extensions/runner";

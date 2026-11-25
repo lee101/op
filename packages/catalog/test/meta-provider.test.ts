@@ -4,10 +4,7 @@ import { buildModel } from "@openpaths/catalog/build";
 import { getBundledModel } from "@openpaths/catalog/models";
 import { seedModels } from "@openpaths/catalog/compat/providers";
 import { providerEntry } from "@openpaths/catalog/compat/providers";
-import {
-	metaModelManagerOptions,
-	museCodeModelManagerOptions,
-} from "@openpaths/catalog/provider-models/openai-compat";
+import { metaModelManagerOptions, museCodeModelManagerOptions } from "@openpaths/catalog/provider-models/openai-compat";
 import type { FetchImpl, ThinkingConfig } from "@openpaths/catalog/types";
 
 const MUSE_SPARK_THINKING: ThinkingConfig = {

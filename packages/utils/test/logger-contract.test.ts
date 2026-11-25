@@ -72,9 +72,7 @@ async function runScenario(scenario: string): Promise<ScenarioResult> {
 }
 
 async function logFileNames(directory: string): Promise<string[]> {
-	return (await fs.readdir(directory))
-		.filter(name => /^op\.\d{4}-\d{2}-\d{2}\.\d+\.log(?:\.\d+)?$/.test(name))
-		.sort();
+	return (await fs.readdir(directory)).filter(name => /^op\.\d{4}-\d{2}-\d{2}\.\d+\.log(?:\.\d+)?$/.test(name)).sort();
 }
 
 async function readSingleLog(directory: string): Promise<{ name: string; text: string }> {

@@ -4,11 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { clearCustomApis } from "@openpaths/ai/api-registry";
 import { createMockModel, registerMockApi } from "@openpaths/ai/providers/mock";
-import {
-	__providerInFlightForTesting,
-	configureProviderMaxInFlightRequests,
-	streamSimple,
-} from "@openpaths/ai/stream";
+import { __providerInFlightForTesting, configureProviderMaxInFlightRequests, streamSimple } from "@openpaths/ai/stream";
 import type { Context } from "@openpaths/ai/types";
 
 function context(): Context {

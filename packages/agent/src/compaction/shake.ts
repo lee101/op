@@ -525,12 +525,7 @@ function collectOversizedTextBlocks(
 	minBlockTokens: number,
 	out: ShakeRegion[],
 ): void {
-	const push = (
-		entry: SessionMessageEntry | CustomMessageEntry,
-		blockIndex: number,
-		text: string,
-		label: string,
-	) => {
+	const push = (entry: SessionMessageEntry | CustomMessageEntry, blockIndex: number, text: string, label: string) => {
 		const tokens = tokenizer.countTokens(text);
 		if (tokens < minBlockTokens) return;
 		out.push({ kind: "block", entry, blockIndex, start: 0, end: text.length, tokens, originalText: text, label });

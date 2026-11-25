@@ -10,11 +10,7 @@ import * as commitTools from "@openpaths/coding-agent/commit/agentic/tools";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { initializeExtensions } from "@openpaths/coding-agent/modes/runtime-init";
-import {
-	type CreateAgentSessionOptions,
-	createAgentSession,
-	type ExtensionFactory,
-} from "@openpaths/coding-agent/sdk";
+import { type CreateAgentSessionOptions, createAgentSession, type ExtensionFactory } from "@openpaths/coding-agent/sdk";
 import type { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
 import type { AgentSession } from "@openpaths/coding-agent/session/agent-session";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";

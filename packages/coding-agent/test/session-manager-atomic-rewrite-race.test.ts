@@ -4,10 +4,7 @@ import {
 	IndexedSessionStorage,
 	type SessionStorageBackend,
 } from "@openpaths/coding-agent/session/indexed-session-storage";
-import {
-	SessionManager,
-	SessionPersistenceIndeterminateError,
-} from "@openpaths/coding-agent/session/session-manager";
+import { SessionManager, SessionPersistenceIndeterminateError } from "@openpaths/coding-agent/session/session-manager";
 import {
 	FileSessionStorage,
 	MemorySessionStorage,

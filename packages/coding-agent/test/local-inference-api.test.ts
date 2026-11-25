@@ -15,11 +15,7 @@ import {
 	registerLocalInferenceApi,
 } from "@openpaths/coding-agent/tiny/local-inference-api";
 import { TINY_LOCAL_MODELS } from "@openpaths/coding-agent/tiny/models";
-import {
-	type TinyModelChatOptions,
-	TinyTitleClient,
-	tinyModelClient,
-} from "@openpaths/coding-agent/tiny/title-client";
+import { type TinyModelChatOptions, TinyTitleClient, tinyModelClient } from "@openpaths/coding-agent/tiny/title-client";
 import type {
 	TinyChatMessage,
 	TinyWorkerRequest,

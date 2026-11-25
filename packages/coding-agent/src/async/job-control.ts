@@ -16,12 +16,7 @@ import { parseConfiguredThinkingLevel } from "@openpaths/tui/thinking";
 import type { ToolSession } from "../tools";
 
 import { formatDuration } from "@openpaths/tui/render/render-utils";
-import type {
-	AgentActivitySnapshot,
-	CancelOutcome,
-	CoordinationDetails,
-	JobSnapshot,
-} from "@openpaths/tui/tools/wait";
+import type { AgentActivitySnapshot, CancelOutcome, CoordinationDetails, JobSnapshot } from "@openpaths/tui/tools/wait";
 
 import { isWaitingPollDetails } from "@openpaths/tui/tools/wait";
 import { formatArtifactErrorNotice } from "@openpaths/tui/tools/output-meta";

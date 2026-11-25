@@ -4,13 +4,7 @@ import { resolveWireModelId } from "@openpaths/catalog/model-thinking";
 import { calculateCost } from "@openpaths/catalog/models";
 import type { OpenRouterRoutingSort, ResolvedOpenAICompat } from "@openpaths/catalog/types";
 import { clinePassClientHeaders } from "@openpaths/catalog/wire/cline-pass";
-import {
-	$env,
-	logger,
-	parseStreamingJson,
-	parseStreamingJsonThrottled,
-	type ServerSentEvent,
-} from "@openpaths/utils";
+import { $env, logger, parseStreamingJson, parseStreamingJsonThrottled, type ServerSentEvent } from "@openpaths/utils";
 import { renderDemotedThinking } from "../dialect/demotion";
 import * as AIError from "../error";
 import { getKimiCommonHeaders } from "../registry/oauth/kimi";

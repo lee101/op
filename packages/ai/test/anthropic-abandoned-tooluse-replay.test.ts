@@ -1,13 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { convertAnthropicMessages } from "@openpaths/ai/providers/anthropic";
-import type {
-	AssistantMessage,
-	Message,
-	Model,
-	ModelSpec,
-	ToolResultMessage,
-	UserMessage,
-} from "@openpaths/ai/types";
+import type { AssistantMessage, Message, Model, ModelSpec, ToolResultMessage, UserMessage } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";
 
 // These tests pin the wire-validity contract that was verified end-to-end against the

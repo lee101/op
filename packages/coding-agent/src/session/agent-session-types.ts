@@ -1,11 +1,4 @@
-import type {
-	Agent,
-	AgentMessage,
-	AgentTool,
-	AgentToolContext,
-	StreamFn,
-	ThinkingLevel,
-} from "@openpaths/agent-core";
+import type { Agent, AgentMessage, AgentTool, AgentToolContext, StreamFn, ThinkingLevel } from "@openpaths/agent-core";
 import type {
 	AssistantMessage,
 	Context,

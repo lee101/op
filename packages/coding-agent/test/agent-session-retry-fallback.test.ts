@@ -32,10 +32,7 @@ import { ExtensionRunner } from "@openpaths/coding-agent/extensibility/extension
 import { initTheme } from "@openpaths/tui/theme";
 import { AgentSession, type AgentSessionEvent } from "@openpaths/coding-agent/session/agent-session";
 import { AuthStorage } from "@openpaths/coding-agent/session/auth-storage";
-import {
-	type ServingModel,
-	validateRetryFallbackChains,
-} from "@openpaths/coding-agent/session/retry-fallback-chains";
+import { type ServingModel, validateRetryFallbackChains } from "@openpaths/coding-agent/session/retry-fallback-chains";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
 import { convertToLlm } from "@openpaths/coding-agent/session/messages";
 import { EventBus } from "@openpaths/coding-agent/utils/event-bus";

@@ -861,12 +861,7 @@ export class AssistantMessageComponent extends Container {
 		children.push(...this.#markerSlot.children);
 		if (this.#rewound) {
 			children.push(
-				node(
-					"badge",
-					{ text: "↺ rewound", tone: "muted", role: "op.assistant.rewound-tag" },
-					undefined,
-					"rewound",
-				),
+				node("badge", { text: "↺ rewound", tone: "muted", role: "op.assistant.rewound-tag" }, undefined, "rewound"),
 			);
 		}
 		if (this.#turnUsage) {

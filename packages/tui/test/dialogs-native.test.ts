@@ -130,9 +130,7 @@ describe("dialogs under a native surface", () => {
 		);
 		expect(pointed.nativeOverlay.head).toBe("Ship credits");
 		const body = pointed.describe();
-		expect(JSON.stringify(find(body, node => node.p?.role === "op.plan.body")?.node)).not.toContain(
-			"# Ship credits",
-		);
+		expect(JSON.stringify(find(body, node => node.p?.role === "op.plan.body")?.node)).not.toContain("# Ship credits");
 		pointed.handleNativeEvent({ type: "action", key: "tools/copyPlan", act: "copyPlan", mods: [] });
 		expect(viaButton.mock.calls).toEqual(viaKey.mock.calls);
 		expect(viaKey).toHaveBeenCalledTimes(1);

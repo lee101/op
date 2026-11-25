@@ -2433,7 +2433,6 @@ describe("applyOpenRouterRoutingVariant", () => {
 		expect(applyOpenRouterRoutingVariant("secret/ox-alpha", "floor")).toBe("secret/ox-alpha");
 		expect(applyOpenRouterRoutingVariant("stealth/ox-alpha", "floor")).toBe("stealth/ox-alpha");
 	});
-
 });
 
 describe("OpenRouter provider.sort request body", () => {

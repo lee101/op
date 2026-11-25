@@ -205,10 +205,7 @@ export class RawSseViewerComponent implements Component {
 		const lines: string[] = [];
 		if (snapshot.droppedRecords > 0) {
 			lines.push(
-				theme.fg(
-					"warning",
-					`: op-debug-dropped records=${snapshot.droppedRecords} chars=${snapshot.droppedChars}`,
-				),
+				theme.fg("warning", `: op-debug-dropped records=${snapshot.droppedRecords} chars=${snapshot.droppedChars}`),
 			);
 			lines.push("");
 		}

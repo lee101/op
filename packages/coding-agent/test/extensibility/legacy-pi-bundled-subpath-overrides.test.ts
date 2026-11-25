@@ -90,9 +90,7 @@ export const finalBeta = Reflect.get(globalThis, "__betaLoads") ?? 0;
 		// fall-through. The generator now globs each wildcard's source pattern
 		// and registers every concrete `.ts` match against the virtual namespace.
 		const overrides = __buildLegacyPiPackageRootOverrides(true, bundledModuleKeys);
-		expect(overrides["@openpaths/ai/oauth/anthropic"]).toBe(
-			"op-legacy-pi-bundled:@openpaths/ai/oauth/anthropic",
-		);
+		expect(overrides["@openpaths/ai/oauth/anthropic"]).toBe("op-legacy-pi-bundled:@openpaths/ai/oauth/anthropic");
 		// Sanity: the wildcard expansion also reaches deeper subroots so plugins
 		// pinned to e.g. `@openpaths/ai/providers/openai` keep resolving.
 		expect(bundledModuleKeys.has("@openpaths/ai/oauth/anthropic")).toBe(true);

@@ -3,10 +3,7 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { dispatchRpcSkillPrompt, tryRunRpcSkillCommand } from "@openpaths/coding-agent/modes/rpc/rpc-mode";
-import {
-	RpcExtensionUserMessageTracker,
-	RpcPromptResults,
-} from "@openpaths/coding-agent/modes/rpc/rpc-prompt-results";
+import { RpcExtensionUserMessageTracker, RpcPromptResults } from "@openpaths/coding-agent/modes/rpc/rpc-prompt-results";
 import { type CustomMessage, SKILL_PROMPT_MESSAGE_TYPE } from "@openpaths/coding-agent/session/messages";
 import { removeWithRetries, Snowflake } from "@openpaths/utils";
 

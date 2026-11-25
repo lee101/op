@@ -3,12 +3,7 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { Tokenizer } from "@openpaths/agent-core";
-import type {
-	ResetCreditAccountStatus,
-	ResetCreditRedeemOutcome,
-	ResetCreditTarget,
-	UsageReport,
-} from "@openpaths/ai";
+import type { ResetCreditAccountStatus, ResetCreditRedeemOutcome, ResetCreditTarget, UsageReport } from "@openpaths/ai";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { PluginManager } from "@openpaths/coding-agent/extensibility/plugins";
 import { MarketplaceManager } from "@openpaths/coding-agent/extensibility/plugins/marketplace";

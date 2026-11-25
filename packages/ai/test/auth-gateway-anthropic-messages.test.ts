@@ -7,13 +7,7 @@ import type {
 	WebSearchServerToolUseBlockParam,
 	WebSearchToolResultBlockParam,
 } from "@openpaths/ai/providers/anthropic-wire";
-import type {
-	AssistantMessage,
-	AssistantMessageEvent,
-	Model,
-	ToolCall,
-	ToolResultMessage,
-} from "@openpaths/ai/types";
+import type { AssistantMessage, AssistantMessageEvent, Model, ToolCall, ToolResultMessage } from "@openpaths/ai/types";
 import { type CursorExecResolvedCarrier, kCursorExecResolved } from "@openpaths/ai/utils/block-symbols";
 import { AssistantMessageEventStream } from "@openpaths/ai/utils/event-stream";
 import { buildModel } from "@openpaths/catalog/build";

@@ -6,11 +6,7 @@ import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { CustomToolContext, CustomToolResult } from "@openpaths/coding-agent/extensibility/custom-tools";
 import { SessionManager } from "@openpaths/coding-agent/session/session-manager";
-import {
-	getImageGenTools,
-	getImageGenToolsWithRegistry,
-	imageGenTool,
-} from "@openpaths/coding-agent/tools/image-gen";
+import { getImageGenTools, getImageGenToolsWithRegistry, imageGenTool } from "@openpaths/coding-agent/tools/image-gen";
 import { removeWithRetries } from "@openpaths/utils";
 import { createInMemoryAuthStorage } from "../helpers/agent-session-setup";
 

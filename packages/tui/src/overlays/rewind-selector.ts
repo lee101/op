@@ -726,12 +726,7 @@ export class RewindSelectorComponent implements Component {
 	/** One branch column of the strip; the active one carries the accent tone. */
 	#column(index: number, children: readonly NativeChild[], key: string): NativeNode {
 		const active = index === this.#activeVariant;
-		return node(
-			"col",
-			{ role: "op.rewind.branch", gap: "lg", ...(active ? { tone: "accent" } : {}) },
-			children,
-			key,
-		);
+		return node("col", { role: "op.rewind.branch", gap: "lg", ...(active ? { tone: "accent" } : {}) }, children, key);
 	}
 
 	/** A strip column's caption: `⎇ i/n · label`. */

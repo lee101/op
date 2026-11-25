@@ -1,11 +1,6 @@
 import { type AuthStorage, isAuthRetryableError, type OAuthAccess, withOAuthAccess } from "@openpaths/ai";
 import { getProxyForUrl, wrapFetchForProxy } from "@openpaths/ai/utils/proxy";
-import {
-	CODEX_BASE_URL,
-	CODEX_CLIENT_VERSION,
-	getCodexAccountId,
-	OPENAI_HEADERS,
-} from "@openpaths/catalog/wire/codex";
+import { CODEX_BASE_URL, CODEX_CLIENT_VERSION, getCodexAccountId, OPENAI_HEADERS } from "@openpaths/catalog/wire/codex";
 import { LiveWebRtcPeer } from "@openpaths/natives";
 import { generateCodexAttestation } from "./attestation";
 import {

@@ -1,16 +1,9 @@
 import { describe, expect, it, spyOn } from "bun:test";
 import * as path from "node:path";
 import { BlobStore } from "@openpaths/coding-agent/session/blob-store";
-import type {
-	CompactionEntry,
-	FileEntry,
-	SessionMessageEntry,
-} from "@openpaths/coding-agent/session/session-entries";
+import type { CompactionEntry, FileEntry, SessionMessageEntry } from "@openpaths/coding-agent/session/session-entries";
 import { formatSessionHistoryMarkdown } from "@openpaths/coding-agent/session/session-history-format";
-import {
-	loadSessionMessagesReadOnly,
-	resolveBlobRefsInEntries,
-} from "@openpaths/coding-agent/session/session-loader";
+import { loadSessionMessagesReadOnly, resolveBlobRefsInEntries } from "@openpaths/coding-agent/session/session-loader";
 import { TempDir } from "@openpaths/utils";
 import * as snapcompact from "@openpaths/snapcompact";
 

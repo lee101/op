@@ -1215,7 +1215,9 @@ export class AgentsHubComponent implements Component {
 				return `${enter} save · ${tab} scope · ${formatKeyHint("r")} regenerate · ${cancel} cancel`;
 			if (this.#createGenerating) return "Generating…";
 			// Tab is a follow-up default, but the create form claims it for the scope toggle.
-			const generate = formatKeyHints(boundKeys("app.message.followUp", ["ctrl+q", "ctrl+enter"]).filter(k => k !== "tab"));
+			const generate = formatKeyHints(
+				boundKeys("app.message.followUp", ["ctrl+q", "ctrl+enter"]).filter(k => k !== "tab"),
+			);
 			return `${generate} generate · ${enter} newline · ${tab} scope · ${cancel} cancel`;
 		}
 		if (this.#focus === "scope") {

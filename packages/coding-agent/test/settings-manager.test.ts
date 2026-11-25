@@ -75,10 +75,7 @@ import { cfgMemoryBackend } from "@openpaths/coding-agent/memory-backend/setting
 import { cfgHindsightBankId, cfgHindsightScoping } from "@openpaths/coding-agent/hindsight/settings";
 import { cfgEditMode } from "@openpaths/coding-agent/edit/settings";
 import { cfgExaEnabled } from "@openpaths/coding-agent/web/settings";
-import {
-	cfgCompactionMethodOrder,
-	cfgSnapcompactSystemPrompt,
-} from "@openpaths/coding-agent/session/context-settings";
+import { cfgCompactionMethodOrder, cfgSnapcompactSystemPrompt } from "@openpaths/coding-agent/session/context-settings";
 import { cfgModelRoles, cfgDisabledProviders, cfgEnabledModels } from "@openpaths/coding-agent/config/model-settings";
 import { cfgShellPath } from "@openpaths/coding-agent/exec/settings";
 import { cfgEvalJs } from "@openpaths/coding-agent/eval/settings";

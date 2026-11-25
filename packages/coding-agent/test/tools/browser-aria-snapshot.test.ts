@@ -1,9 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-	diffAriaSnapshot,
-	parseAriaRefSelector,
-	postProcessAriaSnapshot,
-} from "@openpaths/coding-agent/tools/browser";
+import { diffAriaSnapshot, parseAriaRefSelector, postProcessAriaSnapshot } from "@openpaths/coding-agent/tools/browser";
 
 describe("parseAriaRefSelector", () => {
 	it("accepts the explicit aria-ref prefixes and returns the bare id", () => {

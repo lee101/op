@@ -22,10 +22,7 @@ import {
 import { createInMemoryAuthStorage } from "./helpers/agent-session-setup";
 
 import { cfgAsyncEnabled, cfgAsyncMaxJobs } from "@openpaths/coding-agent/tools/settings";
-import {
-	cfgBashAutoBackgroundEnabled,
-	cfgBashAutoBackgroundThresholdMs,
-} from "@openpaths/coding-agent/exec/settings";
+import { cfgBashAutoBackgroundEnabled, cfgBashAutoBackgroundThresholdMs } from "@openpaths/coding-agent/exec/settings";
 
 const TEST_MODEL: Model = buildModel({
 	id: "claude-sonnet-4-20250514",

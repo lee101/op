@@ -1,10 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-	type Dialect,
-	getDialectDefinition,
-	type InbandScanEvent,
-	ThinkingInbandScanner,
-} from "@openpaths/ai/dialect";
+import { type Dialect, getDialectDefinition, type InbandScanEvent, ThinkingInbandScanner } from "@openpaths/ai/dialect";
 import { streamGoogleGeminiCli } from "@openpaths/ai/providers/google-gemini-cli";
 import { streamOpenAICompletions } from "@openpaths/ai/providers/openai-completions";
 import { stream } from "@openpaths/ai/stream";

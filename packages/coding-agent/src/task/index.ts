@@ -17,12 +17,7 @@ import { taskSubprocessRenderer } from "@openpaths/tui/tools/subprocess";
  *   - Session artifacts for debugging
  */
 import path from "node:path";
-import type {
-	AgentTool,
-	AgentToolResult,
-	AgentToolUpdateCallback,
-	ToolSpeculationPolicy,
-} from "@openpaths/agent-core";
+import type { AgentTool, AgentToolResult, AgentToolUpdateCallback, ToolSpeculationPolicy } from "@openpaths/agent-core";
 import type { Usage } from "@openpaths/ai";
 import { $env, logger, prompt } from "@openpaths/utils";
 import type { ToolSession } from "..";

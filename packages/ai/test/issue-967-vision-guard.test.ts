@@ -3,10 +3,7 @@ import { convertAnthropicMessages } from "@openpaths/ai/providers/anthropic";
 import { convertMessages as convertGoogleMessages } from "@openpaths/ai/providers/google-shared";
 import { convertCodexResponsesMessages } from "@openpaths/ai/providers/openai-codex-responses";
 import { convertMessages as convertOpenAICompletionsMessages } from "@openpaths/ai/providers/openai-completions";
-import {
-	appendResponsesToolResultMessages,
-	convertResponsesInputContent,
-} from "@openpaths/ai/providers/openai-shared";
+import { appendResponsesToolResultMessages, convertResponsesInputContent } from "@openpaths/ai/providers/openai-shared";
 import { NON_VISION_IMAGE_PLACEHOLDER } from "@openpaths/ai/providers/vision-guard";
 import type { Api, AssistantMessage, Context, Model, ModelSpec, ToolResultMessage, Usage } from "@openpaths/ai/types";
 import { buildModel } from "@openpaths/catalog/build";

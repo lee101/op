@@ -547,12 +547,7 @@ describe("AgentSession empty stop guard", () => {
 
 	it("names billed output tokens instead of the context hint when a capped empty stop billed output", async () => {
 		const { session, mock } = await createHarness(
-			[
-				filteredEmptyStop(),
-				filteredEmptyStop(),
-				filteredEmptyStop(),
-				filteredEmptyStop(),
-			],
+			[filteredEmptyStop(), filteredEmptyStop(), filteredEmptyStop(), filteredEmptyStop()],
 			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
 		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
@@ -575,12 +570,7 @@ describe("AgentSession empty stop guard", () => {
 
 	it("keeps the context hint when a capped zero-block stop billed only reasoning tokens", async () => {
 		const { session, mock } = await createHarness(
-			[
-				reasoningOnlyEmptyStop(),
-				reasoningOnlyEmptyStop(),
-				reasoningOnlyEmptyStop(),
-				reasoningOnlyEmptyStop(),
-			],
+			[reasoningOnlyEmptyStop(), reasoningOnlyEmptyStop(), reasoningOnlyEmptyStop(), reasoningOnlyEmptyStop()],
 			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
 		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];
@@ -603,12 +593,7 @@ describe("AgentSession empty stop guard", () => {
 
 	it("keeps the context hint for a capped thinking-only stop even though it billed output", async () => {
 		const { session, mock } = await createHarness(
-			[
-				thinkingOnlyStop(),
-				thinkingOnlyStop(),
-				thinkingOnlyStop(),
-				thinkingOnlyStop(),
-			],
+			[thinkingOnlyStop(), thinkingOnlyStop(), thinkingOnlyStop(), thinkingOnlyStop()],
 			{ "retry.emptyStopMaxRetries": 3, "retry.baseDelayMs": 1 },
 		);
 		const retryEndEvents: Array<Extract<AgentSessionEvent, { type: "auto_retry_end" }>> = [];

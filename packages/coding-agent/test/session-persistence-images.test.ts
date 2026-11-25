@@ -2,11 +2,7 @@ import { describe, expect, it } from "bun:test";
 import type { AgentMessage } from "@openpaths/agent-core";
 import type { ImageContent, TextContent } from "@openpaths/ai";
 import { BlobStore, isBlobRef, lazyImageDataSync } from "@openpaths/coding-agent/session/blob-store";
-import type {
-	CompactionEntry,
-	FileEntry,
-	SessionMessageEntry,
-} from "@openpaths/coding-agent/session/session-entries";
+import type { CompactionEntry, FileEntry, SessionMessageEntry } from "@openpaths/coding-agent/session/session-entries";
 import { resolveBlobRefsInEntries } from "@openpaths/coding-agent/session/session-loader";
 import { prepareEntryForPersistence } from "@openpaths/coding-agent/session/session-persistence";
 import { TempDir } from "@openpaths/utils";

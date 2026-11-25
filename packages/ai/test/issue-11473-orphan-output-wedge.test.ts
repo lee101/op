@@ -1,9 +1,6 @@
 import { expect, it } from "bun:test";
 import type { ResponseInput } from "@openpaths/ai/providers/openai-responses-wire";
-import {
-	buildResponsesInput,
-	hoistInterleavedResponsesToolBatchMessages,
-} from "@openpaths/ai/providers/openai-shared";
+import { buildResponsesInput, hoistInterleavedResponsesToolBatchMessages } from "@openpaths/ai/providers/openai-shared";
 import type { AssistantMessage, Context, ToolResultMessage } from "@openpaths/ai/types";
 import { createOpenAIResponsesHistoryPayload } from "@openpaths/ai/utils";
 import { buildModel } from "@openpaths/catalog/build";

@@ -58,17 +58,14 @@ describe("PI_TINY_DEVICE", () => {
 describe("nativeLibraryPathOverlay", () => {
 	it("appends the advertised dirs after an inherited LD_LIBRARY_PATH", () => {
 		expect(
-			nativeLibraryPathOverlay(
-				{ LD_LIBRARY_PATH: "/inherited", OP_NATIVE_LIBRARY_PATH: "/store/gcc/lib" },
-				"linux",
-			),
+			nativeLibraryPathOverlay({ LD_LIBRARY_PATH: "/inherited", OP_NATIVE_LIBRARY_PATH: "/store/gcc/lib" }, "linux"),
 		).toEqual({ LD_LIBRARY_PATH: "/inherited:/store/gcc/lib" });
 	});
 
 	it("uses the advertised dirs alone when nothing is inherited", () => {
-		expect(
-			nativeLibraryPathOverlay({ OP_NATIVE_LIBRARY_PATH: "/store/gcc/lib:/store/libgcc/lib" }, "linux"),
-		).toEqual({ LD_LIBRARY_PATH: "/store/gcc/lib:/store/libgcc/lib" });
+		expect(nativeLibraryPathOverlay({ OP_NATIVE_LIBRARY_PATH: "/store/gcc/lib:/store/libgcc/lib" }, "linux")).toEqual(
+			{ LD_LIBRARY_PATH: "/store/gcc/lib:/store/libgcc/lib" },
+		);
 	});
 
 	it("stays out of the env on non-Linux platforms", () => {

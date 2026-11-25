@@ -7,11 +7,7 @@ import { Settings } from "@openpaths/coding-agent/config/settings";
 import type { ToolSession } from "@openpaths/coding-agent/tools";
 import type { ReadToolDetails } from "@openpaths/tui/tools/read";
 import { ReadTool } from "@openpaths/coding-agent/tools/read";
-import {
-	demangleSymbol,
-	parseSampleProfile,
-	renderSampleProfile,
-} from "@openpaths/coding-agent/utils/sample-profile";
+import { demangleSymbol, parseSampleProfile, renderSampleProfile } from "@openpaths/coding-agent/utils/sample-profile";
 import { removeWithRetries } from "@openpaths/utils";
 
 const BOX_MEASURE = "_RNvNtCsfMEenOU8j5j_11slab_kernel6layout11box_measure";

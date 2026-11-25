@@ -26,10 +26,7 @@ import { SearchProviderError } from "@openpaths/coding-agent/web/search/types";
 import { type SearchProviderId, type SearchResponse } from "@openpaths/coding-agent/web/search/types";
 import { createInMemoryAuthStorage } from "../../helpers/agent-session-setup";
 
-import {
-	cfgProvidersWebSearchTimeoutSeconds,
-	cfgRetryFallbackChains,
-} from "@openpaths/coding-agent/session/settings";
+import { cfgProvidersWebSearchTimeoutSeconds, cfgRetryFallbackChains } from "@openpaths/coding-agent/session/settings";
 
 const openAuthStorages: AuthStorage[] = [];
 

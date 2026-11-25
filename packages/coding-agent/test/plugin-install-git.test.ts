@@ -86,10 +86,7 @@ describe("PluginManager.install with git sources", () => {
 	test("installs from github: shorthand and resolves real package name from deps diff", async () => {
 		// Seed the plugins manifest so install()'s `depsBefore` snapshot is empty
 		// rather than triggering #ensurePackageJson's bootstrap path.
-		await Bun.write(
-			pluginsPkgJson,
-			JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2),
-		);
+		await Bun.write(pluginsPkgJson, JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2));
 
 		vi.spyOn(Bun, "spawn").mockImplementation(((cmd: string[]) => {
 			// Verify the manager forwards the spec verbatim to bun install.
@@ -139,10 +136,7 @@ describe("PluginManager.install with git sources", () => {
 	});
 
 	test("normalizes non-GitHub shorthand before invoking bun install", async () => {
-		await Bun.write(
-			pluginsPkgJson,
-			JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2),
-		);
+		await Bun.write(pluginsPkgJson, JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2));
 
 		vi.spyOn(Bun, "spawn").mockImplementation(((cmd: string[]) => {
 			expect(cmd[0]).toBe("bun");
@@ -351,10 +345,7 @@ describe("PluginManager.install with git sources", () => {
 	});
 
 	test("first-time github install does NOT run `bun update` (no existing pin to refresh)", async () => {
-		await Bun.write(
-			pluginsPkgJson,
-			JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2),
-		);
+		await Bun.write(pluginsPkgJson, JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2));
 
 		const spawnedCommands: string[][] = [];
 		vi.spyOn(Bun, "spawn").mockImplementation(((cmd: string[]) => {
@@ -398,10 +389,7 @@ describe("PluginManager.install with git sources", () => {
 		// Model the OS-pipe semantics that caused the deadlock: `exited` cannot
 		// resolve until both pipes have been read. Awaiting install directly is
 		// sufficient: the test runner's timeout catches a regression.
-		await Bun.write(
-			pluginsPkgJson,
-			JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2),
-		);
+		await Bun.write(pluginsPkgJson, JSON.stringify({ name: "op-plugins", private: true, dependencies: {} }, null, 2));
 
 		const makeGatedStream = (payload: string): { stream: ReadableStream<Uint8Array>; drained: Promise<void> } => {
 			const { promise: drained, resolve: onDrained } = Promise.withResolvers<void>();

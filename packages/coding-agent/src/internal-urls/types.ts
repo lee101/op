@@ -7,12 +7,7 @@
  * names, and the system prompt lists schemes from {@link ProtocolHandler.promptDoc}.
  */
 
-import type {
-	AgentToolContext,
-	AgentToolUpdateCallback,
-	ToolApprovalDecision,
-	ToolTier,
-} from "@openpaths/agent-core";
+import type { AgentToolContext, AgentToolUpdateCallback, ToolApprovalDecision, ToolTier } from "@openpaths/agent-core";
 import type { ImageContent, TextContent } from "@openpaths/ai";
 import type { Settings } from "../config/settings";
 import type { Rule } from "../capability/rule";

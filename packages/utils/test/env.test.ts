@@ -202,10 +202,7 @@ describe("filterChildShellEnv", () => {
 
 	it("uses the supplied mode for an isolated environment and cwd", async () => {
 		const cwd = path.dirname(writeTempEnv(""));
-		fs.writeFileSync(
-			path.join(cwd, ".env.development.local"),
-			"OP_DOTENV_REPRO_MARKER=synthetic-mode-local-value\n",
-		);
+		fs.writeFileSync(path.join(cwd, ".env.development.local"), "OP_DOTENV_REPRO_MARKER=synthetic-mode-local-value\n");
 		const envModulePath = path.join(import.meta.dir, "..", "src", "env.ts");
 		const script = [
 			`import { filterChildShellEnv } from ${JSON.stringify(envModulePath)};`,
@@ -254,10 +251,7 @@ describe("filterChildShellEnv", () => {
 
 	it("uses the launch mode when dotenv changes NODE_ENV", async () => {
 		const cwd = path.dirname(writeTempEnv("NODE_ENV=production\n"));
-		fs.writeFileSync(
-			path.join(cwd, ".env.development.local"),
-			"OP_DOTENV_REPRO_MARKER=synthetic-mode-local-value\n",
-		);
+		fs.writeFileSync(path.join(cwd, ".env.development.local"), "OP_DOTENV_REPRO_MARKER=synthetic-mode-local-value\n");
 		const envModulePath = path.join(import.meta.dir, "..", "src", "env.ts");
 		const script = [
 			`import { filterChildShellEnv } from ${JSON.stringify(envModulePath)};`,

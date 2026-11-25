@@ -300,9 +300,7 @@ describe("native composer without a status strip", () => {
 			const { dock } = composer.describeSurface();
 			expect(dock).toEqual([composer.editor]);
 			const described = composer.editor.describe(cx);
-			expect(nodes(described).some(n => n.p !== undefined && "role" in n.p && n.p.role === "op.status")).toBe(
-				false,
-			);
+			expect(nodes(described).some(n => n.p !== undefined && "role" in n.p && n.p.role === "op.status")).toBe(false);
 
 			// The context hairline leads the composer; the bar closes it.
 			const [first] = (described.c ?? []).filter(isNode);

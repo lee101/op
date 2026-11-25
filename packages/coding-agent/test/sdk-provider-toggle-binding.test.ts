@@ -1,11 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import type { Api, Model, ModelSpec } from "@openpaths/ai";
 import { buildModel } from "@openpaths/catalog/build";
-import {
-	initializeWithSettings,
-	isProviderEnabled,
-	resetCapabilityForTests,
-} from "@openpaths/coding-agent/capability";
+import { initializeWithSettings, isProviderEnabled, resetCapabilityForTests } from "@openpaths/coding-agent/capability";
 import { ModelRegistry } from "@openpaths/coding-agent/config/model-registry";
 import { Settings } from "@openpaths/coding-agent/config/settings";
 import { type CreateAgentSessionOptions, createAgentSession } from "@openpaths/coding-agent/sdk";

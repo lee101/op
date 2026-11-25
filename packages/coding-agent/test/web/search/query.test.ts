@@ -190,9 +190,7 @@ describe("formatScraperQuery", () => {
 	});
 
 	it("passes directive-free queries through byte-identical", () => {
-		expect(formatScraperQuery("github.com/lee101/op 17.1.1 release")).toBe(
-			"github.com/lee101/op 17.1.1 release",
-		);
+		expect(formatScraperQuery("github.com/lee101/op 17.1.1 release")).toBe("github.com/lee101/op 17.1.1 release");
 	});
 
 	it("respects a narrower engine syntax while still demoting hostile operators", () => {

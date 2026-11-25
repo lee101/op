@@ -1,7 +1,4 @@
-import {
-	getOAuthProviders as rootGetOAuthProviders,
-	refreshOAuthToken as rootRefreshOAuthToken,
-} from "@openpaths/ai";
+import { getOAuthProviders as rootGetOAuthProviders, refreshOAuthToken as rootRefreshOAuthToken } from "@openpaths/ai";
 import {
 	getOAuthProviders as oauthGetOAuthProviders,
 	refreshOAuthToken as oauthRefreshOAuthToken,

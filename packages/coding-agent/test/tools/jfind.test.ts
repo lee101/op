@@ -11,13 +11,7 @@ import { FindTool } from "@openpaths/coding-agent/tools/jfind";
 import { runCascade } from "@openpaths/coding-agent/tools/jfind/cascade";
 import { keywordsFromQuery } from "@openpaths/coding-agent/tools/jfind/keywords";
 import { grepIndex } from "@openpaths/coding-agent/tools/jfind/lexical";
-import {
-	mergeHeat,
-	type Passage,
-	selectWindows,
-	sketch,
-	windows,
-} from "@openpaths/coding-agent/tools/jfind/passages";
+import { mergeHeat, type Passage, selectWindows, sketch, windows } from "@openpaths/coding-agent/tools/jfind/passages";
 import { readText, ReadTextError } from "@openpaths/coding-agent/tools/jfind/text";
 import { eligibleFile, renderTree, resolveSearchRoot } from "@openpaths/coding-agent/tools/jfind/tree";
 import { resolveSearchResultPath } from "@openpaths/coding-agent/tools/path-utils";

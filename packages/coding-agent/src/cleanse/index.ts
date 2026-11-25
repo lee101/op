@@ -1,9 +1,5 @@
 import { getProjectDir } from "@openpaths/utils";
-import {
-	type CleanseTargetChoice,
-	pickCleanseTarget,
-	promptCleanseRequest,
-} from "@openpaths/tui/apps/cleanse-picker";
+import { type CleanseTargetChoice, pickCleanseTarget, promptCleanseRequest } from "@openpaths/tui/apps/cleanse-picker";
 import { shortenPath } from "@openpaths/tui/render/render-utils";
 import { type CleanseAgentHooks, type CleanseAgentRuntime, createCleanseAgentRuntime } from "./agent";
 import { groupDiagnosticsByFile } from "./balance";

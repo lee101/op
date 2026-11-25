@@ -1,10 +1,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import type { FetchImpl } from "@openpaths/ai/types";
 import type { UsageFetchParams } from "@openpaths/ai/usage";
-import {
-	alibabaTokenPlanRankingStrategy,
-	alibabaTokenPlanUsageProvider,
-} from "@openpaths/ai/usage/alibaba-token-plan";
+import { alibabaTokenPlanRankingStrategy, alibabaTokenPlanUsageProvider } from "@openpaths/ai/usage/alibaba-token-plan";
 import {
 	ALIBABA_TOKEN_PLAN_CN_BASE_URL,
 	serializeAlibabaTokenPlanCredential,

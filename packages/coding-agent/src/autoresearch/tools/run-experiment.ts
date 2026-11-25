@@ -8,12 +8,7 @@ import { formatBytes } from "@openpaths/utils";
 import { executeBash } from "../../exec/bash-executor";
 import type { ToolDefinition } from "../../extensibility/extensions";
 
-import {
-	DEFAULT_MAX_BYTES,
-	DEFAULT_MAX_LINES,
-	TailBuffer,
-	truncateTail,
-} from "@openpaths/tui/tools/streaming-output";
+import { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, TailBuffer, truncateTail } from "@openpaths/tui/tools/streaming-output";
 
 import { parseWorkDirDirtyPaths } from "../git";
 import {
